@@ -1,4 +1,4 @@
-package org.folio.edge.core.utils;
+package org.folio.edge.core.utils.test;
 
 import static org.awaitility.Awaitility.await;
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
@@ -9,11 +9,13 @@ import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.awaitility.core.ConditionTimeoutException;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -38,7 +40,7 @@ public class MockOkapi {
    */
   public static final String X_DURATION = "X-Duration";
 
-  public static final String mockToken = "mynameisyonyonsonicomefromwisconsoniworkatalumbermillthereallthepeopleimeetasiwalkdownthestreetaskhowinthehelldidyougethereisaymynameisyonyonsonicomefromwisconson";
+  public static final String MOCK_TOKEN = "mynameisyonyonsonicomefromwisconsoniworkatalumbermillthereallthepeopleimeetasiwalkdownthestreetaskhowinthehelldidyougethereisaymynameisyonyonsonicomefromwisconson";
 
   public final int okapiPort;
   protected final Vertx vertx;
@@ -98,13 +100,19 @@ public class MockOkapi {
       }
       final long end = System.currentTimeMillis() + dur;
       final long max = dur;
+
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-        await().with()
-          .pollInterval(500, TimeUnit.MILLISECONDS)
-          .atMost(max, TimeUnit.MILLISECONDS)
-          .until(() -> System.currentTimeMillis() > end);
+        logger.info("Waiting until " + new Date(end) + " before coninuting");
+        try {
+          await().with()
+            .pollInterval(500, TimeUnit.MILLISECONDS)
+            .atMost(max, TimeUnit.MILLISECONDS)
+            .until(() -> System.currentTimeMillis() > end);
+        } catch (ConditionTimeoutException e) {
+          logger.info("Continuing request handling after waiting " + max + " ms");
+        }
       });
-      future.thenRunAsync(() -> ctx.next());
+      future.thenRun(ctx::next);
     } else {
       ctx.next();
     }
@@ -118,12 +126,7 @@ public class MockOkapi {
   }
 
   public void loginHandler(RoutingContext ctx) {
-    JsonObject body = null;
-    try {
-      body = ctx.getBodyAsJson();
-    } catch (Exception e) {
-
-    }
+    JsonObject body = ctx.getBodyAsJson();
 
     String tenant = ctx.request().getHeader(X_OKAPI_TENANT);
 
@@ -147,7 +150,7 @@ public class MockOkapi {
       status = 201;
       resp = body.toString();
       contentType = APPLICATION_JSON;
-      ctx.response().putHeader(X_OKAPI_TOKEN, mockToken);
+      ctx.response().putHeader(X_OKAPI_TOKEN, MOCK_TOKEN);
     }
 
     ctx.response()

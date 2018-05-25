@@ -3,8 +3,6 @@ package org.folio.edge.core.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.folio.edge.core.utils.OkapiClient;
-import org.folio.edge.core.utils.OkapiClientFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,6 +11,7 @@ import io.vertx.core.Vertx;
 public class OkapiClientFactoryTest {
 
   private static final long reqTimeout = 5000L;
+  private static final String tenant = "diku";
 
   private OkapiClientFactory ocf;
 
@@ -25,8 +24,9 @@ public class OkapiClientFactoryTest {
 
   @Test
   public void testGetOkapiClient() {
-    OkapiClient client = ocf.getOkapiClient("tenant");
+    OkapiClient client = ocf.getOkapiClient(tenant);
     assertNotNull(client);
+    assertEquals(tenant, client.tenant);
     assertEquals(reqTimeout, client.reqTimeout);
   }
 

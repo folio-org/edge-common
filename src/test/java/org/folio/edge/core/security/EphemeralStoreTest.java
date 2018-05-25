@@ -1,12 +1,11 @@
 package org.folio.edge.core.security;
 
-import static org.folio.edge.core.utils.TestUtils.assertLogMessage;
+import static org.folio.edge.core.utils.test.TestUtils.assertLogMessage;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Properties;
 
 import org.apache.log4j.Level;
-import org.folio.edge.core.security.EphemeralStore;
 import org.junit.Before;
 import org.junit.Test;
 

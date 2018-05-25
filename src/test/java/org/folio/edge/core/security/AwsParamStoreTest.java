@@ -17,7 +17,7 @@ import java.util.UUID;
 import org.apache.http.HttpHeaders;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.folio.edge.core.utils.TestUtils;
+import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;

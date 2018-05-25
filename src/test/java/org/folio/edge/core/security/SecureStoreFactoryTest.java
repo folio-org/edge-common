@@ -9,11 +9,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
-import org.folio.edge.core.security.AwsParamStore;
-import org.folio.edge.core.security.EphemeralStore;
-import org.folio.edge.core.security.SecureStore;
-import org.folio.edge.core.security.SecureStoreFactory;
-import org.folio.edge.core.security.VaultStore;
 import org.junit.Test;
 
 public class SecureStoreFactoryTest {

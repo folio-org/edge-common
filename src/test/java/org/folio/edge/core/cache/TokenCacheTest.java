@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNull;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.cache.Cache.CacheValue;
 import org.junit.Before;
 import org.junit.Test;

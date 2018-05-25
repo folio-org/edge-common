@@ -28,9 +28,9 @@ public class OkapiClient {
   public final HttpClient client;
   public final String tenant;
   public final long reqTimeout;
-    
+
   protected final MultiMap defaultHeaders = MultiMap.caseInsensitiveMultiMap();
-  
+
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, long timeout) {
     this.reqTimeout = timeout;
     this.okapiURL = okapiURL;
@@ -45,6 +45,11 @@ public class OkapiClient {
   public CompletableFuture<String> login(String username, String password, MultiMap headers) {
     CompletableFuture<String> future = new CompletableFuture<>();
 
+    if (username == null || password == null) {
+      future.complete(null);
+      return future;
+    }
+
     MultiMap combined = null;
     if (headers != null && headers.size() > 0) {
       combined = MultiMap.caseInsensitiveMultiMap();
@@ -56,7 +61,7 @@ public class OkapiClient {
 
     JsonObject payload = new JsonObject();
     payload.put("username", username);
-    payload.put("password", password == null ? "" : password);
+    payload.put("password", password);
 
     post(
         okapiURL + "/authn/login",
@@ -81,6 +86,7 @@ public class OkapiClient {
           logger.error("Exception: " + t.getMessage());
           future.completeExceptionally(t);
         });
+
     return future;
   }
 
@@ -107,7 +113,7 @@ public class OkapiClient {
   public String getToken() {
     return defaultHeaders.get(X_OKAPI_TOKEN);
   }
-  
+
   public void setToken(String token) {
     defaultHeaders.set(X_OKAPI_TOKEN, token == null ? "" : token);
   }
@@ -125,7 +131,7 @@ public class OkapiClient {
 
     final HttpClientRequest request = client.postAbs(url);
 
-    // safe to assume application/json. I *think* Caller can still
+    // safe to assume content-type: application/json. I *think* Caller can still
     // override
     request.putHeader(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON)
       .putHeader(HttpHeaders.ACCEPT.toString(), String.format("%s, %s", APPLICATION_JSON, TEXT_PLAIN))
@@ -150,6 +156,9 @@ public class OkapiClient {
       Handler<HttpClientResponse> responseHandler, Handler<Throwable> exceptionHandler) {
 
     final HttpClientRequest request = client.getAbs(url);
+
+    request.putHeader(HttpHeaders.ACCEPT.toString(), String.format("%s, %s", APPLICATION_JSON, TEXT_PLAIN))
+      .putHeader(X_OKAPI_TENANT, tenant);
 
     if (headers != null) {
       request.headers().addAll(headers);
