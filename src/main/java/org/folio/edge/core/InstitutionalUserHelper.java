@@ -18,7 +18,7 @@ public class InstitutionalUserHelper {
     this.secureStore = secureStore;
   }
 
-  protected String getTenant(String apiKey) {
+  public String getTenant(String apiKey) {
     String tenant = null;
     try {
       tenant = new String(Base64.getUrlDecoder().decode(apiKey.getBytes()));
@@ -30,7 +30,7 @@ public class InstitutionalUserHelper {
     return tenant;
   }
 
-  protected CompletableFuture<String> getToken(OkapiClient client, String tenant, String username) {
+  public CompletableFuture<String> getToken(OkapiClient client, String tenant, String username) {
     CompletableFuture<String> future = new CompletableFuture<>();
 
     String token = null;
