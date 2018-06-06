@@ -1,7 +1,7 @@
 package org.folio.edge.core.utils;
 
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
-import static org.folio.edge.core.Constants.TEXT_PLAIN;
+import static org.folio.edge.core.Constants.JSON_OR_TEXT;
 import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 
@@ -50,15 +50,6 @@ public class OkapiClient {
       return future;
     }
 
-    MultiMap combined = null;
-    if (headers != null && headers.size() > 0) {
-      combined = MultiMap.caseInsensitiveMultiMap();
-      combined.addAll(headers);
-      for (Entry<String, String> entry : defaultHeaders.entries()) {
-        combined.set(entry.getKey(), entry.getValue());
-      }
-    }
-
     JsonObject payload = new JsonObject();
     payload.put("username", username);
     payload.put("password", password);
@@ -67,7 +58,7 @@ public class OkapiClient {
         okapiURL + "/authn/login",
         tenant,
         payload.encode(),
-        combined != null ? combined : defaultHeaders,
+        combineHeadersWithDefaults(headers),
         response -> response.bodyHandler(body -> {
           if (response.statusCode() == 201) {
             logger.info("Successfully logged into FOLIO");
@@ -83,7 +74,7 @@ public class OkapiClient {
           }
         }),
         t -> {
-          logger.error("Exception: " + t.getMessage());
+          logger.error("Exception during login: " + t.getMessage());
           future.completeExceptionally(t);
         });
 
@@ -134,7 +125,39 @@ public class OkapiClient {
     // safe to assume content-type: application/json. I *think* Caller can still
     // override
     request.putHeader(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON)
-      .putHeader(HttpHeaders.ACCEPT.toString(), String.format("%s, %s", APPLICATION_JSON, TEXT_PLAIN))
+      .putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
+      .putHeader(X_OKAPI_TENANT, tenant);
+
+    if (headers != null) {
+      request.headers().addAll(headers);
+    }
+
+    request.handler(responseHandler)
+      .exceptionHandler(exceptionHandler)
+      .setTimeout(reqTimeout);
+
+    if (payload != null) {
+      request.end(payload);
+    } else {
+      request.end();
+    }
+  }
+
+  public void delete(String url, String tenant, Handler<HttpClientResponse> responseHandler,
+      Handler<Throwable> exceptionHandler) {
+    delete(url, tenant, null, responseHandler, exceptionHandler);
+  }
+
+  public void delete(String url, String tenant, MultiMap headers,
+      Handler<HttpClientResponse> responseHandler, Handler<Throwable> exceptionHandler) {
+
+    final HttpClientRequest request = client.deleteAbs(url);
+
+    logger.info(String.format("DELETE %s tenant: %s token: %s", url, tenant,
+        request.headers().get(X_OKAPI_TOKEN)));
+
+    request
+      .putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
       .putHeader(X_OKAPI_TENANT, tenant);
 
     if (headers != null) {
@@ -144,7 +167,34 @@ public class OkapiClient {
     request.handler(responseHandler)
       .exceptionHandler(exceptionHandler)
       .setTimeout(reqTimeout)
-      .end(payload);
+      .end();
+  }
+
+  public void put(String url, String tenant, Handler<HttpClientResponse> responseHandler,
+      Handler<Throwable> exceptionHandler) {
+    put(url, tenant, null, responseHandler, exceptionHandler);
+  }
+
+  public void put(String url, String tenant, MultiMap headers,
+      Handler<HttpClientResponse> responseHandler, Handler<Throwable> exceptionHandler) {
+
+    final HttpClientRequest request = client.putAbs(url);
+
+    logger.info(String.format("PUT %s tenant: %s token: %s", url, tenant,
+        request.headers().get(X_OKAPI_TOKEN)));
+
+    request
+      .putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
+      .putHeader(X_OKAPI_TENANT, tenant);
+
+    if (headers != null) {
+      request.headers().addAll(headers);
+    }
+
+    request.handler(responseHandler)
+      .exceptionHandler(exceptionHandler)
+      .setTimeout(reqTimeout)
+      .end();
   }
 
   public void get(String url, String tenant, Handler<HttpClientResponse> responseHandler,
@@ -157,7 +207,7 @@ public class OkapiClient {
 
     final HttpClientRequest request = client.getAbs(url);
 
-    request.putHeader(HttpHeaders.ACCEPT.toString(), String.format("%s, %s", APPLICATION_JSON, TEXT_PLAIN))
+    request.putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
       .putHeader(X_OKAPI_TENANT, tenant);
 
     if (headers != null) {
@@ -171,6 +221,18 @@ public class OkapiClient {
       .exceptionHandler(exceptionHandler)
       .setTimeout(reqTimeout)
       .end();
+  }
+
+  protected MultiMap combineHeadersWithDefaults(MultiMap headers) {
+    MultiMap combined = null;
+    if (headers != null && headers.size() > 0) {
+      combined = MultiMap.caseInsensitiveMultiMap();
+      combined.addAll(headers);
+      for (Entry<String, String> entry : defaultHeaders.entries()) {
+        combined.set(entry.getKey(), entry.getValue());
+      }
+    }
+    return combined != null ? combined : defaultHeaders;
   }
 
   public void close() {

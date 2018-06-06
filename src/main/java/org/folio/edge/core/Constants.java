@@ -37,7 +37,11 @@ public class Constants {
   public static final String APPLICATION_JSON = "application/json";
   public static final String APPLICATION_XML = "application/xml";
   public static final String TEXT_PLAIN = "text/plain";
+  public static final String JSON_OR_TEXT = APPLICATION_JSON + ", " + TEXT_PLAIN;
 
   // Param names
   public static final String PARAM_API_KEY = "apikey";
+
+  // Misc
+  public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000L;
 }
