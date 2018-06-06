@@ -6,6 +6,7 @@ import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
+import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
@@ -184,5 +185,46 @@ public class MockOkapiTest {
       .response();
 
     assertEquals("[ ]", resp.body().asString());
+  }
+
+  @Test
+  public void testEchoHandlerWithStatus(TestContext context) {
+    logger.info("=== Test echo w/ x-echo-status ===");
+
+    int status = 201;
+
+    JsonObject obj = new JsonObject();
+    obj.put("hello", "world");
+
+    Response resp = RestAssured
+      .given()
+      .header(X_ECHO_STATUS, status)
+      .contentType(APPLICATION_JSON)
+      .body(obj.encode())
+      .when()
+      .post("/echo")
+      .then()
+      .statusCode(status)
+      .contentType(APPLICATION_JSON)
+      .extract()
+      .response();
+
+    assertEquals(obj.encode(), resp.body().asString());
+  }
+
+  @Test
+  public void testEchoHandlerWithoutStatus(TestContext context) {
+    logger.info("=== Test echo w/o x-echo-status ===");
+
+    Response resp = RestAssured
+      .given()
+      .when()
+      .get("/echo")
+      .then()
+      .statusCode(200)
+      .extract()
+      .response();
+
+    assertEquals("", resp.body().asString());
   }
 }

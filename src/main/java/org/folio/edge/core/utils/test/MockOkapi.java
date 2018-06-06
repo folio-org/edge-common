@@ -39,6 +39,7 @@ public class MockOkapi {
    * Exists for the purposes of exercising timeouts
    */
   public static final String X_DURATION = "X-Duration";
+  public static final String X_ECHO_STATUS = "X-Echo-Status";
 
   public static final String MOCK_TOKEN = "mynameisyonyonsonicomefromwisconsoniworkatalumbermillthereallthepeopleimeetasiwalkdownthestreetaskhowinthehelldidyougethereisaymynameisyonyonsonicomefromwisconson";
 
@@ -70,6 +71,7 @@ public class MockOkapi {
     router.route().handler(this::durationHandler);
     router.route(HttpMethod.GET, "/_/proxy/health").handler(this::healthCheckHandler);
     router.route(HttpMethod.POST, "/authn/login").handler(this::loginHandler);
+    router.route("/echo").handler(this::echoHandler);
 
     return router;
   }
@@ -157,6 +159,32 @@ public class MockOkapi {
       .setStatusCode(status)
       .putHeader(HttpHeaders.CONTENT_TYPE, contentType)
       .end(resp);
+  }
+
+  public void echoHandler(RoutingContext ctx) {
+    String echoStatus = ctx.request().getHeader(X_ECHO_STATUS);
+
+    int status = 200;
+    if (echoStatus != null) {
+      try {
+        status = Integer.parseInt(echoStatus);
+      } catch (NumberFormatException e) {
+        logger.error("Exception parsing " + X_ECHO_STATUS, e);
+      }
+    }
+    ctx.response().setStatusCode(status);
+
+    String contentType = ctx.request().getHeader(HttpHeaders.CONTENT_TYPE);
+    if (contentType != null) {
+      ctx.response().putHeader(HttpHeaders.CONTENT_TYPE, contentType);
+    }
+
+    String body = ctx.getBodyAsString();
+    if (body != null) {
+      ctx.response().end(ctx.getBodyAsString());
+    } else {
+      ctx.response().end();
+    }
   }
 
 }
