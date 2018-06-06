@@ -141,7 +141,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
     return SecureStoreFactory.getSecureStore(type, secureStoreProps);
   }
 
-  protected void healthCheckHandler(RoutingContext ctx) {
+  protected void handleHealthCheck(RoutingContext ctx) {
     ctx.response()
       .setStatusCode(200)
       .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)

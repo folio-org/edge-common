@@ -183,7 +183,7 @@ public class EdgeVerticleTest {
       InstitutionalUserHelper iuHelper = new InstitutionalUserHelper(secureStore);
 
       Router router = Router.router(vertx);
-      router.route(HttpMethod.GET, "/admin/health").handler(this::healthCheckHandler);
+      router.route(HttpMethod.GET, "/admin/health").handler(this::handleHealthCheck);
       router.route(HttpMethod.GET, "/always/login")
         .handler(new GetTokenHandler(iuHelper, ocf, secureStore, false)::handle);
       router.route(HttpMethod.GET, "/login/and/do/something")
