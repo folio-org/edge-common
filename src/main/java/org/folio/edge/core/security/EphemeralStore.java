@@ -39,7 +39,8 @@ public class EphemeralStore extends SecureStore {
   }
 
   @Override
-  public String get(String tenant, String username) {
+  public String get(String clientId, String tenant, String username) {
+    // NOTE: ignore clientId
     return store.get(getKey(tenant, username));
   }
 

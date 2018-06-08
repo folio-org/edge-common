@@ -16,13 +16,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.http.HttpHeaders;
 import org.apache.log4j.Logger;
+import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.OkapiClient;
 import org.folio.edge.core.utils.OkapiClientFactory;
@@ -49,9 +49,9 @@ public class EdgeVerticleTest {
 
   private static final Logger logger = Logger.getLogger(EdgeVerticleTest.class);
 
-  private static final String apiKey = "ZGlrdQ==";
+  private static final String apiKey = "Z1luMHVGdjNMZl9kaWt1X2Rpa3U=";
   private static final String badApiKey = "ZnMwMDAwMDAwMA==0000";
-  private static final String unknownTenantApiKey = "Ym9ndXN0ZW5hbnQ=";
+  private static final String unknownTenantApiKey = "Z1luMHVGdjNMZl9ib2d1c19ib2d1cw==";
   private static final long requestTimeoutMs = 3000L;
 
   private static Vertx vertx;
@@ -63,7 +63,7 @@ public class EdgeVerticleTest {
     int serverPort = TestUtils.getPort();
 
     List<String> knownTenants = new ArrayList<>();
-    knownTenants.add(new String(Base64.getUrlDecoder().decode(apiKey)));
+    knownTenants.add(InstitutionalUserHelper.parseApiKey(apiKey).tenantId);
 
     mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
     mockOkapi.start(context);
@@ -207,41 +207,52 @@ public class EdgeVerticleTest {
     }
 
     public void handle(RoutingContext ctx) {
-      String tenant = iuHelper.getTenant(ctx.request().getParam(PARAM_API_KEY));
-      OkapiClient client = ocf.getOkapiClient(tenant);
-      CompletableFuture<String> tokenFuture = null;
-      if (useCache) {
-        tokenFuture = iuHelper.getToken(client, tenant, tenant);
-      } else {
-        String password = secureStore.get(tenant, tenant);
-        tokenFuture = ocf.getOkapiClient(tenant).login(tenant, password, ctx.request().headers());
-      }
-      tokenFuture.thenAcceptAsync(token -> {
-        if (token == null) {
-          ctx.response()
-            .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-            .setStatusCode(403)
-            .end("Access Denied");
-        } else {
-          ctx.response()
-            .putHeader(X_OKAPI_TOKEN, token)
-            .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-            .setStatusCode(200)
-            .end("Success");
-        }
-      }).exceptionally(t -> {
-        ctx.response()
-          .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN);
+      ClientInfo clientInfo;
+      try {
+        clientInfo = InstitutionalUserHelper.parseApiKey(ctx.request().getParam(PARAM_API_KEY));
 
-        if (t != null && t.getCause() instanceof TimeoutException) {
-          ctx.response()
-            .setStatusCode(408)
-            .end("Request Timeout");
+        OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
+        CompletableFuture<String> tokenFuture = null;
+        if (useCache) {
+          tokenFuture = iuHelper.getToken(client, clientInfo.clientId, clientInfo.tenantId, clientInfo.username);
         } else {
-          ctx.fail(t);
+          String password = secureStore.get(clientInfo.clientId, clientInfo.tenantId, clientInfo.username);
+          tokenFuture = ocf.getOkapiClient(clientInfo.tenantId)
+            .login(clientInfo.tenantId, password, ctx.request().headers());
         }
-        return null;
-      });
+        tokenFuture.thenAcceptAsync(token -> {
+          if (token == null) {
+            ctx.response()
+              .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+              .setStatusCode(403)
+              .end("Access Denied");
+          } else {
+            ctx.response()
+              .putHeader(X_OKAPI_TOKEN, token)
+              .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+              .setStatusCode(200)
+              .end("Success");
+          }
+        }).exceptionally(t -> {
+          ctx.response()
+            .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN);
+
+          if (t != null && t.getCause() instanceof TimeoutException) {
+            ctx.response()
+              .setStatusCode(408)
+              .end("Request Timeout");
+          } else {
+            ctx.fail(t);
+          }
+          return null;
+        });
+
+      } catch (Exception e) {
+        ctx.response()
+          .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+          .setStatusCode(403)
+          .end("Access Denied");
+      }
     }
   }
 

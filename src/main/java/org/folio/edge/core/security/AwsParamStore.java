@@ -79,10 +79,10 @@ public class AwsParamStore extends SecureStore {
   }
 
   @Override
-  public String get(String tenant, String username) {
+  public String get(String clientId, String tenant, String username) {
     String ret = null;
 
-    String key = String.format("%s_%s", tenant, username);
+    String key = String.format("%s_%s_%s", clientId, tenant, username);
     GetParameterRequest req = new GetParameterRequest()
       .withName(key)
       .withWithDecryption(true);
