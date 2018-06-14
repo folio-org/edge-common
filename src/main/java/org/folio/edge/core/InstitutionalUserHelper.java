@@ -16,7 +16,7 @@ public class InstitutionalUserHelper {
 
   public static final Pattern DELIM = Pattern.compile("_");
 
-  private final SecureStore secureStore;
+  protected final SecureStore secureStore;
 
   public InstitutionalUserHelper(SecureStore secureStore) {
     this.secureStore = secureStore;
