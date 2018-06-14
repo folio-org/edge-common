@@ -134,10 +134,11 @@ public class AwsParamStoreTest {
   @Test
   public void testGetFound() {
     // test data & expected values
+    String clientId = "ditdatdot";
     String tenant = "foo";
     String user = "bar";
     String val = "letmein";
-    String key = tenant + "_" + user;
+    String key = String.format("%s_%s_%s", clientId, tenant, user);
 
     // setup mocks/spys/etc.
     GetParameterRequest req = new GetParameterRequest().withName(key).withWithDecryption(true);
@@ -145,19 +146,19 @@ public class AwsParamStoreTest {
     when(ssm.getParameter(req)).thenReturn(resp);
 
     // test & assertions
-    assertEquals(val, secureStore.get(tenant, user));
+    assertEquals(val, secureStore.get(clientId, tenant, user));
   }
 
   @Test
   public void testGetNotFound() {
     String exceptionMsg = "Parameter null_null not found. (Service: AWSSimpleSystemsManagement; Status Code: 400; Error Code: ParameterNotFound; Request ID: 25fc4a22-9839-4645-b7b4-ad40aa643821)";
-    String logMsg = "Exception retreiving password for null_null: ";
+    String logMsg = "Exception retreiving password for null_null_null: ";
     Throwable exception = new AWSSimpleSystemsManagementException(exceptionMsg);
 
     when(ssm.getParameter(any())).thenThrow(exception);
 
     TestUtils.assertLogMessage(AwsParamStore.logger, 1, 1, Level.ERROR, logMsg, exception, () -> {
-      String val = secureStore.get(null, null);
+      String val = secureStore.get(null, null, null);
       assertNull(val);
     });
   }

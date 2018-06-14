@@ -10,6 +10,6 @@ public abstract class SecureStore {
     this.properties = properties;
   }
 
-  public abstract String get(String tenant, String username);
+  public abstract String get(String clientId, String tenant, String username);
 
 }

@@ -41,11 +41,11 @@ public class EphemeralStoreTest {
   @Test
   public void testGet() {
     assertEquals(4, store.store.size());
-    assertEquals("dit_password", store.get("dit", "dit"));
-    assertEquals("dot_password", store.get("dot", "dot"));
-    assertEquals("dat_password", store.get("dat", "dat"));
-    assertEquals("", store.get("done", "done"));
-    assertEquals(null, store.get(null, null));
+    assertEquals("dit_password", store.get(null, "dit", "dit"));
+    assertEquals("dot_password", store.get(null, "dot", "dot"));
+    assertEquals("dat_password", store.get(null, "dat", "dat"));
+    assertEquals("", store.get(null, "done", "done"));
+    assertEquals(null, store.get(null, null, null));
   }
 
   @Test

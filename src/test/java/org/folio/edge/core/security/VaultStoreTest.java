@@ -40,12 +40,14 @@ public class VaultStoreTest {
   @Test
   public void testGet() throws Exception {
     String password = "Pa$$w0rd";
+    String tenant = "diku";
+    String clientId = "abcdef1234";
 
     LogicalResponse successResp = new LogicalResponse(
         new RestResponse(
             200,
             APPLICATION_JSON,
-            ("{\"data\":{\"diku\":\"" + password + "\"}}").getBytes()),
+            String.format("{\"data\":{\"%s\":\"%s\"}}", tenant, password).getBytes()),
         0);
 
     LogicalResponse failureResp = new LogicalResponse(
@@ -57,11 +59,11 @@ public class VaultStoreTest {
 
     Logical logical = mock(Logical.class);
     when(vault.logical()).thenReturn(logical);
-    when(logical.read("secret/diku")).thenReturn(successResp);
-    when(logical.read("secret/bogus")).thenReturn(failureResp);
+    when(logical.read(clientId + "/" + tenant)).thenReturn(successResp);
+    when(logical.read(clientId + "/bogus")).thenReturn(failureResp);
 
-    assertEquals(password, secureStore.get("diku", "diku"));
-    assertNull(secureStore.get("bogus", "bogus"));
+    assertEquals(password, secureStore.get(clientId, "diku", "diku"));
+    assertNull(secureStore.get(clientId, "bogus", "bogus"));
   }
 
   // TODO Add test coverage for SSL/TLS configuration

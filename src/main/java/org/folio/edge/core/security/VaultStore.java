@@ -71,12 +71,12 @@ public class VaultStore extends SecureStore {
   }
 
   @Override
-  public String get(String tenant, String username) {
+  public String get(String clientId, String tenant, String username) {
     String ret = null;
 
     try {
       ret = vault.logical()
-        .read("secret/" + tenant)
+        .read(String.format("%s/%s", clientId, tenant))
         .getData()
         .get(username);
     } catch (VaultException e) {
