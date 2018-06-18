@@ -49,7 +49,7 @@ public class InstitutionalUserHelper {
     String token = null;
     try {
       TokenCache cache = TokenCache.getInstance();
-      token = cache.get(tenant, username);
+      token = cache.get(clientId, tenant, username);
     } catch (NotInitializedException e) {
       logger.warn("Failed to access TokenCache", e);
     }
@@ -72,7 +72,7 @@ public class InstitutionalUserHelper {
       } else {
         loginFuture.thenAccept(t -> {
           try {
-            TokenCache.getInstance().put(tenant, username, t);
+            TokenCache.getInstance().put(clientId, tenant, username, t);
           } catch (NotInitializedException e) {
             logger.warn("Failed to cache token", e);
           }
