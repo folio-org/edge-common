@@ -62,16 +62,16 @@ public class TokenCache {
     return instance;
   }
 
-  public String get(String tenant, String username) {
-    return cache.get(computeKey(tenant, username));
+  public String get(String clientId, String tenant, String username) {
+    return cache.get(computeKey(clientId, tenant, username));
   }
 
-  public CacheValue<String> put(String tenant, String username, String token) {
-    return cache.put(computeKey(tenant, username), token);
+  public CacheValue<String> put(String clientId, String tenant, String username, String token) {
+    return cache.put(computeKey(clientId, tenant, username), token);
   }
 
-  private String computeKey(String tenant, String username) {
-    return String.format("%s:%s", tenant, username);
+  private String computeKey(String clientId, String tenant, String username) {
+    return String.format("%s:%s:%s", clientId, tenant, username);
   }
 
   public static class NotInitializedException extends RuntimeException {
