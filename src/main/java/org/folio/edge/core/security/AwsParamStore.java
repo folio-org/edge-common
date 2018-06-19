@@ -15,7 +15,6 @@ import com.amazonaws.internal.CredentialsEndpointProvider;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
 
 public class AwsParamStore extends SecureStore {
 
@@ -79,26 +78,17 @@ public class AwsParamStore extends SecureStore {
   }
 
   @Override
-  public String get(String clientId, String tenant, String username) {
-    String ret = null;
-
+  public String get(String clientId, String tenant, String username) throws NotFoundException {
     String key = String.format("%s_%s_%s", clientId, tenant, username);
     GetParameterRequest req = new GetParameterRequest()
       .withName(key)
       .withWithDecryption(true);
 
     try {
-      GetParameterResult res = ssm.getParameter(req);
-      if (res != null) {
-        ret = res.getParameter().getValue();
-      }
+      return ssm.getParameter(req).getParameter().getValue();
     } catch (Exception e) {
-      logger.error(String.format(
-          "Exception retreiving password for %s: ",
-          key),
-          e);
+      throw new NotFoundException(e);
     }
-    return ret;
   }
 
   protected static class ECSCredentialsEndpointProvider extends CredentialsEndpointProvider {

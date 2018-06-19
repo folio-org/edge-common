@@ -9,6 +9,7 @@ import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.cache.TokenCache.NotInitializedException;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
+import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.OkapiClient;
 
 public class InstitutionalUserHelper {
@@ -58,8 +59,14 @@ public class InstitutionalUserHelper {
       logger.info("Using cached token");
       future.complete(token);
     } else {
-      String password = secureStore.get(clientId, tenant, username);
-
+      String password;
+      try {
+        password = secureStore.get(clientId, tenant, username);
+      } catch (NotFoundException e) {
+        logger.error("Exception retreiving password", e);
+        future.completeExceptionally(e);
+        return future;
+      }
       CompletableFuture<String> loginFuture = client.login(username, password);
 
       if (loginFuture.isCompletedExceptionally()) {
@@ -79,8 +86,8 @@ public class InstitutionalUserHelper {
           future.complete(t);
         });
       }
-    }
 
+    }
     return future;
   }
 

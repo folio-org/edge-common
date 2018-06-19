@@ -2,10 +2,12 @@ package org.folio.edge.core.security;
 
 import static org.folio.edge.core.utils.test.TestUtils.assertLogMessage;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
 import org.apache.log4j.Level;
+import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,13 +41,19 @@ public class EphemeralStoreTest {
   }
 
   @Test
-  public void testGet() {
+  public void testGet() throws Exception {
     assertEquals(4, store.store.size());
     assertEquals("dit_password", store.get(null, "dit", "dit"));
     assertEquals("dot_password", store.get(null, "dot", "dot"));
     assertEquals("dat_password", store.get(null, "dat", "dat"));
     assertEquals("", store.get(null, "done", "done"));
-    assertEquals(null, store.get(null, null, null));
+
+    try {
+      store.get(null, null, null);
+      fail("Expected " + NotFoundException.class.getName());
+    } catch (NotFoundException e) {
+
+    }
   }
 
   @Test

@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.apache.http.HttpHeaders;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -132,7 +133,7 @@ public class AwsParamStoreTest {
   }
 
   @Test
-  public void testGetFound() {
+  public void testGetFound() throws Exception {
     // test data & expected values
     String clientId = "ditdatdot";
     String tenant = "foo";
@@ -149,22 +150,18 @@ public class AwsParamStoreTest {
     assertEquals(val, secureStore.get(clientId, tenant, user));
   }
 
-  @Test
-  public void testGetNotFound() {
+  @Test(expected = NotFoundException.class)
+  public void testGetNotFound() throws NotFoundException {
     String exceptionMsg = "Parameter null_null not found. (Service: AWSSimpleSystemsManagement; Status Code: 400; Error Code: ParameterNotFound; Request ID: 25fc4a22-9839-4645-b7b4-ad40aa643821)";
-    String logMsg = "Exception retreiving password for null_null_null: ";
     Throwable exception = new AWSSimpleSystemsManagementException(exceptionMsg);
 
     when(ssm.getParameter(any())).thenThrow(exception);
 
-    TestUtils.assertLogMessage(AwsParamStore.logger, 1, 1, Level.ERROR, logMsg, exception, () -> {
-      String val = secureStore.get(null, null, null);
-      assertNull(val);
-    });
+    secureStore.get(null, null, null);
   }
 
   @Test
-  public void testUseEcsCredentialProvider() {
+  public void testUseEcsCredentialProvider() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(AwsParamStore.PROP_USE_IAM, "false");
     properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);

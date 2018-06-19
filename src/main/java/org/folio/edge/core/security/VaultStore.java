@@ -71,21 +71,19 @@ public class VaultStore extends SecureStore {
   }
 
   @Override
-  public String get(String clientId, String tenant, String username) {
-    String ret = null;
-
+  public String get(String clientId, String tenant, String username) throws NotFoundException {
     try {
-      ret = vault.logical()
-        .read(String.format("%s/%s", clientId, tenant))
+      String key = String.format("%s/%s", clientId, tenant);
+      String ret = vault.logical()
+        .read(key)
         .getData()
         .get(username);
+      if (ret == null) {
+        throw new NotFoundException(String.format("Attribute: %s not set for %s", username, key));
+      }
+      return ret;
     } catch (VaultException e) {
-      logger.error(String.format("Exception retreiving password for secret/%s:%s: %s",
-          tenant,
-          username,
-          e.getMessage()));
+      throw new NotFoundException(e);
     }
-
-    return ret;
   }
 }

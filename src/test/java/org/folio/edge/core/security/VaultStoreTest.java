@@ -2,12 +2,13 @@ package org.folio.edge.core.security;
 
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Properties;
 
+import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -37,7 +38,7 @@ public class VaultStoreTest {
     MockitoAnnotations.initMocks(this);
   }
 
-  @Test
+  @Test(expected = NotFoundException.class)
   public void testGet() throws Exception {
     String password = "Pa$$w0rd";
     String tenant = "diku";
@@ -63,7 +64,7 @@ public class VaultStoreTest {
     when(logical.read(clientId + "/bogus")).thenReturn(failureResp);
 
     assertEquals(password, secureStore.get(clientId, "diku", "diku"));
-    assertNull(secureStore.get(clientId, "bogus", "bogus"));
+    secureStore.get(clientId, "bogus", "bogus");
   }
 
   // TODO Add test coverage for SSL/TLS configuration
