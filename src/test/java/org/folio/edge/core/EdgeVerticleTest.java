@@ -24,6 +24,7 @@ import org.apache.http.HttpHeaders;
 import org.apache.log4j.Logger;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
+import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.OkapiClient;
 import org.folio.edge.core.utils.OkapiClientFactory;
 import org.folio.edge.core.utils.test.MockOkapi;
@@ -221,18 +222,11 @@ public class EdgeVerticleTest {
             .login(clientInfo.tenantId, password, ctx.request().headers());
         }
         tokenFuture.thenAcceptAsync(token -> {
-          if (token == null) {
-            ctx.response()
-              .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-              .setStatusCode(403)
-              .end("Access Denied");
-          } else {
-            ctx.response()
-              .putHeader(X_OKAPI_TOKEN, token)
-              .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-              .setStatusCode(200)
-              .end("Success");
-          }
+          ctx.response()
+            .putHeader(X_OKAPI_TOKEN, token)
+            .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+            .setStatusCode(200)
+            .end("Success");
         }).exceptionally(t -> {
           ctx.response()
             .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN);
@@ -241,6 +235,11 @@ public class EdgeVerticleTest {
             ctx.response()
               .setStatusCode(408)
               .end("Request Timeout");
+          } else if (t != null && t.getCause() instanceof NotFoundException) {
+            ctx.response()
+              .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+              .setStatusCode(403)
+              .end("Access Denied");
           } else {
             ctx.fail(t);
           }
