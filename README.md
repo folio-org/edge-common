@@ -99,6 +99,7 @@ Proprety                 | Default     | Description
 `null_token_cache_ttl_ms`| `30000`     | How long to cache login failure (null JWTs), in milliseconds (ms)
 `token_cache_capacity`   | `100`       | Max token cache size
 `log_level`              | `INFO`      | Log4j Log Level
+`request_timeout_ms`     | `30000`     | Request Timeout
 
 ## Additional information
 
