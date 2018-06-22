@@ -67,26 +67,18 @@ public class InstitutionalUserHelper {
         future.completeExceptionally(e);
         return future;
       }
-      CompletableFuture<String> loginFuture = client.login(username, password);
-
-      if (loginFuture.isCompletedExceptionally()) {
+      client.login(username, password).thenAcceptAsync(t -> {
         try {
-          loginFuture.get();
-        } catch (Exception e) {
-          logger.error("Login Failed", e);
-          future.completeExceptionally(e);
+          TokenCache.getInstance().put(clientId, tenant, username, t);
+        } catch (NotInitializedException e) {
+          logger.warn("Failed to cache token", e);
         }
-      } else {
-        loginFuture.thenAccept(t -> {
-          try {
-            TokenCache.getInstance().put(clientId, tenant, username, t);
-          } catch (NotInitializedException e) {
-            logger.warn("Failed to cache token", e);
-          }
-          future.complete(t);
-        });
-      }
-
+        future.complete(t);
+      }).exceptionally(t -> {
+        logger.error("Exception during login", t);
+        future.completeExceptionally(t);
+        return null;
+      });
     }
     return future;
   }
