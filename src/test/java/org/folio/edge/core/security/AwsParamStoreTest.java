@@ -6,7 +6,6 @@ import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -15,7 +14,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.http.HttpHeaders;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.test.TestUtils;
