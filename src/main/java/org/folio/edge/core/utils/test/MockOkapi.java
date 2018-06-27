@@ -35,7 +35,7 @@ public class MockOkapi {
   /**
    * Request header that tells MockOkapi to wait at least this long before
    * processing a request.
-   * 
+   *
    * Exists for the purposes of exercising timeouts
    */
   public static final String X_DURATION = "X-Duration";
