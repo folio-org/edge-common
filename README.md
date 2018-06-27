@@ -89,7 +89,7 @@ Configuration information is specified in two forms:
 
 ### System Properties
 
-Proprety                 | Default     | Description
+Property                 | Default     | Description
 ------------------------ | ----------- | -------------
 `port`                   | `8081`      | Server port to listen on
 `okapi_url`              | *required*  | Where to find Okapi (URL)
