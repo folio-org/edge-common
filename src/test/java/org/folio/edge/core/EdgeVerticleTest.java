@@ -9,8 +9,8 @@ import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
-import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
+import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.http.HttpHeaders;
 import org.apache.log4j.Logger;
 import org.folio.edge.core.InstitutionalUserHelper.MalformedApiKeyException;
 import org.folio.edge.core.model.ClientInfo;
@@ -41,11 +40,13 @@ import com.jayway.restassured.response.Response;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 @RunWith(VertxUnitRunner.class)
 public class EdgeVerticleTest {
@@ -76,7 +77,7 @@ public class EdgeVerticleTest {
     System.setProperty(SYS_PORT, String.valueOf(serverPort));
     System.setProperty(SYS_OKAPI_URL, "http://localhost:" + okapiPort);
     System.setProperty(SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties");
-    System.setProperty(SYS_LOG_LEVEL, "DEBUG");
+    System.setProperty(SYS_LOG_LEVEL, "TRACE");
     System.setProperty(SYS_REQUEST_TIMEOUT_MS, String.valueOf(requestTimeoutMs));
 
     final DeploymentOptions opt = new DeploymentOptions();
@@ -123,7 +124,18 @@ public class EdgeVerticleTest {
     logger.info("=== Test request with unknown apiKey (tenant) ===");
 
     RestAssured
-      .get(String.format("/login/and/do/something?apikey=%s", unknownTenantApiKey))
+      .get(String.format("/login/and/do/something?apikey=%s&foo=bar", unknownTenantApiKey))
+      .then()
+      .contentType(TEXT_PLAIN)
+      .statusCode(403);
+  }
+
+  @Test
+  public void testLoginMissingApiKey(TestContext context) throws Exception {
+    logger.info("=== Test request without specifying an apiKey ===");
+
+    RestAssured
+      .get("/login/and/do/something?apikey=&foo=bar")
       .then()
       .contentType(TEXT_PLAIN)
       .statusCode(403);
@@ -134,10 +146,58 @@ public class EdgeVerticleTest {
     logger.info("=== Test request with malformed apiKey ===");
 
     RestAssured
-      .get(String.format("/login/and/do/something?apikey=%s", badApiKey))
+      .get(String.format("/login/and/do/something?apikey=%s&foo=bar", badApiKey))
       .then()
       .contentType(TEXT_PLAIN)
       .statusCode(403);
+  }
+
+  @Test
+  public void testExceptionHandler(TestContext context) throws Exception {
+    logger.info("=== Test the exception handler ===");
+
+    RestAssured
+      .get("/internal/server/error")
+      .then()
+      .contentType(TEXT_PLAIN)
+      .statusCode(500);
+  }
+
+  @Test
+  public void testMissingRequired(TestContext context) throws Exception {
+    logger.info("=== Test request w/ missing required parameter ===");
+
+    final Response resp = RestAssured
+      .with()
+      .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+      .body("success")
+      .get(String.format("/login/and/do/something?apikey=%s", apiKey))
+      .then()
+      .contentType(TEXT_PLAIN)
+      .statusCode(400)
+      .extract()
+      .response();
+
+    assertEquals("Missing required parameter: foo", resp.body().asString());
+  }
+
+  @Test
+  public void test404(TestContext context) throws Exception {
+    logger.info("=== Test 404 rseponse ===");
+
+    final Response resp = RestAssured
+      .with()
+      .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+      .header(X_ECHO_STATUS, "404")
+      .body("Not Found")
+      .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
+      .then()
+      .contentType(TEXT_PLAIN)
+      .statusCode(404)
+      .extract()
+      .response();
+
+    assertEquals("Not Found", resp.body().asString());
   }
 
   @Test
@@ -148,14 +208,17 @@ public class EdgeVerticleTest {
 
     for (int i = 0; i < iters; i++) {
       final Response resp = RestAssured
-        .get(String.format("/login/and/do/something?apikey=%s", apiKey))
+        .with()
+        .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+        .body("success")
+        .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
         .then()
         .contentType(TEXT_PLAIN)
         .statusCode(200)
         .extract()
         .response();
 
-      assertEquals("Success", resp.body().asString());
+      assertEquals("success", resp.body().asString());
     }
 
     verify(mockOkapi).loginHandler(any());
@@ -186,11 +249,14 @@ public class EdgeVerticleTest {
       InstitutionalUserHelper iuHelper = new InstitutionalUserHelper(secureStore);
 
       Router router = Router.router(vertx);
+      router.route().handler(BodyHandler.create());
       router.route(HttpMethod.GET, "/admin/health").handler(this::handleHealthCheck);
       router.route(HttpMethod.GET, "/always/login")
         .handler(new GetTokenHandler(iuHelper, ocf, secureStore, false)::handle);
       router.route(HttpMethod.GET, "/login/and/do/something")
         .handler(new GetTokenHandler(iuHelper, ocf, secureStore, true)::handle);
+      router.route(HttpMethod.GET, "/internal/server/error")
+        .handler(new handle500(secureStore, ocf)::handle);
       return router;
     }
   }
@@ -207,10 +273,16 @@ public class EdgeVerticleTest {
     public void handle(RoutingContext ctx) {
       if (useCache) {
         super.handleCommon(ctx,
-            new String[] {},
+            new String[] { "foo" },
             new String[] {},
             (client, params) -> {
-              success(ctx, client.getToken());
+              logger.info("Token: " + client.getToken());
+              client.post(String.format("%s/echo", client.okapiURL),
+                  client.tenant,
+                  ctx.getBodyAsString(),
+                  ctx.request().headers(),
+                  resp -> handleProxyResponse(ctx, resp),
+                  t -> handleProxyException(ctx, t));
             });
       } else {
         ClientInfo clientInfo;
@@ -232,8 +304,13 @@ public class EdgeVerticleTest {
         final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
         client.login(clientInfo.username, password, ctx.request().headers())
           .thenAcceptAsync(token -> {
-            client.setToken(token);
-            success(ctx, token);
+            logger.info("Token: " + token);
+            client.post(String.format("%s/echo", client.okapiURL),
+                client.tenant,
+                ctx.getBodyAsString(),
+                ctx.request().headers(),
+                resp -> handleProxyResponse(ctx, resp),
+                t -> handleProxyException(ctx, t));
           })
           .exceptionally(t -> {
             if (t.getCause() instanceof TimeoutException) {
@@ -245,14 +322,19 @@ public class EdgeVerticleTest {
           });
       }
     }
-
-    private void success(RoutingContext ctx, String token) {
-      ctx.response()
-        .putHeader(X_OKAPI_TOKEN, token)
-        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .setStatusCode(200)
-        .end("Success");
-    }
   }
 
+  private static class handle500 extends Handler {
+
+    public handle500(SecureStore secureStore, OkapiClientFactory ocf) {
+      super(secureStore, ocf);
+    }
+
+    public void handle(RoutingContext ctx) {
+      ocf.getOkapiClient("").get("http://some.bogus.url", "",
+          resp -> handleProxyResponse(ctx, resp),
+          t -> handleProxyException(ctx, t));
+    }
+
+  }
 }
