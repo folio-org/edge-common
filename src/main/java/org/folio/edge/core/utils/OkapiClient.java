@@ -31,6 +31,14 @@ public class OkapiClient {
 
   protected final MultiMap defaultHeaders = MultiMap.caseInsensitiveMultiMap();
 
+  public OkapiClient(OkapiClient client) {
+    this.reqTimeout = client.reqTimeout;
+    this.tenant = client.tenant;
+    this.okapiURL = client.okapiURL;
+    this.client = client.client;
+    this.setToken(client.getToken());
+  }
+
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, long timeout) {
     this.reqTimeout = timeout;
     this.okapiURL = okapiURL;
