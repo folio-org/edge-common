@@ -253,46 +253,6 @@ public class EdgeVerticleTest {
         .setStatusCode(200)
         .end("Success");
     }
-
-    @Override
-    protected void accessDenied(RoutingContext ctx, String msg) {
-      ctx.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .setStatusCode(403)
-        .end(msg);
-    }
-
-    @Override
-    protected void badRequest(RoutingContext ctx, String msg) {
-      ctx.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .setStatusCode(400)
-        .end(msg);
-    }
-
-    @Override
-    protected void notFound(RoutingContext ctx, String msg) {
-      ctx.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .setStatusCode(404)
-        .end(msg);
-    }
-
-    @Override
-    protected void requestTimeout(RoutingContext ctx, String msg) {
-      ctx.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .setStatusCode(408)
-        .end(msg);
-    }
-
-    @Override
-    protected void internalServerError(RoutingContext ctx, String msg) {
-      ctx.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .setStatusCode(500)
-        .end(msg);
-    }
   }
 
 }

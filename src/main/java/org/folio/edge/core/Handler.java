@@ -1,6 +1,7 @@
 package org.folio.edge.core;
 
 import static org.folio.edge.core.Constants.PARAM_API_KEY;
+import static org.folio.edge.core.Constants.TEXT_PLAIN;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.ext.web.RoutingContext;
 
-public abstract class Handler {
+public class Handler {
 
   private static final Logger logger = Logger.getLogger(Handler.class);
 
@@ -116,15 +117,42 @@ public abstract class Handler {
     }
   }
 
-  protected abstract void accessDenied(RoutingContext ctx, String body);
+  protected void accessDenied(RoutingContext ctx, String msg) {
+    ctx.response()
+      .setStatusCode(403)
+      .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+      .end(msg);
+  }
 
-  protected abstract void badRequest(RoutingContext ctx, String body);
+  protected void badRequest(RoutingContext ctx, String msg) {
+    ctx.response()
+      .setStatusCode(400)
+      .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+      .end(msg);
+  }
 
-  protected abstract void notFound(RoutingContext ctx, String body);
+  protected void notFound(RoutingContext ctx, String msg) {
+    ctx.response()
+      .setStatusCode(404)
+      .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+      .end(msg);
+  }
 
-  protected abstract void requestTimeout(RoutingContext ctx, String body);
+  protected void requestTimeout(RoutingContext ctx, String msg) {
+    ctx.response()
+      .setStatusCode(408)
+      .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+      .end(msg);
+  }
 
-  protected abstract void internalServerError(RoutingContext ctx, String body);
+  protected void internalServerError(RoutingContext ctx, String msg) {
+    if (!ctx.response().ended()) {
+      ctx.response()
+        .setStatusCode(500)
+        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+        .end(msg);
+    }
+  }
 
   @FunctionalInterface
   public interface TwoParamVoidFunction<A, B> {
