@@ -42,6 +42,12 @@ public class Constants {
   // Param names
   public static final String PARAM_API_KEY = "apikey";
 
+  // Response messages
+  public static final String MSG_ACCESS_DENIED = "Access Denied";
+  public static final String MSG_INTERNAL_SERVER_ERROR = "Internal Server Error";
+  public static final String MSG_REQUEST_TIMEOUT = "Request to FOLIO timed out";
+  public static final String MSG_NOT_IMPLEMENTED = "Not Implemented";
+
   // Misc
   public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000L;
 }
