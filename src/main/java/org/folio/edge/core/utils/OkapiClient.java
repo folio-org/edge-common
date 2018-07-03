@@ -130,14 +130,16 @@ public class OkapiClient {
 
     final HttpClientRequest request = client.postAbs(url);
 
-    // safe to assume content-type: application/json. I *think* Caller can still
-    // override
-    request.putHeader(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON)
-      .putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
+    request.putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
       .putHeader(X_OKAPI_TENANT, tenant);
 
     if (headers != null) {
       request.headers().addAll(headers);
+    }
+
+    // if not specified, fallback to content-type: application/json.
+    if (request.headers().get(HttpHeaders.CONTENT_TYPE) == null) {
+      request.putHeader(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
     }
 
     request.handler(responseHandler)
