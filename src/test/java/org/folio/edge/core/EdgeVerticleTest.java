@@ -1,5 +1,7 @@
 package org.folio.edge.core;
 
+import static org.folio.edge.core.Constants.MSG_ACCESS_DENIED;
+import static org.folio.edge.core.Constants.MSG_REQUEST_TIMEOUT;
 import static org.folio.edge.core.Constants.PARAM_API_KEY;
 import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
@@ -17,11 +19,11 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.http.HttpHeaders;
 import org.apache.log4j.Logger;
+import org.folio.edge.core.InstitutionalUserHelper.MalformedApiKeyException;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
@@ -173,7 +175,7 @@ public class EdgeVerticleTest {
       .extract()
       .response();
 
-    assertEquals("Request Timeout", resp.body().asString());
+    assertEquals(MSG_REQUEST_TIMEOUT, resp.body().asString());
   }
 
   public static class TestVerticle extends EdgeVerticle {
@@ -193,65 +195,103 @@ public class EdgeVerticleTest {
     }
   }
 
-  private static class GetTokenHandler {
+  private static class GetTokenHandler extends Handler {
     public final boolean useCache;
-    public final SecureStore secureStore;
-    public final InstitutionalUserHelper iuHelper;
-    public final OkapiClientFactory ocf;
 
     public GetTokenHandler(InstitutionalUserHelper iuHelper, OkapiClientFactory ocf, SecureStore secureStore,
         boolean useCache) {
+      super(secureStore, ocf);
       this.useCache = useCache;
-      this.secureStore = secureStore;
-      this.iuHelper = iuHelper;
-      this.ocf = ocf;
     }
 
     public void handle(RoutingContext ctx) {
-      ClientInfo clientInfo;
-      try {
-        clientInfo = InstitutionalUserHelper.parseApiKey(ctx.request().getParam(PARAM_API_KEY));
-
-        OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
-        CompletableFuture<String> tokenFuture = null;
-        if (useCache) {
-          tokenFuture = iuHelper.getToken(client, clientInfo.clientId, clientInfo.tenantId, clientInfo.username);
-        } else {
-          String password = secureStore.get(clientInfo.clientId, clientInfo.tenantId, clientInfo.username);
-          tokenFuture = ocf.getOkapiClient(clientInfo.tenantId)
-            .login(clientInfo.tenantId, password, ctx.request().headers());
+      if (useCache) {
+        super.handleCommon(ctx,
+            new String[] {},
+            new String[] {},
+            (client, params) -> {
+              success(ctx, client.getToken());
+            });
+      } else {
+        ClientInfo clientInfo;
+        try {
+          clientInfo = InstitutionalUserHelper.parseApiKey(ctx.request().getParam(PARAM_API_KEY));
+        } catch (MalformedApiKeyException e) {
+          accessDenied(ctx, MSG_ACCESS_DENIED);
+          return;
         }
-        tokenFuture.thenAcceptAsync(token -> {
-          ctx.response()
-            .putHeader(X_OKAPI_TOKEN, token)
-            .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-            .setStatusCode(200)
-            .end("Success");
-        }).exceptionally(t -> {
-          ctx.response()
-            .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN);
 
-          if (t != null && t.getCause() instanceof TimeoutException) {
-            ctx.response()
-              .setStatusCode(408)
-              .end("Request Timeout");
-          } else if (t != null && t.getCause() instanceof NotFoundException) {
-            ctx.response()
-              .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-              .setStatusCode(403)
-              .end("Access Denied");
-          } else {
-            ctx.fail(t);
-          }
-          return null;
-        });
+        String password = null;
+        try {
+          password = iuHelper.secureStore.get(clientInfo.clientId, clientInfo.tenantId, clientInfo.username);
+        } catch (NotFoundException e) {
+          accessDenied(ctx, MSG_ACCESS_DENIED);
+          return;
+        }
 
-      } catch (Exception e) {
-        ctx.response()
-          .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-          .setStatusCode(403)
-          .end("Access Denied");
+        final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
+        client.login(clientInfo.username, password, ctx.request().headers())
+          .thenAcceptAsync(token -> {
+            client.setToken(token);
+            success(ctx, token);
+          })
+          .exceptionally(t -> {
+            if (t.getCause() instanceof TimeoutException) {
+              requestTimeout(ctx, MSG_REQUEST_TIMEOUT);
+            } else {
+              accessDenied(ctx, MSG_ACCESS_DENIED);
+            }
+            return null;
+          });
       }
+    }
+
+    private void success(RoutingContext ctx, String token) {
+      ctx.response()
+        .putHeader(X_OKAPI_TOKEN, token)
+        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+        .setStatusCode(200)
+        .end("Success");
+    }
+
+    @Override
+    protected void accessDenied(RoutingContext ctx, String msg) {
+      ctx.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+        .setStatusCode(403)
+        .end(msg);
+    }
+
+    @Override
+    protected void badRequest(RoutingContext ctx, String msg) {
+      ctx.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+        .setStatusCode(400)
+        .end(msg);
+    }
+
+    @Override
+    protected void notFound(RoutingContext ctx, String msg) {
+      ctx.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+        .setStatusCode(404)
+        .end(msg);
+    }
+
+    @Override
+    protected void requestTimeout(RoutingContext ctx, String msg) {
+      ctx.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+        .setStatusCode(408)
+        .end(msg);
+    }
+
+    @Override
+    protected void internalServerError(RoutingContext ctx, String msg) {
+      ctx.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+        .setStatusCode(500)
+        .end(msg);
     }
   }
 

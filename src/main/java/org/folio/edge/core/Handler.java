@@ -21,8 +21,8 @@ public abstract class Handler {
 
   private static final Logger logger = Logger.getLogger(Handler.class);
 
-  private InstitutionalUserHelper iuHelper;
-  private OkapiClientFactory ocf;
+  protected InstitutionalUserHelper iuHelper;
+  protected OkapiClientFactory ocf;
 
   public Handler(SecureStore secureStore, OkapiClientFactory ocf) {
     this.ocf = ocf;
