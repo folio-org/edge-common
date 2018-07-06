@@ -90,6 +90,11 @@
       <artifactId>awaitility</artifactId>
       <version>3.0.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.kohsuke.args4j</groupId>
+      <artifactId>args4j-maven-plugin</artifactId>
+      <version>2.33</version>
+    </dependency>
 
     <!-- Only needed for AwsParamStore -->
     <dependency>
@@ -130,7 +135,7 @@
       <version>1.2.17</version>
     </dependency>
 
-    <!-- include slf4j bridges to proxy all logging from library deps to
+    <!-- include slf4j bridges to proxy all logging from library deps to 
       our logging impl -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -143,7 +148,7 @@
   <build>
     <pluginManagement>
       <plugins>
-        <!-- We specify the Maven compiler plugin as we need to set it to
+        <!-- We specify the Maven compiler plugin as we need to set it to 
           Java 1.8 -->
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -156,8 +161,8 @@
       </plugins>
     </pluginManagement>
 
-    <!-- You only need the part below if you want to build your application
-      into a fat executable jar. This is a jar that contains all the dependencies
+    <!-- You only need the part below if you want to build your application 
+      into a fat executable jar. This is a jar that contains all the dependencies 
       required to run it, so you can just run it with java -jar -->
     <plugins>
       <plugin>
