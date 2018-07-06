@@ -36,6 +36,7 @@ public class OkapiClientTest {
   private static final String tenant = "diku";
   private static final long reqTimeout = 3000L;
 
+  private OkapiClientFactory ocf;
   private OkapiClient client;
   private MockOkapi mockOkapi;
 
@@ -51,7 +52,8 @@ public class OkapiClientTest {
     mockOkapi = new MockOkapi(okapiPort, knownTenants);
     mockOkapi.start(context);
 
-    client = new OkapiClientFactory(Vertx.vertx(), "http://localhost:" + okapiPort, reqTimeout).getOkapiClient(tenant);
+    ocf = new OkapiClientFactory(Vertx.vertx(), "http://localhost:" + okapiPort, reqTimeout);
+    client = ocf.getOkapiClient(tenant);
   }
 
   @After
@@ -71,10 +73,45 @@ public class OkapiClientTest {
   }
 
   @Test
+  public void testLoginFailure(TestContext context) throws Exception {
+    logger.info("=== Test successful login === ");
+
+    OkapiClient client = ocf.getOkapiClient("");
+    assertNull(client.login("admin", "password").get());
+
+    // Ensure that the client's default headers now contain the
+    // x-okapi-token for use in subsequent okapi calls
+    assertNull(client.defaultHeaders.get(X_OKAPI_TOKEN));
+  }
+
+  @Test
+  public void testCopyConstructor() throws Exception {
+    logger.info("=== Test copy constructor === ");
+
+    client.setToken("foobarbaz");
+
+    OkapiClient copy = new OkapiClient(client);
+
+    assertEquals(client.tenant, copy.tenant);
+    assertEquals(client.okapiURL, copy.okapiURL);
+    assertEquals(client.getToken(), copy.getToken());
+    assertEquals(client.reqTimeout, copy.reqTimeout);
+    assertEquals(client.client, copy.client);
+  }
+
+  @Test
   public void testHealthy(TestContext context) throws Exception {
     logger.info("=== Test health check === ");
 
     assertTrue(client.healthy().get());
+  }
+
+  @Test
+  public void testLoginNoUsername(TestContext context) throws Exception {
+    logger.info("=== Test login w/ no password === ");
+
+    assertNull(client.login(null, "password").get());
+    assertNull(client.defaultHeaders.get(X_OKAPI_TOKEN));
   }
 
   @Test
