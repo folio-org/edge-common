@@ -35,7 +35,7 @@ public class InstitutionalUserHelper {
 
     } catch (Exception e) {
       logger.error(String.format("Failed to parse API Key %s", apiKey), e);
-      throw new MalformedApiKeyException(e);
+      throw new MalformedApiKeyException("Malformed API Key: Failed to parse");
     }
 
     if (ret.tenantId == null) {
