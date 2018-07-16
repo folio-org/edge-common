@@ -22,10 +22,11 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
-import org.folio.edge.core.InstitutionalUserHelper.MalformedApiKeyException;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
+import org.folio.edge.core.utils.ApiKeyUtils;
+import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 import org.folio.edge.core.utils.OkapiClientFactory;
 import org.folio.edge.core.utils.test.MockOkapi;
@@ -67,7 +68,7 @@ public class EdgeVerticleTest {
     int serverPort = TestUtils.getPort();
 
     List<String> knownTenants = new ArrayList<>();
-    knownTenants.add(InstitutionalUserHelper.parseApiKey(apiKey).tenantId);
+    knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
 
     mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
     mockOkapi.start(context);
@@ -287,7 +288,7 @@ public class EdgeVerticleTest {
       } else {
         ClientInfo clientInfo;
         try {
-          clientInfo = InstitutionalUserHelper.parseApiKey(ctx.request().getParam(PARAM_API_KEY));
+          clientInfo = ApiKeyUtils.parseApiKey(ctx.request().getParam(PARAM_API_KEY));
         } catch (MalformedApiKeyException e) {
           accessDenied(ctx, MSG_ACCESS_DENIED);
           return;

@@ -8,9 +8,10 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
-import org.folio.edge.core.InstitutionalUserHelper.MalformedApiKeyException;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
+import org.folio.edge.core.utils.ApiKeyUtils;
+import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 import org.folio.edge.core.utils.OkapiClientFactory;
 
@@ -55,7 +56,7 @@ public class Handler {
 
     ClientInfo clientInfo;
     try {
-      clientInfo = InstitutionalUserHelper.parseApiKey(key);
+      clientInfo = ApiKeyUtils.parseApiKey(key);
     } catch (MalformedApiKeyException e) {
       accessDenied(ctx, e.getMessage());
       return;

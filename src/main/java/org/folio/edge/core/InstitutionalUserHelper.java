@@ -10,6 +10,7 @@ import org.folio.edge.core.cache.TokenCache.NotInitializedException;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
+import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 
 public class InstitutionalUserHelper {
@@ -23,6 +24,7 @@ public class InstitutionalUserHelper {
     this.secureStore = secureStore;
   }
 
+  @Deprecated
   public static ClientInfo parseApiKey(String apiKey) throws MalformedApiKeyException {
     ClientInfo ret = null;
     try {
@@ -82,18 +84,4 @@ public class InstitutionalUserHelper {
     }
     return future;
   }
-
-  public static class MalformedApiKeyException extends Exception {
-
-    private static final long serialVersionUID = 7852873967223950947L;
-
-    public MalformedApiKeyException(Throwable t) {
-      super(t);
-    }
-
-    public MalformedApiKeyException(String msg) {
-      super(msg);
-    }
-  }
-
 }
