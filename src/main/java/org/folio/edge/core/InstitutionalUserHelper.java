@@ -21,6 +21,28 @@ public class InstitutionalUserHelper {
     this.secureStore = secureStore;
   }
 
+  @deprecated
+  public static ClientInfo parseApiKey(String apiKey) throws MalformedApiKeyException {
+    ClientInfo ret = null;
+    try {
+      String decoded = new String(Base64.getUrlDecoder().decode(apiKey.getBytes()));
+      String[] parts = DELIM.split(decoded);
+
+      ret = new ClientInfo(parts[0], parts[1], parts[2]);
+
+      logger.info(String.format("API Key: %s, Tenant: %s Username: %s", apiKey, ret.tenantId, ret.username));
+
+    } catch (Exception e) {
+      logger.error(String.format("Failed to parse API Key %s", apiKey), e);
+      throw new MalformedApiKeyException("Malformed API Key: Failed to parse");
+    }
+
+    if (ret.tenantId == null) {
+      throw new MalformedApiKeyException("Null Tenant");
+    }
+    return ret;
+  }
+
   public CompletableFuture<String> getToken(OkapiClient client, String clientId, String tenant, String username) {
     CompletableFuture<String> future = new CompletableFuture<>();
 

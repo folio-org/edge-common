@@ -38,7 +38,7 @@ For now, some level of security is achieved via API Keys.  Eventually we may wan
 
 The API Keys used by the edge APIs are a URL safe base64 encoding of the three pieces of information:
 
-1. Client ID or salt - A random string of characters known only to the issuer of the API key, e.g. `nZ56F3LeAa`
+1. Salt - A random string of characters known only to the issuer of the API key, e.g. `nZ56F3LeAa`
 1. Tenant ID - A FOLIO tenant ID, e.g. `diku`
 1. Institutional Username - The username of the institutional user for this tenant.  This could be the same as the tenant ID, or something else, e.g. `diku` or `dikurtac`, etc.
 
@@ -46,7 +46,7 @@ These components are then concatenated with an underscore delimiter `_` before b
 
 The final API Key looks something like: `blo1NkYzTGVBYV9kaWt1X2Rpa3U=`
 
-The purpose of the client ID/salt is to prevent API Key from being guessed, which would be easy if the tenant ID was known, especially if the Institutional Username was the same as the tenant ID.
+The purpose of the salt is to prevent API Key from being guessed, which would be easy if the tenant ID was known, especially if the Institutional Username was the same as the tenant ID.
 
 ### Institutional Users
 
@@ -68,15 +68,15 @@ Only intended for _development purposes_.  Credentials are defined in plain text
 
 Retrieves credentials from Amazon Web Services Systems Manager (AWS SSM), more specifically the Parameter Store, where they're stored encrypted using a KMS key.  See `src.main/resources/aws_ss.properties`
 
-**Key:** `<clientId>_<tenantId>_<username>`
+**Key:** `<salt>_<tenantId>_<username>`
 
-e.g. Key=`diku_diku`
+e.g. Key=`ab73kbw90e_diku_diku`
 
 #### VaultStore ####
 
 Retrieves credentials from a Vault (https://vaultproject.io).  This was added as a more generic alternative for those not using AWS.  See `src/main/resources/vault.properties`
 
-**Key:** `<clientId>/<tenantId>`
+**Key:** `<salt>/<tenantId>`
 **Field:** `<username>`
 
 e.g. Key=`ab73kbw90e/diku`, Field=`diku`
