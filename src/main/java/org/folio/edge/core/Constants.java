@@ -38,6 +38,7 @@ public class Constants {
   public static final String APPLICATION_XML = "application/xml";
   public static final String TEXT_PLAIN = "text/plain";
   public static final String JSON_OR_TEXT = APPLICATION_JSON + ", " + TEXT_PLAIN;
+  public static final String XML_OR_TEXT = APPLICATION_XML + ", " + TEXT_PLAIN;
 
   // Param names
   public static final String PARAM_API_KEY = "apikey";

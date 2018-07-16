@@ -37,6 +37,7 @@ public class OkapiClient {
     this.okapiURL = client.okapiURL;
     this.client = client.client;
     this.setToken(client.getToken());
+    initDefaultHeaders();
   }
 
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, long timeout) {
@@ -44,6 +45,13 @@ public class OkapiClient {
     this.okapiURL = okapiURL;
     this.tenant = tenant;
     this.client = vertx.createHttpClient(new HttpClientOptions().setKeepAlive(false));
+    initDefaultHeaders();
+  }
+
+  protected void initDefaultHeaders() {
+    defaultHeaders.add(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT);
+    defaultHeaders.add(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
+    defaultHeaders.add(X_OKAPI_TENANT, tenant);
   }
 
   public CompletableFuture<String> login(String username, String password) {
@@ -125,21 +133,17 @@ public class OkapiClient {
   public void post(String url, String tenant, String payload, MultiMap headers,
       Handler<HttpClientResponse> responseHandler, Handler<Throwable> exceptionHandler) {
 
-    if (logger.isTraceEnabled())
-      logger.trace("POST " + url + " Request: " + payload);
-
     final HttpClientRequest request = client.postAbs(url);
 
-    request.putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
-      .putHeader(X_OKAPI_TENANT, tenant);
-
     if (headers != null) {
-      request.headers().addAll(headers);
+      request.headers().setAll(combineHeadersWithDefaults(headers));
+    } else {
+      request.headers().setAll(defaultHeaders);
     }
 
-    // if not specified, fallback to content-type: application/json.
-    if (request.headers().get(HttpHeaders.CONTENT_TYPE) == null) {
-      request.putHeader(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
+    if (logger.isTraceEnabled()) {
+      logger.trace(String.format("POST %s Request: %s tenant: %s token: %s", url, payload, tenant,
+          request.headers().get(X_OKAPI_TOKEN)));
     }
 
     request.handler(responseHandler)
@@ -163,16 +167,14 @@ public class OkapiClient {
 
     final HttpClientRequest request = client.deleteAbs(url);
 
+    if (headers != null) {
+      request.headers().setAll(combineHeadersWithDefaults(headers));
+    } else {
+      request.headers().setAll(defaultHeaders);
+    }
+
     logger.info(String.format("DELETE %s tenant: %s token: %s", url, tenant,
         request.headers().get(X_OKAPI_TOKEN)));
-
-    request
-      .putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
-      .putHeader(X_OKAPI_TENANT, tenant);
-
-    if (headers != null) {
-      request.headers().addAll(headers);
-    }
 
     request.handler(responseHandler)
       .exceptionHandler(exceptionHandler)
@@ -190,16 +192,14 @@ public class OkapiClient {
 
     final HttpClientRequest request = client.putAbs(url);
 
+    if (headers != null) {
+      request.headers().setAll(combineHeadersWithDefaults(headers));
+    } else {
+      request.headers().setAll(defaultHeaders);
+    }
+
     logger.info(String.format("PUT %s tenant: %s token: %s", url, tenant,
         request.headers().get(X_OKAPI_TOKEN)));
-
-    request
-      .putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
-      .putHeader(X_OKAPI_TENANT, tenant);
-
-    if (headers != null) {
-      request.headers().addAll(headers);
-    }
 
     request.handler(responseHandler)
       .exceptionHandler(exceptionHandler)
@@ -217,11 +217,10 @@ public class OkapiClient {
 
     final HttpClientRequest request = client.getAbs(url);
 
-    request.putHeader(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT)
-      .putHeader(X_OKAPI_TENANT, tenant);
-
     if (headers != null) {
-      request.headers().addAll(headers);
+      request.headers().setAll(combineHeadersWithDefaults(headers));
+    } else {
+      request.headers().setAll(defaultHeaders);
     }
 
     logger.info(String.format("GET %s tenant: %s token: %s", url, tenant,
@@ -239,7 +238,9 @@ public class OkapiClient {
       combined = MultiMap.caseInsensitiveMultiMap();
       combined.addAll(headers);
       for (Entry<String, String> entry : defaultHeaders.entries()) {
-        combined.set(entry.getKey(), entry.getValue());
+        if(!combined.contains(entry.getKey())) {
+          combined.set(entry.getKey(), entry.getValue());
+        }
       }
     }
     return combined != null ? combined : defaultHeaders;
