@@ -1,13 +1,16 @@
 package org.folio.edge.core;
 
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.cache.TokenCache.NotInitializedException;
+import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
+import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 
 public class InstitutionalUserHelper {
@@ -21,7 +24,7 @@ public class InstitutionalUserHelper {
     this.secureStore = secureStore;
   }
 
-  @deprecated
+  @Deprecated
   public static ClientInfo parseApiKey(String apiKey) throws MalformedApiKeyException {
     ClientInfo ret = null;
     try {
