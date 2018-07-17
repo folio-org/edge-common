@@ -48,6 +48,30 @@ The final API Key looks something like: `blo1NkYzTGVBYV9kaWt1X2Rpa3U=`
 
 The purpose of the salt is to prevent API Key from being guessed, which would be easy if the tenant ID was known, especially if the Institutional Username was the same as the tenant ID.
 
+#### API Key Utilities
+
+A utility class has been provided to help with API key generate, parsing, etc.  The utility can be use programatically, or via a command line interface.  Example CLI usage:
+
+```
+$ mvn package
+
+$ java -cp target/edge-common-fat.jar org.folio.edge.core.utils.ApiKeyUtils
+Usage: ApiKeyUtils [options]
+ -g                   : generate an API Key (default: false)
+ -p VAL               : parse an API Key
+ -s (--salt-len) N    : the number of salt characters (default: 10)
+ -t (--tenant-id) VAL : the tenant's ID
+ -u (--username) VAL  : the tenant's institutional user's username
+
+$ java -cp target/edge-common-fat.jar org.folio.edge.core.utils.ApiKeyUtils -g -s 20 -t diku -u diku
+QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1
+
+$ java -cp target/edge-common-fat.jar org.folio.edge.core.utils.ApiKeyUtils -p QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1
+Salt: BPaofNFncK6477DubxDh
+Tenant ID: diku
+Username: diku
+```
+
 ### Institutional Users
 
 The idea here is that a FOLIO user is created for each tenant for the purposes of edge APIs.  The credentials are stored in one of the secure stores and retrieved as needed by the edge API.
