@@ -1,6 +1,5 @@
 package org.folio.edge.core;
 
-import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
@@ -10,6 +9,7 @@ import org.folio.edge.core.cache.TokenCache.NotInitializedException;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
+import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 
@@ -24,26 +24,20 @@ public class InstitutionalUserHelper {
     this.secureStore = secureStore;
   }
 
+  /**
+   * @deprecated Use
+   *             {@link #org.folio.edge.core.utils.ApiKeyUtils.parseApiKey(String)}
+   *             instead
+   * @param apiKey
+   *          - The API key to parse
+   * @return A ClientInfo object containing the information parsed from the
+   *         provided key
+   * @throws MalformedApiKeyException
+   *           If there was a problem parsing the key
+   */
   @Deprecated
   public static ClientInfo parseApiKey(String apiKey) throws MalformedApiKeyException {
-    ClientInfo ret = null;
-    try {
-      String decoded = new String(Base64.getUrlDecoder().decode(apiKey.getBytes()));
-      String[] parts = DELIM.split(decoded);
-
-      ret = new ClientInfo(parts[0], parts[1], parts[2]);
-
-      logger.info(String.format("API Key: %s, Tenant: %s Username: %s", apiKey, ret.tenantId, ret.username));
-
-    } catch (Exception e) {
-      logger.error(String.format("Failed to parse API Key %s", apiKey), e);
-      throw new MalformedApiKeyException("Malformed API Key: Failed to parse");
-    }
-
-    if (ret.tenantId == null) {
-      throw new MalformedApiKeyException("Null Tenant");
-    }
-    return ret;
+    return ApiKeyUtils.parseApiKey(apiKey);
   }
 
   public CompletableFuture<String> getToken(OkapiClient client, String clientId, String tenant, String username) {
