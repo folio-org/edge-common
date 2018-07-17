@@ -36,7 +36,7 @@ public class Handler {
       TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
     String key = ctx.request().getParam(PARAM_API_KEY);
     if (key == null || key.isEmpty()) {
-      badRequest(ctx, "Missing required parameter: " + PARAM_API_KEY);
+      invalidApiKey(ctx, "");
       return;
     }
 

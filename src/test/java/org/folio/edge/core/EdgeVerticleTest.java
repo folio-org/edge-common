@@ -139,7 +139,7 @@ public class EdgeVerticleTest {
       .get("/login/and/do/something?apikey=&foo=bar")
       .then()
       .contentType(TEXT_PLAIN)
-      .statusCode(403);
+      .statusCode(401);
   }
 
   @Test
@@ -150,7 +150,7 @@ public class EdgeVerticleTest {
       .get(String.format("/login/and/do/something?apikey=%s&foo=bar", badApiKey))
       .then()
       .contentType(TEXT_PLAIN)
-      .statusCode(403);
+      .statusCode(401);
   }
 
   @Test
