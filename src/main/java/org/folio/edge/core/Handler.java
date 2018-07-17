@@ -1,5 +1,6 @@
 package org.folio.edge.core;
 
+import static org.folio.edge.core.Constants.MSG_INVALID_API_KEY;
 import static org.folio.edge.core.Constants.PARAM_API_KEY;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 
@@ -35,7 +36,7 @@ public class Handler {
       TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
     String key = ctx.request().getParam(PARAM_API_KEY);
     if (key == null || key.isEmpty()) {
-      accessDenied(ctx, "Missing required parameter: " + PARAM_API_KEY);
+      badRequest(ctx, "Missing required parameter: " + PARAM_API_KEY);
       return;
     }
 
@@ -58,7 +59,7 @@ public class Handler {
     try {
       clientInfo = ApiKeyUtils.parseApiKey(key);
     } catch (MalformedApiKeyException e) {
-      accessDenied(ctx, e.getMessage());
+      invalidApiKey(ctx, key);
       return;
     }
 
@@ -116,6 +117,13 @@ public class Handler {
     } else {
       internalServerError(ctx, t.getMessage());
     }
+  }
+
+  protected void invalidApiKey(RoutingContext ctx, String key) {
+    ctx.response()
+      .setStatusCode(401)
+      .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+      .end(MSG_INVALID_API_KEY + ": " + key);
   }
 
   protected void accessDenied(RoutingContext ctx, String msg) {
