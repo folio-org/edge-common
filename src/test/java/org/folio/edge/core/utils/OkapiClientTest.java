@@ -58,6 +58,7 @@ public class OkapiClientTest {
 
   @After
   public void tearDown(TestContext context) {
+    client.close();
     mockOkapi.close();
   }
 
