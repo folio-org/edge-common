@@ -48,6 +48,7 @@ public class Constants {
   public static final String MSG_INTERNAL_SERVER_ERROR = "Internal Server Error";
   public static final String MSG_REQUEST_TIMEOUT = "Request to FOLIO timed out";
   public static final String MSG_NOT_IMPLEMENTED = "Not Implemented";
+  public static final String MSG_INVALID_API_KEY = "Invalid API Key";
 
   // Misc
   public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000L;
