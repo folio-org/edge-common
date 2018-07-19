@@ -13,6 +13,8 @@ import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 
+import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
+
 public class InstitutionalUserHelper {
   private static final Logger logger = Logger.getLogger(InstitutionalUserHelper.class);
 
@@ -41,7 +43,7 @@ public class InstitutionalUserHelper {
   }
 
   public CompletableFuture<String> getToken(OkapiClient client, String clientId, String tenant, String username) {
-    CompletableFuture<String> future = new CompletableFuture<>();
+    VertxCompletableFuture<String> future = new VertxCompletableFuture<>(client.vertx);
 
     String token = null;
     try {

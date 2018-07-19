@@ -11,7 +11,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
@@ -27,6 +26,7 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 
 public class MockOkapi {
 
@@ -103,7 +103,7 @@ public class MockOkapi {
       final long end = System.currentTimeMillis() + dur;
       final long max = dur;
 
-      CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+      VertxCompletableFuture.runAsync(() -> {
         logger.info("Waiting until " + new Date(end) + " before coninuting");
         try {
           await().with()
@@ -113,8 +113,7 @@ public class MockOkapi {
         } catch (ConditionTimeoutException e) {
           logger.info("Continuing request handling after waiting " + max + " ms");
         }
-      });
-      future.thenRun(ctx::next);
+      }).thenRun(ctx::next);
     } else {
       ctx.next();
     }
