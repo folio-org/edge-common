@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>edge-common</artifactId>
-  <version>0.3.3-SNAPSHOT</version>
+  <version>0.3.4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Edge API - Common</name>
@@ -94,6 +94,11 @@
       <groupId>org.kohsuke.args4j</groupId>
       <artifactId>args4j-maven-plugin</artifactId>
       <version>2.33</version>
+    </dependency>
+    <dependency>
+      <groupId>me.escoffier.vertx</groupId>
+      <artifactId>vertx-completable-future</artifactId>
+      <version>0.1.2</version>
     </dependency>
 
     <!-- Only needed for AwsParamStore -->

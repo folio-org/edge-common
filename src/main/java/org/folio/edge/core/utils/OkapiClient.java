@@ -19,6 +19,7 @@ import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonObject;
+import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 
 public class OkapiClient {
 
@@ -28,10 +29,12 @@ public class OkapiClient {
   public final HttpClient client;
   public final String tenant;
   public final long reqTimeout;
+  public final Vertx vertx;
 
   protected final MultiMap defaultHeaders = MultiMap.caseInsensitiveMultiMap();
 
   public OkapiClient(OkapiClient client) {
+    this.vertx = client.vertx;
     this.reqTimeout = client.reqTimeout;
     this.tenant = client.tenant;
     this.okapiURL = client.okapiURL;
@@ -41,6 +44,7 @@ public class OkapiClient {
   }
 
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, long timeout) {
+    this.vertx = vertx;
     this.reqTimeout = timeout;
     this.okapiURL = okapiURL;
     this.tenant = tenant;
@@ -59,7 +63,7 @@ public class OkapiClient {
   }
 
   public CompletableFuture<String> login(String username, String password, MultiMap headers) {
-    CompletableFuture<String> future = new CompletableFuture<>();
+    VertxCompletableFuture<String> future = new VertxCompletableFuture<>(vertx);
 
     if (username == null || password == null) {
       future.complete(null);
@@ -98,7 +102,7 @@ public class OkapiClient {
   }
 
   public CompletableFuture<Boolean> healthy() {
-    CompletableFuture<Boolean> future = new CompletableFuture<>();
+    VertxCompletableFuture<Boolean> future = new VertxCompletableFuture<>(vertx);
     get(
         okapiURL + "/_/proxy/health",
         tenant, response -> response.bodyHandler(body -> {
