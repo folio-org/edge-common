@@ -28,7 +28,11 @@ The intent of edge-common is to simplify the implementation of edge APIs by prov
  - A [MockOkapi](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/utils/test/MockOkapi.java) to facilitate mocking in unit tests.
  - Commonly used [Constants](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/Constants.java)
 
-Both [edge-patron](https://github.com/folio-org/edge-patron) and [edge-rtac](https://github.com/folio-org/edge-rtac) make extensive use of these features, and serve as examples for how to use edge-common.
+The existing edge APIs: [edge-patron](https://github.com/folio-org/edge-patron), [edge-rtac](https://github.com/folio-org/edge-rtac), and [edge-orders](https://github.com/folio-org/edge-orders) make extensive use of these features, and serve as examples for how to use edge-common.
+
+## Dependency Management
+
+Edge APIs should provide Module Descriptors which define their dependencies (e.g. on backend modules).  Registering these module descriptors with OKAPI allows FOLIO's dependency management to be leveraged/extended to the edge APIs.  See existing edge APIs for examples.
 
 ## Security
 
