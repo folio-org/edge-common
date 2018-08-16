@@ -16,6 +16,7 @@ public class Constants {
   public static final String SYS_TOKEN_CACHE_CAPACITY = "token_cache_capacity";
   public static final String SYS_LOG_LEVEL = "log_level";
   public static final String SYS_REQUEST_TIMEOUT_MS = "request_timeout_ms";
+  public static final String SYS_API_KEY_SOURCES = "api_key_sources";
 
   // Property names
   public static final String PROP_SECURE_STORE_TYPE = "secureStore.type";
@@ -28,10 +29,12 @@ public class Constants {
   public static final long DEFAULT_TOKEN_CACHE_TTL_MS = 60 * 60 * 1000L;
   public static final long DEFAULT_NULL_TOKEN_CACHE_TTL_MS = 30 * 1000L;
   public static final int DEFAULT_TOKEN_CACHE_CAPACITY = 100;
+  public static final String DEFAULT_API_KEY_SOURCES = "PARAM,HEADER,PATH";
 
   // Headers
   public static final String X_OKAPI_TENANT = "x-okapi-tenant";
   public static final String X_OKAPI_TOKEN = "x-okapi-token";
+  public static final String HEADER_API_KEY = "Authorization";
 
   // Header Values
   public static final String APPLICATION_JSON = "application/json";
@@ -42,6 +45,9 @@ public class Constants {
 
   // Param names
   public static final String PARAM_API_KEY = "apikey";
+
+  // Path components
+  public static final String PATH_API_KEY = "apiKeyPath";
 
   // Response messages
   public static final String MSG_ACCESS_DENIED = "Access Denied";

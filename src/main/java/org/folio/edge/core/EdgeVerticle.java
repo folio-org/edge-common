@@ -8,6 +8,7 @@ import static org.folio.edge.core.Constants.DEFAULT_SECURE_STORE_TYPE;
 import static org.folio.edge.core.Constants.DEFAULT_TOKEN_CACHE_CAPACITY;
 import static org.folio.edge.core.Constants.DEFAULT_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.PROP_SECURE_STORE_TYPE;
+import static org.folio.edge.core.Constants.SYS_API_KEY_SOURCES;
 import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
 import static org.folio.edge.core.Constants.SYS_NULL_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
@@ -47,6 +48,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
 
   public final int port;
   public final String okapiURL;
+  public final String apiKeySources;
   public final long reqTimeoutMs;
 
   public final HttpServer server;
@@ -66,6 +68,9 @@ public abstract class EdgeVerticle extends AbstractVerticle {
 
     okapiURL = System.getProperty(SYS_OKAPI_URL);
     logger.info("Using okapi URL: " + okapiURL);
+
+    apiKeySources = System.getProperty(SYS_API_KEY_SOURCES);
+    logger.info("Using API key sources: " + apiKeySources);
 
     final String tokenCacheTtlMs = System.getProperty(SYS_TOKEN_CACHE_TTL_MS);
     final long cacheTtlMs = tokenCacheTtlMs != null ? Long.parseLong(tokenCacheTtlMs) : DEFAULT_TOKEN_CACHE_TTL_MS;
