@@ -248,14 +248,15 @@ public class EdgeVerticleTest {
     public Router defineRoutes() {
       OkapiClientFactory ocf = new OkapiClientFactory(vertx, okapiURL, reqTimeoutMs);
       InstitutionalUserHelper iuHelper = new InstitutionalUserHelper(secureStore);
+      ApiKeyHelper apiKeyHelper = new ApiKeyHelper("HEADER,PARAM,PATH");
 
       Router router = Router.router(vertx);
       router.route().handler(BodyHandler.create());
       router.route(HttpMethod.GET, "/admin/health").handler(this::handleHealthCheck);
       router.route(HttpMethod.GET, "/always/login")
-        .handler(new GetTokenHandler(iuHelper, ocf, secureStore, false)::handle);
+        .handler(new GetTokenHandler(iuHelper, ocf, secureStore, apiKeyHelper, false)::handle);
       router.route(HttpMethod.GET, "/login/and/do/something")
-        .handler(new GetTokenHandler(iuHelper, ocf, secureStore, true)::handle);
+        .handler(new GetTokenHandler(iuHelper, ocf, secureStore, apiKeyHelper, true)::handle);
       router.route(HttpMethod.GET, "/internal/server/error")
         .handler(new handle500(secureStore, ocf)::handle);
       return router;
@@ -266,8 +267,8 @@ public class EdgeVerticleTest {
     public final boolean useCache;
 
     public GetTokenHandler(InstitutionalUserHelper iuHelper, OkapiClientFactory ocf, SecureStore secureStore,
-        boolean useCache) {
-      super(secureStore, ocf);
+        ApiKeyHelper keyHelper, boolean useCache) {
+      super(secureStore, ocf, keyHelper);
       this.useCache = useCache;
     }
 

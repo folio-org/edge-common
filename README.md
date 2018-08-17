@@ -76,6 +76,18 @@ Tenant ID: diku
 Username: diku
 ```
 
+#### API Key Sources
+
+The API Key can be specified as either:
+
+1) The `apiKey` query argument, e.g. `https://.../validate?apiKey=QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
+1) The `Authorization` request header, e.g. `Authorization: QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
+1) As part of the URI path (denoted by `:apiKeyPath` when defining routes in VertX), e.g. `https://.../validate/QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
+
+This behavior is controlled by the `api_key_sources` system property.  The property takes a comma-separated list of sources; valid sources are `HEADER`, `PARAM`, and `PATH`.  The order in which the sources are specified determines the order in which that source will be checked for the existance of an API key.
+
+***TIP***:  You can limit the API Key sources used by only listing those you want to check.
+
 ### Institutional Users
 
 The idea here is that a FOLIO user is created for each tenant for the purposes of edge APIs.  The credentials are stored in one of the secure stores and retrieved as needed by the edge API.
@@ -128,6 +140,7 @@ Property                 | Default     | Description
 `token_cache_capacity`   | `100`       | Max token cache size
 `log_level`              | `INFO`      | Log4j Log Level
 `request_timeout_ms`     | `30000`     | Request Timeout
+`api_key_sources`        | `PARAM,HEADER,PATH` | Defines the sources (order of precendence) of the API key.
 
 ## Additional information
 

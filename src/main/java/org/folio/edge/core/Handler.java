@@ -1,7 +1,7 @@
 package org.folio.edge.core;
 
+import static org.folio.edge.core.Constants.DEFAULT_API_KEY_SOURCES;
 import static org.folio.edge.core.Constants.MSG_INVALID_API_KEY;
-import static org.folio.edge.core.Constants.PARAM_API_KEY;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 
 import java.util.HashMap;
@@ -26,15 +26,21 @@ public class Handler {
 
   protected InstitutionalUserHelper iuHelper;
   protected OkapiClientFactory ocf;
+  protected ApiKeyHelper keyHelper;
 
   public Handler(SecureStore secureStore, OkapiClientFactory ocf) {
+    this(secureStore, ocf, new ApiKeyHelper(DEFAULT_API_KEY_SOURCES));
+  }
+
+  public Handler(SecureStore secureStore, OkapiClientFactory ocf, ApiKeyHelper keyHelper) {
     this.ocf = ocf;
     this.iuHelper = new InstitutionalUserHelper(secureStore);
+    this.keyHelper = keyHelper;
   }
 
   protected void handleCommon(RoutingContext ctx, String[] requiredParams, String[] optionalParams,
       TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
-    String key = ctx.request().getParam(PARAM_API_KEY);
+    String key = keyHelper.getApiKey(ctx);
     if (key == null || key.isEmpty()) {
       invalidApiKey(ctx, "");
       return;
