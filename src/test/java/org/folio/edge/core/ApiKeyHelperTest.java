@@ -34,7 +34,7 @@ public class ApiKeyHelperTest {
   private static final Logger logger = Logger.getLogger(ApiKeyHelperTest.class);
   private static TestVerticle verticle;
 
-  public static final String headerKey = "apikey 111111";
+  public static final String headerKey = "111111";
   public static final String paramKey = "222222";
   public static final String pathKey = "333333";
 
@@ -54,6 +54,34 @@ public class ApiKeyHelperTest {
   }
 
   @Test
+  public void testHeaderOnly(TestContext ctx) throws Exception {
+    logger.info("=== Test ApiKey Source Order HEADER ===");
+
+    verticle.setKeyHelper(new ApiKeyHelper("HEADER"));
+
+    final Response resp1 = RestAssured
+      .with()
+      .header(HEADER_API_KEY, "")
+      .get(String.format("/validate/%s?apikey=%s", pathKey, paramKey))
+      .then()
+      .statusCode(401)
+      .extract()
+      .response();
+
+    assertEquals("Access Denied", resp1.body().asString());
+
+    final Response resp2 = RestAssured
+      .with()
+      .get(String.format("/validate/%s?apikey=%s", pathKey, paramKey))
+      .then()
+      .statusCode(401)
+      .extract()
+      .response();
+
+    assertEquals("Access Denied", resp2.body().asString());
+  }
+
+  @Test
   public void testHeaderParamPath(TestContext ctx) throws Exception {
     logger.info("=== Test ApiKey Source Order HEADER,PARAM,PATH ===");
 
@@ -61,7 +89,7 @@ public class ApiKeyHelperTest {
 
     final Response resp1 = RestAssured
       .with()
-      .header(HEADER_API_KEY, headerKey)
+      .header(HEADER_API_KEY, "APIKEY " + headerKey)
       .get(String.format("/validate/%s?apikey=%s", pathKey, paramKey))
       .then()
       .statusCode(200)
@@ -125,6 +153,18 @@ public class ApiKeyHelperTest {
       .response();
 
     assertEquals(pathKey, resp3.body().asString());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSources() throws Exception {
+    logger.info("=== Test null source list ===");
+    new ApiKeyHelper(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmptySources() throws Exception {
+    logger.info("=== Test empty source list ===");
+    new ApiKeyHelper("");
   }
 
   private static class TestVerticle {
