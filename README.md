@@ -87,8 +87,8 @@ The API Key can be specified as either:
 This behavior is controlled by the `api_key_sources` system property.  The property takes a comma-separated list of sources; valid sources are `HEADER`, `PARAM`, and `PATH`.  The order in which the sources are specified determines the order in which that source will be checked for the existance of an API key.
 
 ***NOTE***:  There are two ways an API key may be provided by the `Authorization` header:
-1) `Authorization apikey QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1` (the auth type 'apikey' is case insensitive)
-1) `Authorization QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
+1) `Authorization: apikey QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1` (the auth type 'apikey' is case insensitive)
+1) `Authorization: QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
 
 ***TIP***:  You can limit the API Key sources used by only listing those you want to check.
 
