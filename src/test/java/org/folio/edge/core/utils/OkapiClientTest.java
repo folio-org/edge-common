@@ -1,6 +1,7 @@
 package org.folio.edge.core.utils;
 
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
+import static org.folio.edge.core.Constants.HEADER_API_KEY;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
@@ -204,6 +205,7 @@ public class OkapiClientTest {
 
     MultiMap headers = MultiMap.caseInsensitiveMultiMap();
     headers.set(X_ECHO_STATUS, String.valueOf(status));
+    headers.set(HEADER_API_KEY, "foobarbaz");
 
     Async async = context.async();
     client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
@@ -211,6 +213,7 @@ public class OkapiClientTest {
         headers,
         resp -> resp.bodyHandler(body -> {
           context.assertEquals(status, resp.statusCode());
+          context.assertNull(resp.headers().get(HEADER_API_KEY));
           async.complete();
         }),
         t -> {

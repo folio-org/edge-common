@@ -1,6 +1,7 @@
 package org.folio.edge.core.utils;
 
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
+import static org.folio.edge.core.Constants.HEADER_API_KEY;
 import static org.folio.edge.core.Constants.JSON_OR_TEXT;
 import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
@@ -238,12 +239,16 @@ public class OkapiClient {
 
   protected MultiMap combineHeadersWithDefaults(MultiMap headers) {
     MultiMap combined = null;
-    if (headers != null && headers.size() > 0) {
-      combined = MultiMap.caseInsensitiveMultiMap();
-      combined.addAll(headers);
-      for (Entry<String, String> entry : defaultHeaders.entries()) {
-        if(!combined.contains(entry.getKey())) {
-          combined.set(entry.getKey(), entry.getValue());
+
+    if (headers != null) {
+      headers.remove(HEADER_API_KEY);
+      if (headers.size() > 0) {
+        combined = MultiMap.caseInsensitiveMultiMap();
+        combined.addAll(headers);
+        for (Entry<String, String> entry : defaultHeaders.entries()) {
+          if (!combined.contains(entry.getKey())) {
+            combined.set(entry.getKey(), entry.getValue());
+          }
         }
       }
     }

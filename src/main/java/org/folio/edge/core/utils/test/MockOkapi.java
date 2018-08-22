@@ -173,6 +173,7 @@ public class MockOkapi {
     }
     ctx.response().setStatusCode(status);
 
+    ctx.response().headers().setAll(ctx.request().headers());
     String contentType = ctx.request().getHeader(HttpHeaders.CONTENT_TYPE);
     if (contentType != null) {
       ctx.response().putHeader(HttpHeaders.CONTENT_TYPE, contentType);
