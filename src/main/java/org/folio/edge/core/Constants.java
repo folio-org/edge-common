@@ -1,5 +1,11 @@
 package org.folio.edge.core;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.vertx.core.json.JsonObject;
+
 public class Constants {
 
   private Constants() {
@@ -58,4 +64,34 @@ public class Constants {
 
   // Misc
   public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000L;
+
+  // Seed the default deployment options with the system env variables or
+  // the defaults defined above.
+  public static final JsonObject DEFAULT_DEPLOYMENT_OPTIONS;
+  static {
+    final Map<String, Object> defaultMap = new HashMap<>();
+
+    defaultMap.put(SYS_PORT,
+        Integer.parseInt(System.getProperty(SYS_PORT, DEFAULT_PORT)));
+    defaultMap.put(SYS_LOG_LEVEL,
+        System.getProperty(SYS_LOG_LEVEL, DEFAULT_LOG_LEVEL));
+    defaultMap.put(SYS_API_KEY_SOURCES,
+        System.getProperty(SYS_API_KEY_SOURCES, DEFAULT_API_KEY_SOURCES));
+    defaultMap.put(SYS_REQUEST_TIMEOUT_MS,
+        Long.parseLong(System.getProperty(SYS_REQUEST_TIMEOUT_MS,
+            Long.toString(DEFAULT_REQUEST_TIMEOUT_MS))));
+    defaultMap.put(SYS_TOKEN_CACHE_TTL_MS,
+        Long.parseLong(System.getProperty(SYS_TOKEN_CACHE_TTL_MS,
+            Long.toString(DEFAULT_TOKEN_CACHE_TTL_MS))));
+    defaultMap.put(SYS_NULL_TOKEN_CACHE_TTL_MS,
+        Long.parseLong(System.getProperty(SYS_NULL_TOKEN_CACHE_TTL_MS,
+            Long.toString(DEFAULT_NULL_TOKEN_CACHE_TTL_MS))));
+    defaultMap.put(SYS_TOKEN_CACHE_CAPACITY,
+        Integer.parseInt(System.getProperty(SYS_TOKEN_CACHE_CAPACITY,
+            Integer.toString(DEFAULT_TOKEN_CACHE_CAPACITY))));
+    defaultMap.put(SYS_SECURE_STORE_TYPE,
+        System.getProperty(SYS_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
+
+    DEFAULT_DEPLOYMENT_OPTIONS = new JsonObject(Collections.unmodifiableMap(defaultMap));
+  }
 }

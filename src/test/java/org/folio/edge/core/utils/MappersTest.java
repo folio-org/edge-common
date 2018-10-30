@@ -35,10 +35,14 @@ public class MappersTest {
 
     StringBuilder sb = new StringBuilder();
     sb.append(Mappers.XML_PROLOG)
-      .append("<test>\n")
-      .append("  <a>").append(a).append("</a>\n")
-      .append("  <b>").append(b).append("</b>\n")
-      .append("</test>\n");
+      .append("<test>")
+      .append(System.lineSeparator())
+      .append("  <a>").append(a).append("</a>")
+      .append(System.lineSeparator())
+      .append("  <b>").append(b).append("</b>")
+      .append(System.lineSeparator())
+      .append("</test>")
+      .append(System.lineSeparator());
 
     TestObject obj = new TestObject(a, b);
 
