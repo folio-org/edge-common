@@ -23,6 +23,7 @@ public class Constants {
   public static final String SYS_LOG_LEVEL = "log_level";
   public static final String SYS_REQUEST_TIMEOUT_MS = "request_timeout_ms";
   public static final String SYS_API_KEY_SOURCES = "api_key_sources";
+  public static final String SYS_RESPONSE_COMPRESSION = "response_compression";
 
   // Property names
   public static final String PROP_SECURE_STORE_TYPE = "secureStore.type";
