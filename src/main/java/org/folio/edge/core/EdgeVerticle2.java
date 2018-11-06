@@ -75,13 +75,11 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
 
     secureStore = initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE));
 
-    // enable response compression if property 'response_compression' = true,
-    // disable compression if 'response_compression' = false or not exists at all
+    // initialize response compression
+    final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
+    logger.info("Response compression enabled: " + isCompressionSupported);
     final HttpServerOptions serverOptions = new HttpServerOptions();
-    if (config().containsKey(SYS_RESPONSE_COMPRESSION)) {
-      serverOptions.setCompressionSupported(config().getBoolean(SYS_RESPONSE_COMPRESSION));
-    }
-    logger.info("Response compression enabled: " + serverOptions.isCompressionSupported());
+    serverOptions.setCompressionSupported(isCompressionSupported);
 
     final HttpServer server = getVertx().createHttpServer(serverOptions);
 

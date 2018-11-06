@@ -7,7 +7,6 @@ import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
-import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
@@ -82,8 +81,7 @@ public class EdgeVerticle2Test {
         .put(SYS_OKAPI_URL, "http://localhost:" + okapiPort)
         .put(SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
         .put(SYS_LOG_LEVEL, "TRACE")
-        .put(SYS_REQUEST_TIMEOUT_MS, requestTimeoutMs)
-        .put(SYS_RESPONSE_COMPRESSION, true);
+        .put(SYS_REQUEST_TIMEOUT_MS, requestTimeoutMs);
 
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
     vertx.deployVerticle(TestVerticle.class.getName(), opt, context.asyncAssertSuccess());

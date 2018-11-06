@@ -37,6 +37,7 @@ public class Constants {
   public static final long DEFAULT_NULL_TOKEN_CACHE_TTL_MS = 30 * 1000L;
   public static final int DEFAULT_TOKEN_CACHE_CAPACITY = 100;
   public static final String DEFAULT_API_KEY_SOURCES = "PARAM,HEADER,PATH";
+  public static final boolean DEFAULT_RESPONSE_COMPRESSION = false;
 
   // Headers
   public static final String X_OKAPI_TENANT = "x-okapi-tenant";
@@ -92,6 +93,9 @@ public class Constants {
             Integer.toString(DEFAULT_TOKEN_CACHE_CAPACITY))));
     defaultMap.put(SYS_SECURE_STORE_TYPE,
         System.getProperty(SYS_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
+    defaultMap.put(SYS_RESPONSE_COMPRESSION,
+        Boolean.parseBoolean(System.getProperty(SYS_RESPONSE_COMPRESSION,
+            Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
 
     DEFAULT_DEPLOYMENT_OPTIONS = new JsonObject(Collections.unmodifiableMap(defaultMap));
   }
