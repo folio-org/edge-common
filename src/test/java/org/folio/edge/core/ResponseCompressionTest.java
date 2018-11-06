@@ -131,7 +131,6 @@ public class ResponseCompressionTest {
 
         final Response resp = RestAssured.given()
                 .config(RestAssured.config().decoderConfig(decoderConfig().noContentDecoders()))
-                .header(new Header(org.apache.http.HttpHeaders.ACCEPT_ENCODING, "instance"))
                 .get("/admin/health")
                 .then()
                 .contentType(TEXT_PLAIN)
