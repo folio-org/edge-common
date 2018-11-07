@@ -8,6 +8,7 @@ import static org.folio.edge.core.Constants.SYS_NULL_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
+import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_TYPE;
 import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_CAPACITY;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import io.vertx.core.http.HttpServerOptions;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.folio.edge.core.cache.TokenCache;
@@ -73,7 +75,13 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
 
     secureStore = initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE));
 
-    final HttpServer server = getVertx().createHttpServer();
+    // initialize response compression
+    final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
+    logger.info("Response compression enabled: " + isCompressionSupported);
+    final HttpServerOptions serverOptions = new HttpServerOptions();
+    serverOptions.setCompressionSupported(isCompressionSupported);
+
+    final HttpServer server = getVertx().createHttpServer(serverOptions);
 
     final Router router = defineRoutes();
 
