@@ -96,6 +96,10 @@ public class Constants {
     defaultMap.put(SYS_RESPONSE_COMPRESSION,
         Boolean.parseBoolean(System.getProperty(SYS_RESPONSE_COMPRESSION,
             Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
+    defaultMap.put(SYS_SECURE_STORE_PROP_FILE,
+        System.getProperty(SYS_SECURE_STORE_PROP_FILE));
+    defaultMap.put(SYS_OKAPI_URL,
+        System.getProperty(SYS_OKAPI_URL));
 
     DEFAULT_DEPLOYMENT_OPTIONS = new JsonObject(Collections.unmodifiableMap(defaultMap));
   }
