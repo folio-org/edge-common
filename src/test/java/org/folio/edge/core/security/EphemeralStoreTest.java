@@ -19,10 +19,11 @@ public class EphemeralStoreTest {
   @Before
   public void setUp() throws Exception {
     props = new Properties();
-    props.setProperty(EphemeralStore.PROP_TENANTS, "dit ,dat, dot,done");
-    props.setProperty("dit", "dit_password");
-    props.setProperty("dat", "dat_password");
-    props.setProperty("dot", "dot_password");
+    props.setProperty(EphemeralStore.PROP_TENANTS, "dit ,dat, dot,done,empty");
+    props.setProperty("dit", "dit,dit_password");
+    props.setProperty("dat", "dat,dat_password");
+    props.setProperty("dot", "dot,dot_password");
+    props.setProperty("done", "done");
 
     store = new EphemeralStore(props);
   }
