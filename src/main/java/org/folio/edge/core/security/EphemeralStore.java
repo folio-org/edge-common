@@ -27,10 +27,15 @@ public class EphemeralStore extends SecureStore {
       String tenants = properties.getProperty(PROP_TENANTS);
       if (tenants != null) {
         for (String tenant : COMMA.split(tenants)) {
-          String[] credentials = properties.getProperty(tenant).split(",");
-          String user = credentials[0];
-          String password = credentials.length > 1 ? credentials[1] : "";
-          put(tenant, user, password);
+          String record = properties.getProperty(tenant);
+          if (record != null) {
+            String[] credentials = COMMA.split(record);
+            String user = credentials[0];
+            String password = credentials.length > 1 ? credentials[1] : "";
+            put(tenant, user, password);
+          } else {
+            logger.error("Error extracting user/password for tenant: " + tenant);
+          }
         }
       }
     }
