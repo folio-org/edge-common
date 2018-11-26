@@ -18,6 +18,7 @@
     <url>https://github.com/folio-org/edge-common.git</url>
     <connection>scm:git:git://github.com/folio-org/edge-common.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/edge-common.git</developerConnection>
+    <tag>HEAD</tag>
   </scm>
 
   <licenses>
@@ -161,6 +162,18 @@
           <configuration>
             <source>${maven.compiler.source}</source>
             <target>${maven.compiler.target}</target>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5.3</version>
+          <configuration>
+            <preparationGoals>clean verify</preparationGoals>
+            <tagNameFormat>v@{project.version}</tagNameFormat>
+            <pushChanges>false</pushChanges>
+            <localCheckout>true</localCheckout>
           </configuration>
         </plugin>
 
