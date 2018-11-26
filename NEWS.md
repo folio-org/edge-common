@@ -1,3 +1,6 @@
+## 1.0.0
+ * First formal release of all functionality implemented up to this point.
+
 10/30/2018
  - Added an edge verticle implementation that allows deployment options to be
    set by the verticle launcher. This required moving much of the code from
