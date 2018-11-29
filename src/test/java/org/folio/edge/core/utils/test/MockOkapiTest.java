@@ -59,7 +59,7 @@ public class MockOkapiTest {
 
   @AfterClass
   public static void tearDown(TestContext context) {
-    mockOkapi.close();
+    mockOkapi.close(context);
   }
 
   @Test

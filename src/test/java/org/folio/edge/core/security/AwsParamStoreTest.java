@@ -70,7 +70,9 @@ public class AwsParamStoreTest {
   public void setUp() throws Exception {
     // Use empty properties since the only thing configurable
     // is related to AWS, which is mocked here
-    secureStore = new AwsParamStore(new Properties());
+    Properties props = new Properties();
+    props.put(AwsParamStore.PROP_REGION, "us-east-1");
+    secureStore = new AwsParamStore(props);
 
     MockitoAnnotations.initMocks(this);
   }
@@ -101,7 +103,8 @@ public class AwsParamStoreTest {
   }
 
   @AfterClass
-  public static void tearDownOnce() throws Exception {
+  public static void tearDownOnce(TestContext context) throws Exception {
+    final Async async = context.async();
     server.close(res -> {
       if (res.failed()) {
         logger.error("Failed to shut down credentials server", res.cause());
@@ -109,6 +112,7 @@ public class AwsParamStoreTest {
       } else {
         logger.info("Successfully shut down credentials server");
       }
+      async.complete();
     });
   }
 
@@ -164,6 +168,7 @@ public class AwsParamStoreTest {
     properties.setProperty(AwsParamStore.PROP_USE_IAM, "false");
     properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);
     properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ecsCredPath);
+    properties.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
 
     System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
     System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);

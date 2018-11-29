@@ -44,6 +44,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
@@ -94,16 +95,18 @@ public class EdgeVerticle2Test {
   @AfterClass
   public static void tearDownOnce(TestContext context) {
     logger.info("Shutting down server");
+    final Async async = context.async();
     vertx.close(res -> {
       if (res.failed()) {
-        logger.error("Failed to shut down edge-rtac server", res.cause());
+        logger.error("Failed to shut down edge-common server", res.cause());
         fail(res.cause().getMessage());
       } else {
-        logger.info("Successfully shut down edge-rtac server");
+        logger.info("Successfully shut down edge-common server");
       }
 
       logger.info("Shutting down mock Okapi");
-      mockOkapi.close();
+      mockOkapi.close(context);
+      async.complete();
     });
   }
 
@@ -335,7 +338,7 @@ public class EdgeVerticle2Test {
     }
 
     public void handle(RoutingContext ctx) {
-      ocf.getOkapiClient("").get("http://some.bogus.url", "",
+      ocf.getOkapiClient("").get("http://url.invalid.", "",
           resp -> handleProxyResponse(ctx, resp),
           t -> handleProxyException(ctx, t));
     }
