@@ -59,7 +59,7 @@ A utility class has been provided to help with API key generate, parsing, etc.  
 ```
 $ mvn package
 
-$ java -cp target/edge-common-fat.jar org.folio.edge.core.utils.ApiKeyUtils
+$ java -jar target/edge-common-api-key-utils.jar
 Usage: ApiKeyUtils [options]
  -g                   : generate an API Key (default: false)
  -p VAL               : parse an API Key
@@ -67,10 +67,10 @@ Usage: ApiKeyUtils [options]
  -t (--tenant-id) VAL : the tenant's ID
  -u (--username) VAL  : the tenant's institutional user's username
 
-$ java -cp target/edge-common-fat.jar org.folio.edge.core.utils.ApiKeyUtils -g -s 20 -t diku -u diku
+$ java -jar target/edge-common-api-key-utils.jar -g -s 20 -t diku -u diku
 QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1
 
-$ java -cp target/edge-common-fat.jar org.folio.edge.core.utils.ApiKeyUtils -p QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1
+$ java -jar target/edge-common-api-key-utils.jar -p QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1
 Salt: BPaofNFncK6477DubxDh
 Tenant ID: diku
 Username: diku

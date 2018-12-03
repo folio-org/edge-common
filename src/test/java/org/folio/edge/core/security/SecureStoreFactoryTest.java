@@ -11,6 +11,8 @@ import java.util.Properties;
 
 import org.junit.Test;
 
+import com.amazonaws.SdkClientException;
+
 public class SecureStoreFactoryTest {
 
   public static final Class<? extends SecureStore> DEFAULT_SS_CLASS = EphemeralStore.class;
@@ -27,12 +29,15 @@ public class SecureStoreFactoryTest {
     SecureStore actual;
 
     for (Class<?> clazz : stores) {
+      Properties props = new Properties();
+
       if (clazz.equals(AwsParamStore.class)) {
         System.setProperty(ACCESS_KEY_SYSTEM_PROPERTY, "bogus");
         System.setProperty(SECRET_KEY_SYSTEM_PROPERTY, "bogus");
+        props.put(AwsParamStore.PROP_REGION, "us-east-1");
       }
 
-      actual = SecureStoreFactory.getSecureStore((String) clazz.getField("TYPE").get(null), new Properties());
+      actual = SecureStoreFactory.getSecureStore((String) clazz.getField("TYPE").get(null), props);
       assertThat(actual, instanceOf(clazz));
 
       try {
@@ -42,6 +47,8 @@ public class SecureStoreFactoryTest {
         if (clazz.equals(VaultStore.class)) {
           // Expect NPE as VaultStore has required properties
           assertThat(t.getClass(), equalTo(NullPointerException.class));
+        } else if (clazz.equals(AwsParamStore.class)) {
+          assertThat(t.getClass(), equalTo(SdkClientException.class));
         } else {
           // Whoops, something went wrong.
           fail(String.format("Unexpected Exception thrown for class: ", clazz.getName(), t.getMessage()));

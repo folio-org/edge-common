@@ -49,8 +49,8 @@ public class ApiKeyHelperTest {
   }
 
   @AfterClass
-  public static void tearDownOnce() throws Exception {
-    verticle.close();
+  public static void tearDownOnce(TestContext context) throws Exception {
+    verticle.close(context);
   }
 
   @Test
@@ -184,7 +184,8 @@ public class ApiKeyHelperTest {
       this.keyHelper = keyHelper;
     }
 
-    public void close() {
+    public void close(TestContext context) {
+      final Async async = context.async();
       vertx.close(res -> {
         if (res.failed()) {
           logger.error("Failed to shut down mock OKAPI server", res.cause());
@@ -192,6 +193,7 @@ public class ApiKeyHelperTest {
         } else {
           logger.info("Successfully shut down mock OKAPI server");
         }
+        async.complete();
       });
     }
 

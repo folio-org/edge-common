@@ -8,6 +8,7 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.apache.log4j.Logger;
@@ -76,17 +77,19 @@ public class ResponseCompressionTest {
 
     @AfterClass
     public static void tearDownOnce(TestContext context) {
+        final Async async = context.async();
         logger.info("Shutting down server");
         vertx.close(res -> {
             if (res.failed()) {
-                logger.error("Failed to shut down edge-rtac server", res.cause());
+                logger.error("Failed to shut down edge-common server", res.cause());
                 fail(res.cause().getMessage());
             } else {
-                logger.info("Successfully shut down edge-rtac server");
+                logger.info("Successfully shut down edge-common server");
             }
 
             logger.info("Shutting down mock Okapi");
-            mockOkapi.close();
+            mockOkapi.close(context);
+            async.complete();
         });
     }
 

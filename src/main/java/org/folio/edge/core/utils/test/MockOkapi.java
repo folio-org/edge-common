@@ -53,7 +53,8 @@ public class MockOkapi {
     this.knownTenants = knownTenants == null ? new ArrayList<>() : knownTenants;
   }
 
-  public void close() {
+  public void close(TestContext context) {
+    final Async async = context.async();
     vertx.close(res -> {
       if (res.failed()) {
         logger.error("Failed to shut down mock OKAPI server", res.cause());
@@ -61,6 +62,7 @@ public class MockOkapi {
       } else {
         logger.info("Successfully shut down mock OKAPI server");
       }
+      async.complete();
     });
   }
 

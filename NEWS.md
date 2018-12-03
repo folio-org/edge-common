@@ -1,3 +1,20 @@
+## 1.0.1 Unreleased
+ * [EDGCOMMON-4](https://issues.folio.org/browse/EDGCOMMON-4): Locked in the
+   vertx version using dependency management
+ * [EDGCOMMON-7](https://issues.folio.org/browse/EDGCOMMON-7): Changed the
+   dependency to use the core args4j instead of the maven plugin
+ * [EDGCOMMON-11](https://issues.folio.org/browse/EDGCOMMON-11): A shaded fat
+   jar is no longer produced by the build
+   * However, we do still need a jar with the `args4j` dependency and the
+     `ApiKeyUtils` class and related classes so we can generate API keys from
+     the command line. We now generate an executable jar file that can be used
+     to generate/parse API keys.
+ * [EDGCOMMON-12](https://issues.folio.org/browse/EDGCOMMON-12): Tests now wait
+   for related server shutdown completion before moving to another test
+ * [EDGCOMMON-13](https://issues.folio.org/browse/EDGCOMMON-13): Test set the
+   region for the mocked AWS param store service to avoid a potential missing
+   region exception
+
 ## 1.0.0
  * First formal release of all functionality implemented up to this point.
 
