@@ -26,7 +26,7 @@
       </includes>
       <unpackOptions>
         <excludes>
-          <exclude>%regex[(?!org\/).*]</exclude>
+          <exclude>${assemblyRegex}</exclude>
         </excludes>
       </unpackOptions>
     </dependencySet>
