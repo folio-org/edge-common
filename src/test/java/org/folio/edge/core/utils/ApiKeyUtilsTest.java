@@ -86,7 +86,7 @@ public class ApiKeyUtilsTest {
     logger.info("=== Test generate Api Key - Empty username ===");
     ApiKeyUtils.generateApiKey(10, TENANT, "");
   }
-  
+
   @Test(expected = MalformedApiKeyException.class)
   public void testParseApiKeyNullSalt() throws Exception {
     logger.info("=== Test parseApiKey - null salt ===");
