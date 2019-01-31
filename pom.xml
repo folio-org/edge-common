@@ -135,7 +135,7 @@
       <version>1.2.17</version>
     </dependency>
 
-    <!-- include slf4j bridges to proxy all logging from library deps to 
+    <!-- include slf4j bridges to proxy all logging from library deps to
       our logging impl -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -147,7 +147,7 @@
 
   <build>
     <plugins>
-      <!-- We specify the Maven compiler plugin as we need to set it to 
+      <!-- We specify the Maven compiler plugin as we need to set it to
         Java 1.8 -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
