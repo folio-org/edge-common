@@ -150,7 +150,7 @@ Property                 | Default     | Description
 
 ### Issue tracker
 
-See project [FOLIO](https://issues.folio.org/browse/FOLIO)
+See project [EDGCOMMON](https://issues.folio.org/browse/EDGCOMMON)
 at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker).
 
 ### Other documentation
