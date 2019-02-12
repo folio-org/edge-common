@@ -2,16 +2,16 @@ package org.folio.edge.core.utils;
 
 import java.util.Base64;
 import java.util.Random;
-import java.util.regex.Pattern;
 
 import org.folio.edge.core.model.ClientInfo;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import io.vertx.core.json.JsonObject;
+
 public class ApiKeyUtils {
 
-  public static final Pattern DELIM = Pattern.compile("_");
   public static final String ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ";
   public static final Random RANDOM = new Random(System.nanoTime());
   public static final int DEFAULT_SALT_LEN = 10;
@@ -66,8 +66,8 @@ public class ApiKeyUtils {
       throw new IllegalArgumentException("Username cannot be null");
     }
 
-    String plainText = String.format("%s%s%s%s%s", salt, DELIM.pattern(), tenantId, DELIM.pattern(), username);
-    return Base64.getUrlEncoder().encodeToString(plainText.getBytes());
+    ClientInfo ci = new ClientInfo(salt, tenantId, username);
+    return Base64.getUrlEncoder().encodeToString(JsonObject.mapFrom(ci).encode().getBytes());
   }
 
   public static String generateApiKey(int saltLen, String tenantId, String username) {
@@ -78,23 +78,23 @@ public class ApiKeyUtils {
     ClientInfo ret = null;
     try {
       String decoded = new String(Base64.getUrlDecoder().decode(apiKey.getBytes()));
-      String[] parts = DELIM.split(decoded);
+      JsonObject json = new JsonObject(decoded);
 
-      ret = new ClientInfo(parts[0], parts[1], parts[2]);
+      ret = json.mapTo(ClientInfo.class);
     } catch (Exception e) {
       throw new MalformedApiKeyException("Failed to parse", e);
     }
 
-    if (ret.clientId.isEmpty()) {
-      throw new MalformedApiKeyException("Null ClientID/Salt");
+    if (ret.salt == null || ret.salt.isEmpty()) {
+      throw new MalformedApiKeyException("Null/Empty Salt");
     }
 
-    if (ret.tenantId.isEmpty()) {
-      throw new MalformedApiKeyException("Null Tenant");
+    if (ret.tenantId == null || ret.tenantId.isEmpty()) {
+      throw new MalformedApiKeyException("Null/Empty Tenant");
     }
 
-    if (ret.username.isEmpty()) {
-      throw new MalformedApiKeyException("Null Username");
+    if (ret.username == null || ret.username.isEmpty()) {
+      throw new MalformedApiKeyException("Null/Empty Username");
     }
 
     return ret;
@@ -118,7 +118,7 @@ public class ApiKeyUtils {
         return 0;
       } else if (keyToParse != null && !keyToParse.isEmpty()) {
         ClientInfo info = parseApiKey(keyToParse);
-        System.out.println("ClientId/Salt: " + info.clientId);
+        System.out.println("Salt: " + info.salt);
         System.out.println("Tenant ID: " + info.tenantId);
         System.out.println("Username: " + info.username);
         return 0;

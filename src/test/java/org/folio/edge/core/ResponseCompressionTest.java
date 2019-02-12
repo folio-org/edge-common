@@ -40,7 +40,7 @@ public class ResponseCompressionTest {
 
     private static final Logger logger = Logger.getLogger(EdgeVerticle2Test.class);
 
-    private static final String apiKey = "Z1luMHVGdjNMZl9kaWt1X2Rpa3U=";
+    private static final String apiKey = "eyJzIjoiZ0szc0RWZ3labCIsInQiOiJkaWt1IiwidSI6ImRpa3UifQ==";
     private static final long requestTimeoutMs = 10000L;
 
     private static Vertx vertx;

@@ -46,9 +46,9 @@ The API Keys used by the edge APIs are a URL safe base64 encoding of the three p
 1. Tenant ID - A FOLIO tenant ID, e.g. `diku`
 1. Institutional Username - The username of the institutional user for this tenant.  This could be the same as the tenant ID, or something else, e.g. `diku` or `dikurtac`, etc.
 
-These components are then concatenated with an underscore delimiter `_` before being base64 encoded, e.g. `nZ56F3LeAa_diku_diku`.
+A simple JSON object is created containing these components, which is then base64 encoded, e.g. `{"s":"nZ56F3LeAa","t":"diku","u":"diku"}`.  Note that the field names are abbreviated in the interest of keeping the API keys as short as reasonably possible.
 
-The final API Key looks something like: `blo1NkYzTGVBYV9kaWt1X2Rpa3U=`
+The final API Key looks something like: `eyJzIjoiblo1NkYzTGVBYSIsInQiOiJkaWt1IiwidSI6ImRpa3UifQ==`
 
 The purpose of the salt is to prevent API Key from being guessed, which would be easy if the tenant ID was known, especially if the Institutional Username was the same as the tenant ID.
 
@@ -70,7 +70,7 @@ Usage: ApiKeyUtils [options]
 $ java -jar target/edge-common-api-key-utils.jar -g -s 20 -t diku -u diku
 QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1
 
-$ java -jar target/edge-common-api-key-utils.jar -p QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1
+$ java -jar target/edge-common-api-key-utils.jar -p eyJzIjoiQlBhb2ZORm5jSzY0NzdEdWJ4RGgiLCJ0IjoiZGlrdSIsInUiOiJkaWt1In0=
 Salt: BPaofNFncK6477DubxDh
 Tenant ID: diku
 Username: diku
@@ -80,15 +80,15 @@ Username: diku
 
 The API Key can be specified as either:
 
-1) The `apiKey` query argument, e.g. `https://.../validate?apiKey=QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
-1) The `Authorization` request header (see note below), e.g. `Authorization: apikey QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
-1) As part of the URI path (denoted by `:apiKeyPath` when defining routes in VertX), e.g. `https://.../validate/QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
+1) The `apiKey` query argument, e.g. `https://.../validate?apiKey=eyJzIjoiQlBhb2ZORm5jSzY0NzdEdWJ4RGgiLCJ0IjoiZGlrdSIsInUiOiJkaWt1In0=`
+1) The `Authorization` request header (see note below), e.g. `Authorization: apikey eyJzIjoiQlBhb2ZORm5jSzY0NzdEdWJ4RGgiLCJ0IjoiZGlrdSIsInUiOiJkaWt1In0=`
+1) As part of the URI path (denoted by `:apiKeyPath` when defining routes in VertX), e.g. `https://.../validate/eyJzIjoiQlBhb2ZORm5jSzY0NzdEdWJ4RGgiLCJ0IjoiZGlrdSIsInUiOiJkaWt1In0=`
 
 This behavior is controlled by the `api_key_sources` system property.  The property takes a comma-separated list of sources; valid sources are `HEADER`, `PARAM`, and `PATH`.  The order in which the sources are specified determines the order in which that source will be checked for the existance of an API key.
 
 ***NOTE***:  There are two ways an API key may be provided by the `Authorization` header:
-1) `Authorization: apikey QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1` (the auth type 'apikey' is case insensitive)
-1) `Authorization: QlBhb2ZORm5jSzY0NzdEdWJ4RGhfZGlrdV9kaWt1`
+1) `Authorization: apikey eyJzIjoiQlBhb2ZORm5jSzY0NzdEdWJ4RGgiLCJ0IjoiZGlrdSIsInUiOiJkaWt1In0=` (the auth type 'apikey' is case insensitive)
+1) `Authorization: eyJzIjoiQlBhb2ZORm5jSzY0NzdEdWJ4RGgiLCJ0IjoiZGlrdSIsInUiOiJkaWt1In0=`
 
 ***TIP***:  You can limit the API Key sources used by only listing those you want to check.
 
@@ -98,7 +98,7 @@ The idea here is that a FOLIO user is created for each tenant for the purposes o
 
 The Edge API does not create users, or write credentials.  Those need to be provisioned manually or by some other process.  The current secure stores expect credentials to be stored in a way that adheres to naming conventions.  See the various secure store sections below for specifics.
 
-Currently the institutional username is the same as the tenantId, but this is subject to change.
+Currently, it's standard practive to make the institutional username the same as the tenantId, but this is not enforced programatically.
 
 ### Secure Stores
 
