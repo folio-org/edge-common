@@ -43,6 +43,7 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -55,9 +56,9 @@ public class EdgeVerticleTest {
 
   private static final Logger logger = Logger.getLogger(EdgeVerticleTest.class);
 
-  private static final String apiKey = "Z1luMHVGdjNMZl9kaWt1X2Rpa3U=";
-  private static final String badApiKey = "ZnMwMDAwMDAwMA==0000";
-  private static final String unknownTenantApiKey = "Z1luMHVGdjNMZl9ib2d1c19ib2d1cw==";
+  private static final String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
+  private static final String badApiKey = apiKey + "0000";
+  private static final String unknownTenantApiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "foobarbaz", "userA");
   private static final long requestTimeoutMs = 10000L;
 
   private static Vertx vertx;
@@ -300,7 +301,7 @@ public class EdgeVerticleTest {
 
         String password = null;
         try {
-          password = iuHelper.secureStore.get(clientInfo.clientId, clientInfo.tenantId, clientInfo.username);
+          password = iuHelper.secureStore.get(clientInfo.salt, clientInfo.tenantId, clientInfo.username);
         } catch (NotFoundException e) {
           accessDenied(ctx, MSG_ACCESS_DENIED);
           return;

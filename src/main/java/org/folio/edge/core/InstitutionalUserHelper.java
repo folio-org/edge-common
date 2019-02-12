@@ -1,7 +1,6 @@
 package org.folio.edge.core;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.folio.edge.core.cache.TokenCache;
@@ -17,8 +16,6 @@ import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 
 public class InstitutionalUserHelper {
   private static final Logger logger = Logger.getLogger(InstitutionalUserHelper.class);
-
-  public static final Pattern DELIM = Pattern.compile("_");
 
   protected final SecureStore secureStore;
 

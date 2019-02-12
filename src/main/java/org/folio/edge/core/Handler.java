@@ -72,7 +72,7 @@ public class Handler {
     final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
 
     iuHelper.getToken(client,
-        clientInfo.clientId,
+        clientInfo.salt,
         clientInfo.tenantId,
         clientInfo.username)
       .thenAcceptAsync(token -> {

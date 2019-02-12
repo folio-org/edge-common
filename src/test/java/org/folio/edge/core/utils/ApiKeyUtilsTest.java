@@ -14,15 +14,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.vertx.core.json.JsonObject;
+
 public class ApiKeyUtilsTest {
   public static final Logger logger = Logger.getLogger(ApiKeyUtilsTest.class);
 
   public static final String SALT_LEN = "10";
   public static final String TENANT = "diku";
   public static final String USERNAME = "diku";
-  public static final String API_KEY = "Z0szc0RWZ3labF9kaWt1X2Rpa3U=";
+  public static final String API_KEY = "eyJzIjoiZ0szc0RWZ3labCIsInQiOiJkaWt1IiwidSI6ImRpa3UifQ==";
   public static final String BAD_API_KEY = "bogus";
-  public static final String DELIM = ApiKeyUtils.DELIM.pattern();
 
   public ApiKeyUtils utils;
   public ByteArrayOutputStream out;
@@ -90,24 +91,27 @@ public class ApiKeyUtilsTest {
   @Test(expected = MalformedApiKeyException.class)
   public void testParseApiKeyNullSalt() throws Exception {
     logger.info("=== Test parseApiKey - null salt ===");
+    ClientInfo ci = new ClientInfo(null, TENANT, USERNAME);
     String apiKey = Base64.getUrlEncoder()
-      .encodeToString(String.format("%s%s%s%s", DELIM, TENANT, DELIM, USERNAME).getBytes());
+      .encodeToString(JsonObject.mapFrom(ci).encode().getBytes());
     ApiKeyUtils.parseApiKey(apiKey);
   }
 
   @Test(expected = MalformedApiKeyException.class)
   public void testParseApiKeyNullTenant() throws Exception {
     logger.info("=== Test parseApiKey - null tenant ===");
+    ClientInfo ci = new ClientInfo("abcdef12345", null, USERNAME);
     String apiKey = Base64.getUrlEncoder()
-      .encodeToString(String.format("%s%s%s%s", "abcde12345", DELIM, DELIM, USERNAME).getBytes());
+      .encodeToString(JsonObject.mapFrom(ci).encode().getBytes());
     ApiKeyUtils.parseApiKey(apiKey);
   }
 
   @Test(expected = MalformedApiKeyException.class)
   public void testParseApiKeyNullUsername() throws Exception {
     logger.info("=== Test parseApiKey - null username ===");
+    ClientInfo ci = new ClientInfo("abcdef12345", TENANT, null);
     String apiKey = Base64.getUrlEncoder()
-      .encodeToString(String.format("%s%s%s%s", "abcde12345", DELIM, TENANT, DELIM).getBytes());
+      .encodeToString(JsonObject.mapFrom(ci).encode().getBytes());
     ApiKeyUtils.parseApiKey(apiKey);
   }
 
@@ -130,7 +134,7 @@ public class ApiKeyUtilsTest {
 
     ClientInfo info = ApiKeyUtils.parseApiKey(generated);
 
-    assertEquals(Integer.parseInt(SALT_LEN), info.clientId.length());
+    assertEquals(Integer.parseInt(SALT_LEN), info.salt.length());
     assertEquals(TENANT, info.tenantId);
     assertEquals(USERNAME, info.username);
   }
@@ -184,7 +188,7 @@ public class ApiKeyUtilsTest {
 
     ClientInfo info = ApiKeyUtils.parseApiKey(generated);
 
-    assertEquals(ApiKeyUtils.DEFAULT_SALT_LEN, info.clientId.length());
+    assertEquals(ApiKeyUtils.DEFAULT_SALT_LEN, info.salt.length());
     assertEquals(TENANT, info.tenantId);
     assertEquals(USERNAME, info.username);
   }
