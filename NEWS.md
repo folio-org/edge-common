@@ -1,6 +1,11 @@
 ## 2.0.1 - Unreleased
 
 ## 2.0.0
+
+*IMPORTANT*: This release introduces breaking changes related to API keys.  Any
+API Keys in use will need to be re-issued once your edge API is upgraded to 
+edge-common v2.0.0.
+
  * [EDGCOMMON-18](https://issues.folio.org/browse/EDGCOMMON-18): Restructure API
    keys to work with tenantIds/usernames containing underscore/special characters.
  * [EDGCOMMON-17](https://issues.folio.org/browse/EDGCOMMON-17): ApiKeyUtils jar 
