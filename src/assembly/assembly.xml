@@ -19,10 +19,15 @@
   <dependencySets>
     <dependencySet>
       <outputDirectory/>
-      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectArtifact>true</useProjectArtifact>
       <unpack>true</unpack>
       <includes>
         <include>args4j:args4j</include>
+        <include>io.vertx:vertx-core</include>
+        <include>io.netty:netty-buffer</include>
+        <include>com.fasterxml.jackson.core:jackson-core</include>
+        <include>com.fasterxml.jackson.core:jackson-databind</include>
+        <include>com.fasterxml.jackson.core:jackson-annotations</include>
       </includes>
       <unpackOptions>
         <excludes>
