@@ -1,4 +1,9 @@
-## 2.0.1 - Unreleased
+## 2.0.2 - Unreleased
+
+## 2.0.1
+
+ * [EDGCOMMON-19](https://issues.folio.org/browse/EDGCOMMON-19): ApiKeyUtils jar
+   missing dependencies
 
 ## 2.0.0
 
