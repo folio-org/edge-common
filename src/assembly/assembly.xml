@@ -19,7 +19,7 @@
   <dependencySets>
     <dependencySet>
       <outputDirectory/>
-      <useProjectArtifact>true</useProjectArtifact>
+      <useProjectArtifact>false</useProjectArtifact>
       <unpack>true</unpack>
       <includes>
         <include>args4j:args4j</include>
