@@ -49,7 +49,8 @@ public class OkapiClient {
     this.reqTimeout = timeout;
     this.okapiURL = okapiURL;
     this.tenant = tenant;
-    this.client = vertx.createHttpClient(new HttpClientOptions().setKeepAlive(false));
+    this.client = vertx.createHttpClient(new HttpClientOptions().setKeepAlive(false)
+        .setTryUseCompression(true));
     initDefaultHeaders();
   }
 
