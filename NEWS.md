@@ -1,4 +1,7 @@
-## 2.0.2 - Unreleased
+## 2.0.2 2019-07-10
+
+ * [EDGCOMMON-20](https://issues.folio.org/browse/EDGCOMMON-20): Enable the use of compression by
+   the HTTP client
 
 ## 2.0.1
 
