@@ -48,6 +48,7 @@ public class Constants {
   public static final String APPLICATION_JSON = "application/json";
   public static final String APPLICATION_XML = "application/xml";
   public static final String TEXT_PLAIN = "text/plain";
+  public static final String TEXT_XML = "text/xml";
   public static final String JSON_OR_TEXT = APPLICATION_JSON + ", " + TEXT_PLAIN;
   public static final String XML_OR_TEXT = APPLICATION_XML + ", " + TEXT_PLAIN;
 

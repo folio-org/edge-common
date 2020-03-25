@@ -3,6 +3,7 @@ package org.folio.edge.core;
 import static org.folio.edge.core.Constants.DEFAULT_API_KEY_SOURCES;
 import static org.folio.edge.core.Constants.MSG_INVALID_API_KEY;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
+import static org.folio.edge.core.Constants.TEXT_XML;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -150,6 +151,13 @@ public class Handler {
     ctx.response()
       .setStatusCode(404)
       .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
+      .end(msg);
+  }
+
+  protected void notAcceptable(RoutingContext ctx, String msg){
+    ctx.response()
+      .setStatusCode(406)
+      .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_XML)
       .end(msg);
   }
 
