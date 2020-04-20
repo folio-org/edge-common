@@ -282,6 +282,7 @@ public class EdgeVerticle2Test {
         super.handleCommon(ctx,
             new String[] { "foo" },
             new String[] {},
+          "500",
             (client, params) -> {
               logger.info("Token: " + client.getToken());
               client.post(String.format("%s/echo", client.okapiURL),

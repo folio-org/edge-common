@@ -39,7 +39,7 @@ public class Handler {
     this.keyHelper = keyHelper;
   }
 
-  protected void handleCommon(RoutingContext ctx, String[] requiredParams, String[] optionalParams,
+  protected void handleCommon(RoutingContext ctx, String[] requiredParams, String[] optionalParams, String errorsProcessing,
       TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
     String key = keyHelper.getApiKey(ctx);
     if (key == null || key.isEmpty()) {
@@ -51,7 +51,7 @@ public class Handler {
     for (String param : requiredParams) {
       String value = ctx.request().getParam(param);
       if (value == null || value.isEmpty()) {
-        badRequest(ctx, "Missing required parameter: " + param);
+        badRequest(ctx, "Missing required parameter: " + param, errorsProcessing);
         return;
       } else {
         params.put(param, value);
@@ -140,7 +140,7 @@ public class Handler {
       .end(msg);
   }
 
-  protected void badRequest(RoutingContext ctx, String msg) {
+  protected void badRequest(RoutingContext ctx, String msg, String errorsProcessing) {
     ctx.response()
       .setStatusCode(400)
       .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
