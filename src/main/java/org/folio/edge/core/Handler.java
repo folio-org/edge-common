@@ -140,6 +140,10 @@ public class Handler {
       .end(msg);
   }
 
+  /**
+   *
+   * @param errorsProcessing  This param will be used in edge-oai-pmh module to transmit the configuration setting
+   */
   protected void badRequest(RoutingContext ctx, String msg, String errorsProcessing) {
     ctx.response()
       .setStatusCode(400)
