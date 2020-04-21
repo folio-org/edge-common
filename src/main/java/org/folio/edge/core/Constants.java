@@ -42,6 +42,7 @@ public class Constants {
   // Headers
   public static final String X_OKAPI_TENANT = "x-okapi-tenant";
   public static final String X_OKAPI_TOKEN = "x-okapi-token";
+  public static final String X_OKAPI_URL = "x-okapi-url";
   public static final String HEADER_API_KEY = "Authorization";
 
   // Header Values
