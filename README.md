@@ -148,6 +148,8 @@ Property                 | Default     | Description
 
 ## Additional information
 
+There will be a single instance of okapi client per OkapiClientFactory and per tenant, which means that this client should never be closed or else there will be runtime errors. To enforce this behaviour, method close() has been removed from OkapiClient class.     
+
 ### Issue tracker
 
 See project [EDGCOMMON](https://issues.folio.org/browse/EDGCOMMON)

@@ -255,8 +255,4 @@ public class OkapiClient {
     }
     return combined != null ? combined : defaultHeaders;
   }
-
-  public void close() {
-    client.close();
-  }
 }
