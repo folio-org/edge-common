@@ -1,3 +1,9 @@
+## 3.0.0 2020-10-29
+
+*IMPORTANT*: This release introduces breaking changes. There will be a single instance of okapi client per OkapiClientFactory and per tenant, which means that this client should never be closed or else there will be runtime errors. To enforce this behaviour, method close() has been removed from OkapiClient class.
+
+ * [EDGCOMMON-25](https://issues.folio.org/browse/EDGCOMMON-25): OkapiClientFactory is leaking HttpClient objects
+
 ## 2.0.2 2019-07-10
 
  * [EDGCOMMON-20](https://issues.folio.org/browse/EDGCOMMON-20): Enable the use of compression by
