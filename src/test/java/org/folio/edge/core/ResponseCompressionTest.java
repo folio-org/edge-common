@@ -1,9 +1,9 @@
 package org.folio.edge.core;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.config.DecoderConfig;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Response;
+import io.restassured.RestAssured;
+import io.restassured.config.DecoderConfig;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
+import static io.restassured.config.DecoderConfig.decoderConfig;
 import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
