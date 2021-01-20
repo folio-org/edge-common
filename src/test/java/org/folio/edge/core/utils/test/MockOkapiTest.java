@@ -14,16 +14,16 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.restassured.RestAssured;
+import io.restassured.config.EncoderConfig;
+import io.restassured.response.Response;
 import org.apache.http.HttpHeaders;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.config.EncoderConfig;
-import com.jayway.restassured.response.Response;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -33,7 +33,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 
 public class MockOkapiTest {
 
-  private static final Logger logger = Logger.getLogger(MockOkapiTest.class);
+  private static final Logger logger = LogManager.getLogger(MockOkapiTest.class);
 
   private static final String tenant = "diku";
 

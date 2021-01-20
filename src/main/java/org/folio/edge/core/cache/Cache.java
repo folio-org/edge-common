@@ -1,9 +1,10 @@
 package org.folio.edge.core.cache;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-
-import org.apache.log4j.Logger;
 
 /**
  * A general purpose cache storing entries with a set TTL,
@@ -12,7 +13,7 @@ import org.apache.log4j.Logger;
  */
 public class Cache<T> {
 
-  private static final Logger logger = Logger.getLogger(Cache.class);
+  private static final Logger logger = LogManager.getLogger(Cache.class);
 
   private LinkedHashMap<String, CacheValue<T>> storage;
   private final long ttl;

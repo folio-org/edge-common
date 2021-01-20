@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
@@ -35,9 +38,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.response.Response;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -54,7 +54,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 @RunWith(VertxUnitRunner.class)
 public class EdgeVerticle2Test {
 
-  private static final Logger logger = Logger.getLogger(EdgeVerticle2Test.class);
+  private static final Logger logger = LogManager.getLogger(EdgeVerticle2Test.class);
 
   private static final String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
   private static final String badApiKey = apiKey + "0000";

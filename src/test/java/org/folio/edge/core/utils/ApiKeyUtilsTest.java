@@ -7,7 +7,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Base64;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.folio.edge.core.ApiKeyHelperTest;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.junit.After;
@@ -17,7 +19,7 @@ import org.junit.Test;
 import io.vertx.core.json.JsonObject;
 
 public class ApiKeyUtilsTest {
-  public static final Logger logger = Logger.getLogger(ApiKeyUtilsTest.class);
+  private static final Logger logger = LogManager.getLogger(ApiKeyHelperTest.class);
 
   public static final String SALT_LEN = "10";
   public static final String TENANT = "diku";

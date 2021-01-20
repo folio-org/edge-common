@@ -13,7 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.awaitility.core.ConditionTimeoutException;
 
 import io.vertx.core.Vertx;
@@ -30,7 +31,7 @@ import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 
 public class MockOkapi {
 
-  private static final Logger logger = Logger.getLogger(MockOkapi.class);
+  private static final Logger logger = LogManager.getLogger(MockOkapi.class);
 
   /**
    * Request header that tells MockOkapi to wait at least this long before

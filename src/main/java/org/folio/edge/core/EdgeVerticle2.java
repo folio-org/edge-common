@@ -22,8 +22,10 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import io.vertx.core.http.HttpServerOptions;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
@@ -38,7 +40,7 @@ import io.vertx.ext.web.RoutingContext;
 
 public abstract class EdgeVerticle2 extends AbstractVerticle {
 
-  private static final Logger logger = Logger.getLogger(EdgeVerticle2.class);
+  private static final Logger logger = LogManager.getLogger(EdgeVerticle2.class);
 
   private static Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
 
@@ -53,7 +55,7 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
     logger.info("Using port: " + port);
 
     final String logLvl = config().getString(SYS_LOG_LEVEL);
-    Logger.getRootLogger().setLevel(Level.toLevel(logLvl));
+    Configurator.setRootLevel(Level.toLevel(logLvl));
     logger.info("Using log level: " + logLvl);
 
     logger.info("Using okapi URL: " + config().getString(SYS_OKAPI_URL));

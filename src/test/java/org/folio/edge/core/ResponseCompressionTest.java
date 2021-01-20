@@ -1,9 +1,9 @@
 package org.folio.edge.core;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.config.DecoderConfig;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Response;
+import io.restassured.RestAssured;
+import io.restassured.config.DecoderConfig;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -11,7 +11,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.test.MockOkapi;
 import org.folio.edge.core.utils.test.TestUtils;
@@ -23,7 +24,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
+import static io.restassured.config.DecoderConfig.decoderConfig;
 import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.spy;
 @RunWith(VertxUnitRunner.class)
 public class ResponseCompressionTest {
 
-    private static final Logger logger = Logger.getLogger(EdgeVerticle2Test.class);
+    private static final Logger logger = LogManager.getLogger(ResponseCompressionTest.class);
 
     private static final String apiKey = "eyJzIjoiZ0szc0RWZ3labCIsInQiOiJkaWt1IiwidSI6ImRpa3UifQ==";
     private static final long requestTimeoutMs = 10000L;

@@ -2,7 +2,8 @@ package org.folio.edge.core;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.cache.TokenCache.NotInitializedException;
 import org.folio.edge.core.model.ClientInfo;
@@ -15,7 +16,7 @@ import org.folio.edge.core.utils.OkapiClient;
 import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 
 public class InstitutionalUserHelper {
-  private static final Logger logger = Logger.getLogger(InstitutionalUserHelper.class);
+  private static final Logger logger = LogManager.getLogger(InstitutionalUserHelper.class);
 
   protected final SecureStore secureStore;
 

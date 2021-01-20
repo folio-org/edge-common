@@ -3,13 +3,14 @@ package org.folio.edge.core.utils.test;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.mockito.exceptions.base.MockitoAssertionError;
 
 public class TestUtilsTest {
-  private static final Logger logger = Logger.getLogger(TestUtilsTest.class);
+  private static final Logger logger = LogManager.getLogger(TestUtilsTest.class);
 
   @Test
   public void testGetPort() {
@@ -21,7 +22,7 @@ public class TestUtilsTest {
 
   @Test
   public void testAssertLogMessageSingleMessage() {
-    Logger log = Logger.getLogger("testAssertLogMessageSingleMessage");
+    Logger log = LogManager.getLogger("testAssertLogMessageSingleMessage");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(log, 1, 1, lvl, msg, null, () -> logMessages(log, msg, 1, lvl));
@@ -29,14 +30,14 @@ public class TestUtilsTest {
 
   @Test(expected = AssertionError.class)
   public void testAssertLogMessageWrongLevel() {
-    Logger log = Logger.getLogger("testAssertLogMessageWrongLevel");
+    Logger log = LogManager.getLogger("testAssertLogMessageWrongLevel");
     String msg = "hello world";
     TestUtils.assertLogMessage(log, 1, 1, Level.ERROR, msg, null, () -> logMessages(log, msg, 1, Level.INFO));
   }
 
   @Test(expected = AssertionError.class)
   public void testAssertLogMessageWrongMessage() {
-    Logger log = Logger.getLogger("testAssertLogMessageWrongMessage");
+    Logger log = LogManager.getLogger("testAssertLogMessageWrongMessage");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(log, 1, 1, lvl, msg, null, () -> logMessages(log, "goodbye blue monday", 1, lvl));
@@ -44,7 +45,7 @@ public class TestUtilsTest {
 
   @Test(expected = AssertionError.class)
   public void testAssertLogMessageNothingLogged() {
-    Logger log = Logger.getLogger("testAssertLogMessageNothingLogged");
+    Logger log = LogManager.getLogger("testAssertLogMessageNothingLogged");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(log, 1, 1, lvl, msg, null, () -> {
@@ -61,7 +62,7 @@ public class TestUtilsTest {
 
   @Test(expected = AssertionError.class)
   public void testAssertLogMessageNoException() {
-    Logger log = Logger.getLogger("testAssertLogMessageNoException");
+    Logger log = LogManager.getLogger("testAssertLogMessageNoException");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(logger, 1, 1, lvl, msg, new Throwable(), () -> logMessages(log, msg, 1, lvl));
@@ -69,7 +70,7 @@ public class TestUtilsTest {
 
   @Test
   public void testAssertLogMessageExactCount() {
-    Logger log = Logger.getLogger("testAssertLogMessageExactCount");
+    Logger log = LogManager.getLogger("testAssertLogMessageExactCount");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(log, 5, 5, lvl, msg, null, () -> logMessages(log, msg, 5, lvl));
@@ -77,7 +78,7 @@ public class TestUtilsTest {
 
   @Test
   public void testAssertLogMessageWithinRange() {
-    Logger log = Logger.getLogger("testAssertLogMessageWithinRange");
+    Logger log = LogManager.getLogger("testAssertLogMessageWithinRange");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(log, 1, 10, lvl, msg, null, () -> logMessages(log, msg, 7, lvl));
@@ -85,7 +86,7 @@ public class TestUtilsTest {
 
   @Test(expected = MockitoAssertionError.class)
   public void testAssertLogMessageOutsideRange() {
-    Logger log = Logger.getLogger("testAssertLogMessageWithinRange");
+    Logger log = LogManager.getLogger("testAssertLogMessageWithinRange");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(log, 1, 5, lvl, msg, null, () -> logMessages(log, msg, 7, lvl));
