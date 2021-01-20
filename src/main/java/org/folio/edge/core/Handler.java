@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.ext.web.client.HttpResponse;
 import org.apache.log4j.Logger;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
@@ -17,7 +19,6 @@ import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 import org.folio.edge.core.utils.OkapiClientFactory;
 
-import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.ext.web.RoutingContext;
 
@@ -90,31 +91,16 @@ public class Handler {
       });
   }
 
-  protected void handleProxyResponse(RoutingContext ctx, HttpClientResponse resp) {
-    final StringBuilder body = new StringBuilder();
-    resp.handler(buf -> {
-
-      if (logger.isTraceEnabled()) {
-        logger.trace("read bytes: " + buf.toString());
-      }
-
-      body.append(buf);
-    }).endHandler(v -> {
-      ctx.response().setStatusCode(resp.statusCode());
-
-      String respBody = body.toString();
-
-      if (logger.isDebugEnabled()) {
-        logger.debug("response: " + respBody);
-      }
-
-      String contentType = resp.getHeader(HttpHeaders.CONTENT_TYPE);
-      if (contentType != null) {
-        ctx.response().putHeader(HttpHeaders.CONTENT_TYPE, contentType);
-      }
-
-      ctx.response().end(respBody);
-    });
+  protected void handleProxyResponse(RoutingContext ctx, HttpResponse<Buffer> resp) {
+    ctx.response().setStatusCode(resp.statusCode());
+    String contentType = resp.headers().get(HttpHeaders.CONTENT_TYPE);
+    if (contentType != null) {
+      ctx.response().putHeader(HttpHeaders.CONTENT_TYPE, contentType);
+    }
+    if (logger.isDebugEnabled()) {
+        logger.debug("response: " + resp.bodyAsString());
+    }
+    ctx.response().end(resp.body());
   }
 
   protected void handleProxyException(RoutingContext ctx, Throwable t) {

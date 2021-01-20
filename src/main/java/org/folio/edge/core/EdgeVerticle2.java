@@ -21,7 +21,6 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import io.vertx.core.http.HttpServerOptions;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.folio.edge.core.cache.TokenCache;
@@ -29,9 +28,10 @@ import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -45,7 +45,7 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
   protected SecureStore secureStore;
 
   @Override
-  public void start(Future<Void> future) {
+  public void start(Promise<Void> promise) {
     JsonObject jo = Constants.DEFAULT_DEPLOYMENT_OPTIONS.copy();
     config().mergeIn(jo.mergeIn(config()));
 
@@ -85,13 +85,9 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
 
     final Router router = defineRoutes();
 
-    server.requestHandler(router::accept).listen(port, result -> {
-      if (result.succeeded()) {
-        future.complete();
-      } else {
-        future.fail(result.cause());
-      }
-    });
+    server.requestHandler(router).listen(port)
+        .onSuccess(res -> promise.complete())
+        .onFailure(cause -> promise.fail(cause));
   }
 
   public abstract Router defineRoutes();

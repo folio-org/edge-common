@@ -19,8 +19,8 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
+import io.vertx.core.VertxException;
 import org.apache.log4j.Logger;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
@@ -59,7 +59,7 @@ public class EdgeVerticleTest {
   private static final String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
   private static final String badApiKey = apiKey + "0000";
   private static final String unknownTenantApiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "foobarbaz", "userA");
-  private static final long requestTimeoutMs = 10000L;
+  private static final int requestTimeoutMs = 10000;
 
   private static Vertx vertx;
   private static MockOkapi mockOkapi;
@@ -319,7 +319,7 @@ public class EdgeVerticleTest {
                 t -> handleProxyException(ctx, t));
           })
           .exceptionally(t -> {
-            if (t.getCause() instanceof TimeoutException) {
+            if (t.getCause() instanceof VertxException) {
               requestTimeout(ctx, MSG_REQUEST_TIMEOUT);
             } else {
               accessDenied(ctx, MSG_ACCESS_DENIED);

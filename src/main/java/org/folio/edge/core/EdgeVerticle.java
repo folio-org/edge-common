@@ -33,7 +33,7 @@ import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
@@ -49,7 +49,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
   public final int port;
   public final String okapiURL;
   public final String apiKeySources;
-  public final long reqTimeoutMs;
+  public final int reqTimeoutMs;
 
   public final HttpServer server;
   public final SecureStore secureStore;
@@ -87,7 +87,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
     logger.info("Using token cache capacity: " + tokenCacheCapacity);
 
     final String requestTimeout = System.getProperty(SYS_REQUEST_TIMEOUT_MS);
-    reqTimeoutMs = requestTimeout != null ? Long.parseLong(requestTimeout)
+    reqTimeoutMs = requestTimeout != null ? Integer.parseInt(requestTimeout)
         : DEFAULT_REQUEST_TIMEOUT_MS;
     logger.info("Using request timeout (ms): " + reqTimeoutMs);
 
@@ -104,14 +104,10 @@ public abstract class EdgeVerticle extends AbstractVerticle {
   }
 
   @Override
-  public void start(Future<Void> future) {
-    server.requestHandler(router::accept).listen(port, result -> {
-      if (result.succeeded()) {
-        future.complete();
-      } else {
-        future.fail(result.cause());
-      }
-    });
+  public void start(Promise<Void> promise) {
+    server.requestHandler(router).listen(port)
+        .onSuccess(res -> promise.complete())
+        .onFailure(cause -> promise.fail(cause));
   }
 
   public abstract Router defineRoutes();

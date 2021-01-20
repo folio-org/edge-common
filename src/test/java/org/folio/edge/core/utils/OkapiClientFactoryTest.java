@@ -10,7 +10,7 @@ import io.vertx.core.Vertx;
 
 public class OkapiClientFactoryTest {
 
-  private static final long reqTimeout = 5000L;
+  private static final int reqTimeout = 5000;
   private static final String tenant = "diku";
 
   private OkapiClientFactory ocf;
