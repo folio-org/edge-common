@@ -21,9 +21,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.config.EncoderConfig;
-import com.jayway.restassured.response.Response;
+import io.restassured.RestAssured;
+import io.restassured.config.EncoderConfig;
+import io.restassured.response.Response;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
