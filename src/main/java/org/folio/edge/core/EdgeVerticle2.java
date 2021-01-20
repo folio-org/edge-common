@@ -93,26 +93,7 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
   public abstract Router defineRoutes();
 
   protected SecureStore initializeSecureStore(String secureStorePropFile) {
-    Properties secureStoreProps = new Properties();
-
-    if (secureStorePropFile != null) {
-      URL url = null;
-      try {
-        if (isURL.matcher(secureStorePropFile).matches()) {
-          url = new URL(secureStorePropFile);
-        }
-
-        try (InputStream in = url == null ? new FileInputStream(secureStorePropFile) : url.openStream()) {
-          secureStoreProps.load(in);
-          logger.info("Successfully loaded properties from: " +
-              secureStorePropFile);
-        }
-      } catch (Exception e) {
-        logger.warn("Failed to load secure store properties.", e);
-      }
-    } else {
-      logger.warn("No secure store properties file specified.  Using defaults");
-    }
+    Properties secureStoreProps = EdgeVerticle.getProperties(secureStorePropFile);
 
     // Order of precedence: system property, properties file, default
     String type = config().getString(SYS_SECURE_STORE_TYPE,

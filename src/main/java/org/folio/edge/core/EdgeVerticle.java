@@ -113,6 +113,16 @@ public abstract class EdgeVerticle extends AbstractVerticle {
   public abstract Router defineRoutes();
 
   protected SecureStore initializeSecureStore(String secureStorePropFile) {
+    Properties secureStoreProps = getProperties(secureStorePropFile);
+
+    // Order of precedence: system property, properties file, default
+    String type = System.getProperty(SYS_SECURE_STORE_TYPE,
+        secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
+
+    return SecureStoreFactory.getSecureStore(type, secureStoreProps);
+  }
+
+  static Properties getProperties(String secureStorePropFile) {
     Properties secureStoreProps = new Properties();
 
     if (secureStorePropFile != null) {
@@ -134,12 +144,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
     } else {
       logger.warn("No secure store properties file specified.  Using defaults");
     }
-
-    // Order of precedence: system property, properties file, default
-    String type = System.getProperty(SYS_SECURE_STORE_TYPE,
-        secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
-
-    return SecureStoreFactory.getSecureStore(type, secureStoreProps);
+    return secureStoreProps;
   }
 
   protected void handleHealthCheck(RoutingContext ctx) {
