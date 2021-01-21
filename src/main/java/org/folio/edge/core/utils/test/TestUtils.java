@@ -69,6 +69,17 @@ public class TestUtils {
       }
   }
 
+  /**
+   * Test for logged content.
+   *
+   * @param logger that is used in test code
+   * @param minTimes minimum number of log events
+   * @param maxTimes maximum number of log events
+   * @param logLevel level to test against (not working, so not checked)
+   * @param expectedMsg expected message for first message
+   * @param t expected Throwable (not working, so not checked)
+   * @param func function to execute which presumably logs
+   */
   public static void assertLogMessage(Logger logger, int minTimes, int maxTimes, Level logLevel,
                                       String expectedMsg, Throwable t, Runnable func) {
     assertLogMessage((org.apache.logging.log4j.core.Logger) logger, minTimes, maxTimes, logLevel, expectedMsg, t, func);
