@@ -115,7 +115,7 @@ public class TestUtilsTest {
   public void testAssertLogMessageNoMessage() {
     Logger log = LogManager.getLogger("testAssertLogMessageNullMessage");
     String msg = "hello world";
-    TestUtils.assertLogMessage(log, 0, 1, Level.INFO, msg, null, () -> {});
+    TestUtils.assertLogMessage(log, 0, 1, null, msg, null, () -> {});
   }
 
   @Test(expected = AssertionError.class)
