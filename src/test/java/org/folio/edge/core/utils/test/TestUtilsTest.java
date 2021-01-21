@@ -25,12 +25,20 @@ public class TestUtilsTest {
 
   @Test
   public void testGetPort2() throws IOException {
+    TestUtils.getPortReset();
     int port1 = TestUtils.getPort();
     ServerSocket serverSocket = new ServerSocket(port1);
-    TestUtils.resetGetPort();
+    TestUtils.getPortReset();
     int port2 = TestUtils.getPort();
     Assert.assertNotEquals(port1, port2);
     serverSocket.close();
+  }
+
+  @Test
+  public void testGetPortMaxTries0() throws IOException {
+    int port = TestUtils.getPort(0);
+    assertTrue(port >= 49152);
+    assertTrue(port <= 65535);
   }
 
   @Test

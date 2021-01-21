@@ -21,19 +21,28 @@ public class TestUtils {
 
   private static final int PORT_MIN = 49152;
   private static final int PORT_MAX = 65534;
-  private static final AtomicInteger p = new AtomicInteger(PORT_MAX);
+  private static final AtomicInteger cyclicPort = new AtomicInteger(PORT_MAX);
 
   /**
    * return free TCP port.
    *
    * <p>An based on implementation in RMB.
+   * The purpose is to return a free port. We try to test for available ports that differ in
+   * each iteration so avoid the case where it takes a little while for a returned value
+   * to be listened to .. If not, we could end up returning the same port twice. RMB uses
+   * random generator to do that (but a random generator may return value anyway ... or
+   * a port that is one of the earlier ports.. For this reason, it's best to attempt in
+   * a cyclic fashion.
    */
   public static int getPort() {
-    int maxTries = 10000;
+    return getPort(10000);
+  }
+
+  static int getPort(int maxTries) {
     while (true) {
-      int port = p.incrementAndGet();
+      int port = cyclicPort.incrementAndGet();
       if (port > PORT_MAX) {
-        p.set(PORT_MIN);
+        cyclicPort.set(PORT_MIN);
       }
       if (maxTries == 0 || isLocalPortFree(port)) {
         return port;
@@ -42,9 +51,10 @@ public class TestUtils {
     }
   }
 
-  static void resetGetPort() {
-    p.set(PORT_MAX);
+  static void getPortReset() {
+    cyclicPort.set(PORT_MAX);
   }
+
   /**
    * Check a local TCP port.
    * @param port  the TCP port number, must be from 1 ... 65535
