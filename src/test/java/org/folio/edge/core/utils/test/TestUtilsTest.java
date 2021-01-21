@@ -84,7 +84,38 @@ public class TestUtilsTest {
     Logger log = LogManager.getLogger("testAssertLogMessageWrongLevel");
     String msg = "hello world";
     // logLevel not really checked, so this succeeds
-    TestUtils.assertLogMessage(log, 1, 1, Level.ERROR, msg, null, () -> logMessages(log, msg, 1, Level.INFO));
+    TestUtils.assertLogMessage(log, 1, 1, Level.ERROR, msg, null,
+        () -> logMessages(log, msg, 1, Level.INFO));
+  }
+
+  @Test
+  public void testAssertLogMessageNullLevel() {
+    Logger log = LogManager.getLogger("testAssertLogMessageNullLevel");
+    String msg = "hello world";
+    TestUtils.assertLogMessage(log, 1, 1, null, msg, null,
+        () -> logMessages(log, msg, 1, Level.INFO));
+  }
+
+  @Test(expected = AssertionError.class)
+  public void testAssertLogMessageNoLevel() {
+    Logger log = LogManager.getLogger("testAssertLogMessageNoLevel");
+    String msg = "hello world";
+    TestUtils.assertLogMessage(log, 0, 1, Level.INFO, msg, null, () -> {});
+  }
+
+  @Test
+  public void testAssertLogMessageNullMessage() {
+    Logger log = LogManager.getLogger("testAssertLogMessageNullMessage");
+    Level lvl = Level.INFO;
+    TestUtils.assertLogMessage(log, 1, 1, lvl, null, null,
+        () -> logMessages(log, "goodbye blue monday", 1, lvl));
+  }
+
+  @Test(expected = AssertionError.class)
+  public void testAssertLogMessageNoMessage() {
+    Logger log = LogManager.getLogger("testAssertLogMessageNullMessage");
+    String msg = "hello world";
+    TestUtils.assertLogMessage(log, 0, 1, Level.INFO, msg, null, () -> {});
   }
 
   @Test(expected = AssertionError.class)
@@ -92,7 +123,8 @@ public class TestUtilsTest {
     Logger log = LogManager.getLogger("testAssertLogMessageWrongMessage");
     String msg = "hello world";
     Level lvl = Level.INFO;
-    TestUtils.assertLogMessage(log, 1, 1, lvl, msg, null, () -> logMessages(log, "goodbye blue monday", 1, lvl));
+    TestUtils.assertLogMessage(log, 1, 1, lvl, msg, null,
+        () -> logMessages(log, "goodbye blue monday", 1, lvl));
   }
 
   @Test(expected = AssertionError.class)
