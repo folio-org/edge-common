@@ -70,14 +70,14 @@ public class TestUtils {
   }
 
   /**
-   * Test for logged content.
+   * Unit test for logged content.
    *
    * @param logger that is used in test code
    * @param minTimes minimum number of log events
    * @param maxTimes maximum number of log events
    * @param logLevel level to test against (not working, so not checked)
    * @param expectedMsg expected message for first message
-   * @param t expected Throwable (not working, so not checked)
+   * @param t expected Throwable (not working, pass null always)
    * @param func function to execute which presumably logs
    */
   public static void assertLogMessage(Logger logger, int minTimes, int maxTimes, Level logLevel,
@@ -97,6 +97,8 @@ public class TestUtils {
 
     Assert.assertTrue(appender.events.size() >= minTimes);
     Assert.assertTrue(appender.events.size() <= maxTimes);
+
+    Assert.assertNull(t);
 
     if (logLevel != null) {
       Assert.assertTrue(!appender.events.isEmpty());

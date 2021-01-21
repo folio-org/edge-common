@@ -64,7 +64,7 @@ public class TestUtilsTest {
     TestUtils.assertLogMessage(log, 1, 1, lvl, msg, null, () -> logMessages(log, msg, 1, lvl));
   }
 
-  @Test
+  @Test(expected = AssertionError.class)
   public void testAssertLogThrown() {
     Logger log = LogManager.getLogger("testAssertLogThrown");
     String msg = "hello world";
