@@ -8,17 +8,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.exceptions.base.MockitoAssertionError;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 
 public class TestUtilsTest {
   private static final Logger logger = LogManager.getLogger(TestUtilsTest.class);
 
   @Test
-  public void testGetPort() {
+  public void testGetPort() throws IOException {
     int port = TestUtils.getPort();
-    assertTrue(port > 1024);
-    assertTrue(port < 2024);
-    assertNotEquals(port, TestUtils.getPort());
+    assertTrue(port >= 49152);
+    assertTrue(port <= 65535);
+    new ServerSocket(port).close();
   }
 
   @Test

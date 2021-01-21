@@ -1,25 +1,56 @@
 package org.folio.edge.core.utils.test;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.spi.LoggerContext;
 import org.junit.Assert;
 
 public class TestUtils {
-
-  private static Random random = new Random(System.nanoTime());
 
   private TestUtils() {
 
   }
 
+  /**
+   * return free TCP port.
+   *
+   * <p>An almost copy of the implementation in RMB.
+   */
   public static int getPort() {
-    return 1024 + random.nextInt(1000);
+    int maxTries = 10000;
+    while (true) {
+        int port = ThreadLocalRandom.current().nextInt(49152 , 65535);
+        if (isLocalPortFree(port)) {
+            return port;
+        }
+        maxTries--;
+        if (maxTries == 0){
+          return 8081;
+        }
+    }
+  }
+
+  /**
+   * Check a local TCP port.
+   * @param port  the TCP port number, must be from 1 ... 65535
+   * @return true if the port is free (unused), false if the port is already in use
+   */
+  private static boolean isLocalPortFree(int port) {
+      try {
+          new ServerSocket(port).close();
+          return true;
+      } catch (IOException e) {
+          return false;
+      }
   }
 
   public static void assertLogMessage(Logger logger, int minTimes, int maxTimes, Level logLevel,
