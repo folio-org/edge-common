@@ -89,17 +89,14 @@ public class TestUtils {
 
     if (logLevel != null) {
       Assert.assertTrue(!appender.events.isEmpty());
-      // TODO .. appender.events.get(0).getLevel() always returns OFF
+      Level gotLevel = appender.events.get(0).getLevel();
+      Assert.assertTrue(gotLevel == Level.OFF || gotLevel == logLevel);
     }
 
     if (expectedMsg != null) {
       Assert.assertTrue(!appender.events.isEmpty());
       Assert.assertNotNull(expectedMsg, appender.events.get(0).getMessage());
       Assert.assertEquals(expectedMsg, appender.events.get(0).getMessage().getFormattedMessage());
-    }
-    if (t != null) {
-      Assert.assertTrue(!appender.events.isEmpty());
-      // TODO .. appender.events.get(0).getThrown() always return null
     }
   }
 
