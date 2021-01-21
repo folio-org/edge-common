@@ -31,7 +31,9 @@ public class SecureStoreFactory {
       ret = new EphemeralStore(props);
     }
 
-    logger.info(String.format("type: %s, class: %s", type, ret.getClass().getName()));
+    if (logger.isInfoEnabled()) {
+      logger.info("type: {}, class: {}", type, ret.getClass().getName());
+    }
     return ret;
   }
 
