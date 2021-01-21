@@ -24,6 +24,16 @@ public class TestUtilsTest {
   }
 
   @Test
+  public void testGetPort2() throws IOException {
+    int port1 = TestUtils.getPort();
+    ServerSocket serverSocket = new ServerSocket(port1);
+    TestUtils.resetGetPort();
+    int port2 = TestUtils.getPort();
+    Assert.assertNotEquals(port1, port2);
+    serverSocket.close();
+  }
+
+  @Test
   public void testIsLocalFreePort() throws IOException {
     int port = TestUtils.getPort();
     ServerSocket serverSocket = new ServerSocket(port);

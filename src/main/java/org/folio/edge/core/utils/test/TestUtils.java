@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
@@ -19,15 +19,22 @@ public class TestUtils {
 
   }
 
+  private static final int PORT_MIN = 49152;
+  private static final int PORT_MAX = 65534;
+  private static final AtomicInteger p = new AtomicInteger(PORT_MAX);
+
   /**
    * return free TCP port.
    *
-   * <p>An almost copy of the implementation in RMB.
+   * <p>An based on implementation in RMB.
    */
   public static int getPort() {
     int maxTries = 10000;
     while (true) {
-      int port = ThreadLocalRandom.current().nextInt(49152 , 65535);
+      int port = p.incrementAndGet();
+      if (port > PORT_MAX) {
+        p.set(PORT_MIN);
+      }
       if (maxTries == 0 || isLocalPortFree(port)) {
         return port;
       }
@@ -35,6 +42,9 @@ public class TestUtils {
     }
   }
 
+  static void resetGetPort() {
+    p.set(PORT_MAX);
+  }
   /**
    * Check a local TCP port.
    * @param port  the TCP port number, must be from 1 ... 65535
