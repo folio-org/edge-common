@@ -29,8 +29,6 @@
   </licenses>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -46,7 +44,7 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>4.3.0</version>
+      <version>4.3.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -137,13 +135,12 @@
   <build>
     <plugins>
       <!-- We specify the Maven compiler plugin as we need to set it to
-        Java 1.8 -->
+        Java 11 -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.8.1</version>
         <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
+          <release>11</release>
         </configuration>
       </plugin>
 

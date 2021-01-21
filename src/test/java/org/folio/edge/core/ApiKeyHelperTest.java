@@ -8,8 +8,6 @@ import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.utils.test.TestUtils;
@@ -18,6 +16,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
