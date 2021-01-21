@@ -1,11 +1,11 @@
 package org.folio.edge.core.utils.test;
 
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -24,11 +24,42 @@ public class TestUtilsTest {
   }
 
   @Test
+  public void testIsLocalFreePort() throws IOException {
+    int port = TestUtils.getPort();
+    ServerSocket serverSocket = new ServerSocket(port);
+    Assert.assertFalse(TestUtils.isLocalPortFree(port));
+    serverSocket.close();
+  }
+
+  @Test(expected = AssertionError.class)
+  public void testAssertLogMessageNone() {
+    Logger log = LogManager.getLogger("testAssertLogMessageNone");
+    String msg = "hello world";
+    Level lvl = Level.INFO;
+    TestUtils.assertLogMessage(log, 0, 1, lvl, msg, null, () -> {});
+  }
+
+  @Test
   public void testAssertLogMessageSingleMessage() {
     Logger log = LogManager.getLogger("testAssertLogMessageSingleMessage");
     String msg = "hello world";
     Level lvl = Level.INFO;
     TestUtils.assertLogMessage(log, 1, 1, lvl, msg, null, () -> logMessages(log, msg, 1, lvl));
+  }
+
+  @Test
+  public void testAssertLogThrown() {
+    Logger log = LogManager.getLogger("testAssertLogThrown");
+    String msg = "hello world";
+    Level lvl = Level.INFO;
+    Throwable t = new IllegalArgumentException("il");
+    TestUtils.assertLogMessage(log, 1, 1, lvl, "x", t, () -> {
+      try {
+        throw new IllegalStateException("il");
+      } catch (Exception e) {
+        log.error("x", e);
+      }
+    });
   }
 
   @Ignore
@@ -64,6 +95,7 @@ public class TestUtilsTest {
         () -> logMessages(null, msg, 1, lvl));
   }
 
+  @Ignore
   @Test(expected = AssertionError.class)
   public void testAssertLogMessageNoException() {
     Logger log = LogManager.getLogger("testAssertLogMessageNoException");

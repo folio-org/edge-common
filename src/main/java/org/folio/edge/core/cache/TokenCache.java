@@ -19,9 +19,9 @@ public class TokenCache {
   private Cache<String> cache;
 
   private TokenCache(long ttl, long nullTokenTtl, int capacity) {
-    logger.info("Using TTL: " + ttl);
-    logger.info("Using null token TTL: " + nullTokenTtl);
-    logger.info("Using capcity: " + capacity);
+    logger.info("Using TTL: {}", ttl);
+    logger.info("Using null token TTL: {}", nullTokenTtl);
+    logger.info("Using capcity: {}", capacity);
     cache = new Builder<String>()
       .withTTL(ttl)
       .withNullValueTTL(nullTokenTtl)
@@ -33,7 +33,7 @@ public class TokenCache {
    * Get the TokenCache singleton. the singleton must be initialize before
    * calling this method.
    *
-   * @see {@link #initialize(long, int)}
+   * @see {@link #initialize(long, long, int)}
    *
    * @return the TokenCache singleton instance.
    */

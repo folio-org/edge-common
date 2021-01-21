@@ -35,7 +35,7 @@ public class EphemeralStore extends SecureStore {
             String password = credentials.length > 1 ? credentials[1] : "";
             put(tenant, user, password);
           } else {
-            logger.error("Error extracting user/password for tenant: " + tenant);
+            logger.error("Error extracting user/password for tenant: {}", tenant);
           }
         }
       }

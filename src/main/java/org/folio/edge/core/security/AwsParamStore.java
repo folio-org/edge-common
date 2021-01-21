@@ -70,7 +70,7 @@ public class AwsParamStore extends SecureStore {
           credProvider.getCredentials();
         }
       }
-      logger.info("Using " + credProvider.getClass().getName());
+      logger.info("Using {}", credProvider.getClass().getName());
       builder.withCredentials(credProvider);
     }
 

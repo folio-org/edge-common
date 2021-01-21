@@ -66,7 +66,7 @@ public class Cache<T> {
   }
 
   private void prune() {
-    logger.info("Cache size before pruning: " + storage.size());
+    logger.info("Cache size before pruning: {}", storage.size());
 
     LinkedHashMap<String, CacheValue<T>> updated = new LinkedHashMap<>(capacity);
     Iterator<String> keyIter = storage.keySet().iterator();
@@ -76,24 +76,22 @@ public class Cache<T> {
       if (val != null && !val.expired()) {
         updated.put(key, val);
       } else {
-        logger.info("Pruning expired cache entry: " + key);
+        logger.info("Pruning expired cache entry: {}", key);
       }
     }
 
     if (updated.size() > capacity) {
       // this works because LinkedHashMap maintains order of insertion
       String key = updated.keySet().iterator().next();
-      logger.info(String
-        .format(
-            "Cache is above capacity and doesn't contain expired entries.  Removing oldest entry (%s)",
-            key));
+      logger.info("Cache is above capacity and doesn't contain expired entries."
+              + " Removing oldest entry ({})", key);
       updated.remove(key);
     }
 
     // atomic swap-in updated cache.
     storage = updated;
 
-    logger.info("Cache size after pruning: " + updated.size());
+    logger.info("Cache size after pruning: {}", updated.size());
   }
 
   /**
