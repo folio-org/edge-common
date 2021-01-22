@@ -59,7 +59,7 @@ public class ApiKeyUtils {
     }
 
     if (tenantId == null || tenantId.isEmpty()) {
-      throw new IllegalArgumentException("TenanID cannot be null");
+      throw new IllegalArgumentException("TenantID cannot be null");
     }
 
     if (username == null || username.isEmpty()) {

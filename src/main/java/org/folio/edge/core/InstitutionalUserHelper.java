@@ -26,7 +26,7 @@ public class InstitutionalUserHelper {
 
   /**
    * @deprecated Use
-   *             {@link #org.folio.edge.core.utils.ApiKeyUtils.parseApiKey(String)}
+   *             {@link org.folio.edge.core.utils.ApiKeyUtils#parseApiKey(String)}
    *             instead
    * @param apiKey
    *          - The API key to parse
@@ -59,7 +59,7 @@ public class InstitutionalUserHelper {
       try {
         password = secureStore.get(clientId, tenant, username);
       } catch (NotFoundException e) {
-        logger.error("Exception retreiving password", e);
+        logger.error("Exception retrieving password", e);
         future.completeExceptionally(e);
         return future;
       }
