@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.Level;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;

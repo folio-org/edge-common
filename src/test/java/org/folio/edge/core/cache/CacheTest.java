@@ -6,14 +6,15 @@ import static org.junit.Assert.assertNull;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.Cache.CacheValue;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CacheTest {
 
-  private static final Logger logger = Logger.getLogger(CacheTest.class);
+  private static final Logger logger = LogManager.getLogger(CacheTest.class);
 
   final int cap = 50;
   final long ttl = 3000;

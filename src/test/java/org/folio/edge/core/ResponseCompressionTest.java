@@ -11,7 +11,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.test.MockOkapi;
 import org.folio.edge.core.utils.test.TestUtils;
@@ -38,7 +39,7 @@ import static org.mockito.Mockito.spy;
 @RunWith(VertxUnitRunner.class)
 public class ResponseCompressionTest {
 
-    private static final Logger logger = Logger.getLogger(EdgeVerticle2Test.class);
+    private static final Logger logger = LogManager.getLogger(ResponseCompressionTest.class);
 
     private static final String apiKey = "eyJzIjoiZ0szc0RWZ3labCIsInQiOiJkaWt1IiwidSI6ImRpa3UifQ==";
     private static final long requestTimeoutMs = 10000L;

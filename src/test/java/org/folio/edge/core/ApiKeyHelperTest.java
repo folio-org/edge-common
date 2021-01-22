@@ -8,7 +8,8 @@ import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -17,7 +18,6 @@ import org.junit.runner.RunWith;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
@@ -31,7 +31,7 @@ import io.vertx.ext.web.RoutingContext;
 @RunWith(VertxUnitRunner.class)
 public class ApiKeyHelperTest {
 
-  private static final Logger logger = Logger.getLogger(ApiKeyHelperTest.class);
+  private static final Logger logger = LogManager.getLogger(ApiKeyHelperTest.class);
   private static TestVerticle verticle;
 
   public static final String headerKey = "111111";
@@ -168,7 +168,7 @@ public class ApiKeyHelperTest {
   }
 
   private static class TestVerticle {
-    private static final Logger logger = Logger.getLogger(TestVerticle.class);
+    private static final Logger logger = LogManager.getLogger(TestVerticle.class);
 
     public final int port;
     protected final Vertx vertx;
