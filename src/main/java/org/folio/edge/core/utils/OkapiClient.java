@@ -16,7 +16,6 @@ import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
-import org.apache.log4j.Logger;
 
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -24,10 +23,12 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonObject;
 import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class OkapiClient {
 
-  private static final Logger logger = Logger.getLogger(OkapiClient.class);
+  private static final Logger logger = LogManager.getLogger(OkapiClient.class);
 
   public final String okapiURL;
   public final WebClient client;

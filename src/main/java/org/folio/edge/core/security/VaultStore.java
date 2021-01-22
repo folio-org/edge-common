@@ -3,12 +3,12 @@ package org.folio.edge.core.security;
 import java.io.File;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.bettercloud.vault.SslConfig;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class VaultStore extends SecureStore {
 
@@ -25,7 +25,7 @@ public class VaultStore extends SecureStore {
   public static final String DEFAULT_VAULT_ADDRESS = "http://127.0.0.1:8200";
   public static final String DEFAULT_VAULT_USER_SSL = "false";
 
-  private static final Logger logger = Logger.getLogger(VaultStore.class);
+  private static final Logger logger = LogManager.getLogger(VaultStore.class);
 
   private Vault vault;
 

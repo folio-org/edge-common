@@ -13,7 +13,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.utils.test.MockOkapi;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.After;
@@ -32,7 +33,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 @RunWith(VertxUnitRunner.class)
 public class OkapiClientTest {
 
-  private static final Logger logger = Logger.getLogger(OkapiClientTest.class);
+  private static final Logger logger = LogManager.getLogger(OkapiClientTest.class);
 
   private static final String tenant = "diku";
   private static final int reqTimeout = 3000;

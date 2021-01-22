@@ -4,8 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.ContainerCredentialsProvider;
@@ -15,10 +13,12 @@ import com.amazonaws.internal.CredentialsEndpointProvider;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AwsParamStore extends SecureStore {
 
-  protected static final Logger logger = Logger.getLogger(AwsParamStore.class);
+  protected static final Logger logger = LogManager.getLogger(AwsParamStore.class);
 
   public static final String TYPE = "AwsSsm";
 
@@ -70,7 +70,7 @@ public class AwsParamStore extends SecureStore {
           credProvider.getCredentials();
         }
       }
-      logger.info("Using " + credProvider.getClass().getName());
+      logger.info("Using {}", credProvider.getClass().getName());
       builder.withCredentials(credProvider);
     }
 

@@ -14,7 +14,8 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.http.HttpHeaders;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
@@ -44,7 +45,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 @RunWith(VertxUnitRunner.class)
 public class AwsParamStoreTest {
 
-  private static final Logger logger = Logger.getLogger(AwsParamStoreTest.class);
+  private static final Logger logger = LogManager.getLogger(AwsParamStoreTest.class);
 
   private static final String mockCreds = "{\n" +
       "  \"RoleArn\": \"arn:aws:iam::0011223344556:role/Role-ecs-task\",\n" +

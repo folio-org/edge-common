@@ -5,7 +5,8 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EphemeralStore extends SecureStore {
 
@@ -16,7 +17,7 @@ public class EphemeralStore extends SecureStore {
   // split on comma, ignoring surrounding whitespace
   public static final Pattern COMMA = Pattern.compile("\\s*[,]\\s*");
 
-  protected static final Logger logger = Logger.getLogger(EphemeralStore.class);
+  protected static final Logger logger = LogManager.getLogger(EphemeralStore.class);
   protected final Map<String, String> store = new ConcurrentHashMap<>();
 
   public EphemeralStore(Properties properties) {
@@ -34,7 +35,7 @@ public class EphemeralStore extends SecureStore {
             String password = credentials.length > 1 ? credentials[1] : "";
             put(tenant, user, password);
           } else {
-            logger.error("Error extracting user/password for tenant: " + tenant);
+            logger.error("Error extracting user/password for tenant: {}", tenant);
           }
         }
       }

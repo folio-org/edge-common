@@ -5,13 +5,13 @@ import static org.folio.edge.core.Constants.MSG_INVALID_API_KEY;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.folio.edge.core.Constants.TEXT_XML;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.ext.web.client.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
-
-import io.vertx.core.buffer.Buffer;
-import io.vertx.ext.web.client.HttpResponse;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.ApiKeyUtils;
@@ -24,7 +24,7 @@ import io.vertx.ext.web.RoutingContext;
 
 public class Handler {
 
-  private static final Logger logger = Logger.getLogger(Handler.class);
+  private static final Logger logger = LogManager.getLogger(Handler.class);
 
   protected InstitutionalUserHelper iuHelper;
   protected OkapiClientFactory ocf;

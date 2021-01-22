@@ -2,11 +2,12 @@ package org.folio.edge.core.security;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SecureStoreFactory {
 
-  private static final Logger logger = Logger.getLogger(SecureStoreFactory.class);
+  protected static final Logger logger = LogManager.getLogger(SecureStoreFactory.class);
 
   private SecureStoreFactory() {
 
@@ -30,7 +31,9 @@ public class SecureStoreFactory {
       ret = new EphemeralStore(props);
     }
 
-    logger.info(String.format("type: %s, class: %s", type, ret.getClass().getName()));
+    if (logger.isInfoEnabled()) {
+      logger.info("type: {}, class: {}", type, ret.getClass().getName());
+    }
     return ret;
   }
 
