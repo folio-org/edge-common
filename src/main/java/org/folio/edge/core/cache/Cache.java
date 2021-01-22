@@ -1,7 +1,6 @@
 package org.folio.edge.core.cache;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,14 +68,13 @@ public class Cache<T> {
     logger.info("Cache size before pruning: {}", storage.size());
 
     LinkedHashMap<String, CacheValue<T>> updated = new LinkedHashMap<>(capacity);
-    for (Map.Entry<String, CacheValue<T>> entry : storage.entrySet()) {
-      CacheValue<T> val = entry.getValue();
+    storage.forEach((key, val) -> {
       if (val != null && !val.expired()) {
-        updated.put(entry.getKey(), val);
+        updated.put(key, val);
       } else {
-        logger.info("Pruning expired cache entry: {}", entry.getKey());
+        logger.info("Pruning expired cache entry: {}", key);
       }
-    }
+    });
 
     if (updated.size() > capacity) {
       // this works because LinkedHashMap maintains order of insertion
