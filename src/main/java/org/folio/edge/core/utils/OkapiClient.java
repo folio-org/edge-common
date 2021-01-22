@@ -145,8 +145,8 @@ public class OkapiClient {
                    Handler<HttpResponse<Buffer>> responseHandler,
                    Handler<Throwable> exceptionHandler) {
     post(url, tenant, payload, headers)
-        .onSuccess(res -> responseHandler.handle(res))
-        .onFailure(cause -> exceptionHandler.handle(cause));
+        .onSuccess(responseHandler)
+        .onFailure(exceptionHandler);
   }
 
   public Future<HttpResponse<Buffer>> post(String url, String tenant, String payload, MultiMap headers) {
@@ -181,8 +181,8 @@ public class OkapiClient {
                      Handler<HttpResponse<Buffer>> responseHandler,
                      Handler<Throwable> exceptionHandler) {
     delete(url, tenant, headers)
-        .onSuccess(res -> responseHandler.handle(res))
-        .onFailure(cause -> exceptionHandler.handle(cause));
+        .onSuccess(responseHandler)
+        .onFailure(exceptionHandler);
   }
 
   public Future<HttpResponse<Buffer>> delete(String url, String tenant, MultiMap headers) {
@@ -208,8 +208,8 @@ public class OkapiClient {
   public void put(String url, String tenant, MultiMap headers,
                   Handler<HttpResponse<Buffer>> responseHandler, Handler<Throwable> exceptionHandler) {
     put(url, tenant, headers)
-        .onSuccess(res -> responseHandler.handle(res))
-        .onFailure(cause -> exceptionHandler.handle(cause));
+        .onSuccess(responseHandler)
+        .onFailure(exceptionHandler);
   }
 
   public Future<HttpResponse<Buffer>> put(String url, String tenant, MultiMap headers) {
@@ -235,8 +235,8 @@ public class OkapiClient {
   public void get(String url, String tenant, MultiMap headers,
                   Handler<HttpResponse<Buffer>> responseHandler, Handler<Throwable> exceptionHandler) {
     get(url, tenant, headers)
-        .onSuccess(res -> responseHandler.handle(res))
-        .onFailure(cause -> exceptionHandler.handle(cause));
+        .onSuccess(responseHandler)
+        .onFailure(exceptionHandler);
   }
 
   public Future<HttpResponse<Buffer>> get(String url, String tenant, MultiMap headers) {

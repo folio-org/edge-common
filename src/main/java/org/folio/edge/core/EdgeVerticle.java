@@ -109,7 +109,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
   public void start(Promise<Void> promise) {
     server.requestHandler(router).listen(port)
         .onSuccess(res -> promise.complete())
-        .onFailure(cause -> promise.fail(cause));
+        .onFailure(promise::fail);
   }
 
   public abstract Router defineRoutes();
