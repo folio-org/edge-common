@@ -94,10 +94,9 @@ public class OkapiClient {
             setToken(token);
             future.complete(token);
           } else {
-            logger.warn(String.format(
-                "Failed to log into FOLIO: (%s) %s",
-                response.statusCode(),
-                response.bodyAsString()));
+            logger.warn("Failed to log into FOLIO: ({}) {}",
+                () -> response.statusCode(),
+                () -> response.bodyAsString());
             future.complete(null);
           }
         },
@@ -117,7 +116,8 @@ public class OkapiClient {
           if (status == 200) {
             future.complete(true);
           } else {
-            logger.error(String.format("OKAPI is unhealthy! status: %s body: %s", status, response.bodyAsString()));
+            logger.error("OKAPI is unhealthy! status: {} body: {}",
+                () -> status, response::bodyAsString);
             future.complete(false);
           }
         },
@@ -159,12 +159,11 @@ public class OkapiClient {
       request.headers().setAll(defaultHeaders);
     }
 
-    if (logger.isTraceEnabled()) {
-      logger.trace(String.format("POST %s Request: %s tenant: %s token: %s", url, payload, tenant,
-          request.headers().get(X_OKAPI_TOKEN)));
-    }
+    logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant,
+        () -> request.headers().get(X_OKAPI_TOKEN));
 
     if (payload != null) {
+      logger.trace("Payload {}", () -> payload);
       return request.sendBuffer(Buffer.buffer(payload));
     } else {
       return request.send();
@@ -193,8 +192,8 @@ public class OkapiClient {
       request.headers().setAll(defaultHeaders);
     }
 
-    logger.info(String.format("DELETE %s tenant: %s token: %s", url, tenant,
-        request.headers().get(X_OKAPI_TOKEN)));
+    logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant,
+        () -> request.headers().get(X_OKAPI_TOKEN));
 
     return request.send();
   }
@@ -220,8 +219,8 @@ public class OkapiClient {
       request.headers().setAll(defaultHeaders);
     }
 
-    logger.info(String.format("PUT %s tenant: %s token: %s", url, tenant,
-        request.headers().get(X_OKAPI_TOKEN)));
+    logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant,
+        () ->request.headers().get(X_OKAPI_TOKEN));
 
     return request.send();
   }
@@ -246,8 +245,8 @@ public class OkapiClient {
     } else {
       request.headers().setAll(defaultHeaders);
     }
-    logger.info(String.format("GET %s tenant: %s token: %s", url, tenant,
-        request.headers().get(X_OKAPI_TOKEN)));
+    logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant,
+        () -> request.headers().get(X_OKAPI_TOKEN));
 
     return request.send();
   }
