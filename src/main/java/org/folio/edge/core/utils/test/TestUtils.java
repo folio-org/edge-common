@@ -101,13 +101,13 @@ public class TestUtils {
     Assert.assertNull(t);
 
     if (logLevel != null) {
-      Assert.assertTrue(!appender.events.isEmpty());
+      Assert.assertFalse(appender.events.isEmpty());
       Level gotLevel = appender.events.get(0).getLevel();
       Assert.assertTrue(gotLevel == Level.OFF || gotLevel == logLevel);
     }
 
     if (expectedMsg != null) {
-      Assert.assertTrue(!appender.events.isEmpty());
+      Assert.assertFalse(appender.events.isEmpty());
       Assert.assertNotNull(expectedMsg, appender.events.get(0).getMessage());
       Assert.assertEquals(expectedMsg, appender.events.get(0).getMessage().getFormattedMessage());
     }

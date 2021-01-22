@@ -180,6 +180,6 @@ public class Handler {
 
   @FunctionalInterface
   public interface TwoParamVoidFunction<A, B> {
-    public void apply(A a, B b);
+    void apply(A a, B b);
   }
 }
