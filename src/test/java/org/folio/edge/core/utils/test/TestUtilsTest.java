@@ -34,7 +34,7 @@ public class TestUtilsTest {
   }
 
   @Test
-  public void testGetPortMaxTries0() throws IOException {
+  public void testGetPortMaxTries0() {
     int port = TestUtils.getPort(0);
     assertTrue(port >= 49152);
     assertTrue(port <= 65535);

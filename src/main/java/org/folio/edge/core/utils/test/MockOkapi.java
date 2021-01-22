@@ -107,7 +107,7 @@ public class MockOkapi {
       final long max = dur;
 
       VertxCompletableFuture.runAsync(() -> {
-        logger.info("Waiting until " + new Date(end) + " before coninuting");
+        logger.info("Waiting until " + new Date(end) + " before continuing");
         try {
           await().with()
             .pollInterval(500, TimeUnit.MILLISECONDS)
@@ -136,7 +136,7 @@ public class MockOkapi {
 
     String contentType = TEXT_PLAIN;
     int status;
-    String resp = null;
+    String resp;
     if (tenant == null) {
       status = 400;
       resp = "Unable to process request Tenant must be set";

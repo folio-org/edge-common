@@ -64,13 +64,4 @@ public class EphemeralStore extends SecureStore {
   public String getKey(String tenant, String username) {
     return String.format("%s_%s", tenant, username);
   }
-
-  public static class NoCredentialsDefinedException extends RuntimeException {
-
-    private static final long serialVersionUID = 1811051169841565668L;
-
-    public NoCredentialsDefinedException() {
-      super("No tenants/credentials defined");
-    }
-  }
 }

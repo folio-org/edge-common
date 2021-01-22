@@ -40,7 +40,7 @@ public class MockOkapiTest {
   private static MockOkapi mockOkapi;
 
   @BeforeClass
-  public static void setUp(TestContext context) throws Exception {
+  public static void setUp(TestContext context) {
     int okapiPort = TestUtils.getPort();
 
     List<String> knownTenants = new ArrayList<>();
@@ -63,7 +63,7 @@ public class MockOkapiTest {
   }
 
   @Test
-  public void testLogin(TestContext context) throws Exception {
+  public void testLogin(TestContext context) {
     logger.info("=== Test successful login ===");
 
     JsonObject payload = new JsonObject();
