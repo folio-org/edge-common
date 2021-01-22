@@ -70,9 +70,9 @@ public class Cache<T> {
 
     LinkedHashMap<String, CacheValue<T>> updated = new LinkedHashMap<>(capacity);
     for (Map.Entry<String, CacheValue<T>> entry : storage.entrySet()) {
-      CacheValue<T> value = entry.getValue();
-      if (value != null && !value.expired()) {
-        updated.put(entry.getKey(), value);
+      CacheValue<T> val = entry.getValue();
+      if (val != null && !val.expired()) {
+        updated.put(entry.getKey(), val);
       } else {
         logger.info("Pruning expired cache entry: {}", entry.getKey());
       }
