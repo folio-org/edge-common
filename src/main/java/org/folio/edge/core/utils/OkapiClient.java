@@ -54,7 +54,8 @@ public class OkapiClient {
     this.okapiURL = okapiURL;
     this.tenant = tenant;
     WebClientOptions options = new WebClientOptions().setKeepAlive(false).setTryUseCompression(true)
-        .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout);
+        .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout)
+        .setConnectTimeout(timeout);
     client = WebClient.create(vertx, options);
     initDefaultHeaders();
   }
@@ -162,8 +163,6 @@ public class OkapiClient {
       logger.trace(String.format("POST %s Request: %s tenant: %s token: %s", url, payload, tenant,
           request.headers().get(X_OKAPI_TOKEN)));
     }
-
-    // TODO   .setTimeout(reqTimeout);
 
     if (payload != null) {
       return request.sendBuffer(Buffer.buffer(payload));
