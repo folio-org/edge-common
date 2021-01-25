@@ -39,8 +39,6 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
 
   private static final Logger logger = LogManager.getLogger(EdgeVerticle2.class);
 
-  private static Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
-
   protected SecureStore secureStore;
 
   @Override
@@ -49,25 +47,25 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
     config().mergeIn(jo.mergeIn(config()));
 
     final int port = config().getInteger(SYS_PORT);
-    logger.info("Using port: " + port);
+    logger.info("Using port: {}", port);
 
     final String logLvl = config().getString(SYS_LOG_LEVEL);
     Configurator.setRootLevel(Level.toLevel(logLvl));
-    logger.info("Using log level: " + logLvl);
+    logger.info("Using log level: {}", logLvl);
 
-    logger.info("Using okapi URL: " + config().getString(SYS_OKAPI_URL));
-    logger.info("Using API key sources: " + config().getString(SYS_API_KEY_SOURCES));
+    logger.info("Using okapi URL: {}", config().getString(SYS_OKAPI_URL));
+    logger.info("Using API key sources: {}", config().getString(SYS_API_KEY_SOURCES));
 
     final long cacheTtlMs = config().getLong(SYS_TOKEN_CACHE_TTL_MS);
-    logger.info("Using token cache TTL (ms): " + cacheTtlMs);
+    logger.info("Using token cache TTL (ms): {}", cacheTtlMs);
 
     final long failureCacheTtlMs = config().getLong(SYS_NULL_TOKEN_CACHE_TTL_MS);
-    logger.info("Using token cache TTL (ms): " + failureCacheTtlMs);
+    logger.info("Using token cache TTL (ms): {}", failureCacheTtlMs);
 
     final int cacheCapacity = config().getInteger(SYS_TOKEN_CACHE_CAPACITY);
-    logger.info("Using token cache capacity: " + cacheCapacity);
+    logger.info("Using token cache capacity: {}", cacheCapacity);
 
-    logger.info("Using request timeout (ms): " + config().getLong(SYS_REQUEST_TIMEOUT_MS));
+    logger.info("Using request timeout (ms): {}", config().getLong(SYS_REQUEST_TIMEOUT_MS));
 
     // initialize the TokenCache
     TokenCache.initialize(cacheTtlMs, failureCacheTtlMs, cacheCapacity);
@@ -76,7 +74,7 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
 
     // initialize response compression
     final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
-    logger.info("Response compression enabled: " + isCompressionSupported);
+    logger.info("Response compression enabled: {}", isCompressionSupported);
     final HttpServerOptions serverOptions = new HttpServerOptions();
     serverOptions.setCompressionSupported(isCompressionSupported);
 
