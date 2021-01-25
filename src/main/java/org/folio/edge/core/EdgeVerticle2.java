@@ -35,6 +35,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
+/**
+ * Verticle for edge module.
+ */
 public abstract class EdgeVerticle2 extends AbstractVerticle {
 
   private static final Logger logger = LogManager.getLogger(EdgeVerticle2.class);

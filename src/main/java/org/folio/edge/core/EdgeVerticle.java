@@ -42,6 +42,11 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
+/**
+ * Verticle for edge module.
+ * Deprecated, use {@link EdgeVerticle2} instead.
+ */
+@Deprecated
 public abstract class EdgeVerticle extends AbstractVerticle {
 
   private static final Logger logger = LogManager.getLogger(EdgeVerticle.class);
