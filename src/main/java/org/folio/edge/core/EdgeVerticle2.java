@@ -15,18 +15,7 @@ import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_CAPACITY;
 import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 
-import java.util.Properties;
-import java.util.regex.Pattern;
-
 import io.vertx.core.http.HttpServerOptions;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.folio.edge.core.cache.TokenCache;
-import org.folio.edge.core.security.SecureStore;
-import org.folio.edge.core.security.SecureStoreFactory;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpHeaders;
@@ -34,6 +23,16 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+
+import java.util.Properties;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.folio.edge.core.cache.TokenCache;
+import org.folio.edge.core.security.SecureStore;
+import org.folio.edge.core.security.SecureStoreFactory;
 
 public abstract class EdgeVerticle2 extends AbstractVerticle {
 
