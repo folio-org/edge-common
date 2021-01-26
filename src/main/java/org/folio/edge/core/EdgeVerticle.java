@@ -35,7 +35,7 @@ import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
@@ -57,7 +57,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
   public final int port;
   public final String okapiURL;
   public final String apiKeySources;
-  public final long reqTimeoutMs;
+  public final int reqTimeoutMs;
 
   public final HttpServer server;
   public final SecureStore secureStore;
@@ -68,36 +68,36 @@ public abstract class EdgeVerticle extends AbstractVerticle {
 
     final String logLvl = System.getProperty(SYS_LOG_LEVEL, DEFAULT_LOG_LEVEL);
     Configurator.setRootLevel(Level.toLevel(logLvl));
-    logger.info("Using log level: " + logLvl);
+    logger.info("Using log level: {}", logLvl);
 
     final String portStr = System.getProperty(SYS_PORT, DEFAULT_PORT);
     port = Integer.parseInt(portStr);
-    logger.info("Using port: " + port);
+    logger.info("Using port: {}", port);
 
     okapiURL = System.getProperty(SYS_OKAPI_URL);
-    logger.info("Using okapi URL: " + okapiURL);
+    logger.info("Using okapi URL: {}", okapiURL);
 
     apiKeySources = System.getProperty(SYS_API_KEY_SOURCES);
-    logger.info("Using API key sources: " + apiKeySources);
+    logger.info("Using API key sources: {}", apiKeySources);
 
     final String tokenCacheTtlMs = System.getProperty(SYS_TOKEN_CACHE_TTL_MS);
     final long cacheTtlMs = tokenCacheTtlMs != null ? Long.parseLong(tokenCacheTtlMs) : DEFAULT_TOKEN_CACHE_TTL_MS;
-    logger.info("Using token cache TTL (ms): " + tokenCacheTtlMs);
+    logger.info("Using token cache TTL (ms): {}", tokenCacheTtlMs);
 
     final String nullTokenCacheTtlMs = System.getProperty(SYS_NULL_TOKEN_CACHE_TTL_MS);
     final long failureCacheTtlMs = nullTokenCacheTtlMs != null ? Long.parseLong(nullTokenCacheTtlMs)
         : DEFAULT_NULL_TOKEN_CACHE_TTL_MS;
-    logger.info("Using token cache TTL (ms): " + failureCacheTtlMs);
+    logger.info("Using token cache TTL (ms): {}", failureCacheTtlMs);
 
     final String tokenCacheCapacity = System.getProperty(SYS_TOKEN_CACHE_CAPACITY);
     final int cacheCapacity = tokenCacheCapacity != null ? Integer.parseInt(tokenCacheCapacity)
         : DEFAULT_TOKEN_CACHE_CAPACITY;
-    logger.info("Using token cache capacity: " + tokenCacheCapacity);
+    logger.info("Using token cache capacity: {}", tokenCacheCapacity);
 
     final String requestTimeout = System.getProperty(SYS_REQUEST_TIMEOUT_MS);
-    reqTimeoutMs = requestTimeout != null ? Long.parseLong(requestTimeout)
+    reqTimeoutMs = requestTimeout != null ? Integer.parseInt(requestTimeout)
         : DEFAULT_REQUEST_TIMEOUT_MS;
-    logger.info("Using request timeout (ms): " + reqTimeoutMs);
+    logger.info("Using request timeout (ms): {}", reqTimeoutMs);
 
     // initialize the TokenCache
     TokenCache.initialize(cacheTtlMs, failureCacheTtlMs, cacheCapacity);
@@ -112,19 +112,26 @@ public abstract class EdgeVerticle extends AbstractVerticle {
   }
 
   @Override
-  public void start(Future<Void> future) {
-    server.requestHandler(router::accept).listen(port, result -> {
-      if (result.succeeded()) {
-        future.complete();
-      } else {
-        future.fail(result.cause());
-      }
-    });
+  public void start(Promise<Void> promise) {
+    server.requestHandler(router)
+        .listen(port)
+        .<Void>mapEmpty()
+        .onComplete(promise);
   }
 
   public abstract Router defineRoutes();
 
   protected SecureStore initializeSecureStore(String secureStorePropFile) {
+    Properties secureStoreProps = getProperties(secureStorePropFile);
+
+    // Order of precedence: system property, properties file, default
+    String type = System.getProperty(SYS_SECURE_STORE_TYPE,
+        secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
+
+    return SecureStoreFactory.getSecureStore(type, secureStoreProps);
+  }
+
+  static Properties getProperties(String secureStorePropFile) {
     Properties secureStoreProps = new Properties();
 
     if (secureStorePropFile != null) {
@@ -146,12 +153,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
     } else {
       logger.warn("No secure store properties file specified.  Using defaults");
     }
-
-    // Order of precedence: system property, properties file, default
-    String type = System.getProperty(SYS_SECURE_STORE_TYPE,
-        secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
-
-    return SecureStoreFactory.getSecureStore(type, secureStoreProps);
+    return secureStoreProps;
   }
 
   protected void handleHealthCheck(RoutingContext ctx) {

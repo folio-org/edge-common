@@ -94,7 +94,7 @@ public class AwsParamStoreTest {
     });
 
     final Async async = context.async();
-    server.requestHandler(router::accept).listen(port, result -> {
+    server.requestHandler(router).listen(port, result -> {
       if (result.failed()) {
         logger.warn(result.cause());
       }

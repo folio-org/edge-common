@@ -19,7 +19,6 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +40,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxException;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -59,7 +59,7 @@ public class EdgeVerticle2Test {
   private static final String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
   private static final String badApiKey = apiKey + "0000";
   private static final String unknownTenantApiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "foobarbaz", "userA");
-  private static final long requestTimeoutMs = 10000L;
+  private static final int requestTimeoutMs = 10000;
 
   private static Vertx vertx;
   private static MockOkapi mockOkapi;
@@ -251,7 +251,7 @@ public class EdgeVerticle2Test {
 
     @Override
     public Router defineRoutes() {
-      OkapiClientFactory ocf = new OkapiClientFactory(vertx, config().getString(SYS_OKAPI_URL), config().getLong(SYS_REQUEST_TIMEOUT_MS));
+      OkapiClientFactory ocf = new OkapiClientFactory(vertx, config().getString(SYS_OKAPI_URL), config().getInteger(SYS_REQUEST_TIMEOUT_MS));
       InstitutionalUserHelper iuHelper = new InstitutionalUserHelper(secureStore);
       ApiKeyHelper apiKeyHelper = new ApiKeyHelper("HEADER,PARAM,PATH");
 
@@ -320,7 +320,7 @@ public class EdgeVerticle2Test {
                 t -> handleProxyException(ctx, t));
           })
           .exceptionally(t -> {
-            if (t.getCause() instanceof TimeoutException) {
+            if (t.getCause() instanceof VertxException) {
               requestTimeout(ctx, MSG_REQUEST_TIMEOUT);
             } else {
               accessDenied(ctx, MSG_ACCESS_DENIED);

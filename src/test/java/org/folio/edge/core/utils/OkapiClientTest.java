@@ -36,7 +36,7 @@ public class OkapiClientTest {
   private static final Logger logger = LogManager.getLogger(OkapiClientTest.class);
 
   private static final String tenant = "diku";
-  private static final long reqTimeout = 3000L;
+  private static final int reqTimeout = 3000;
 
   private OkapiClientFactory ocf;
   private OkapiClient client;
@@ -45,7 +45,7 @@ public class OkapiClientTest {
   // ** setUp/tearDown **//
 
   @Before
-  public void setUp(TestContext context) throws Exception {
+  public void setUp(TestContext context) {
     int okapiPort = TestUtils.getPort();
 
     List<String> knownTenants = new ArrayList<>();
@@ -137,13 +137,11 @@ public class OkapiClientTest {
     client.delete(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
         tenant,
         headers,
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(status, resp.statusCode());
           async.complete();
-        }),
-        t -> {
-          context.fail(t);
-        });
+        },
+        t -> context.fail(t));
   }
 
   @Test
@@ -159,13 +157,11 @@ public class OkapiClientTest {
     client.put(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
         tenant,
         headers,
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(status, resp.statusCode());
           async.complete();
-        }),
-        t -> {
-          context.fail(t);
-        });
+        },
+        t -> context.fail(t));
   }
 
   @Test
@@ -186,12 +182,12 @@ public class OkapiClientTest {
         tenant,
         obj.encode(),
         headers,
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(status, resp.statusCode());
-          context.assertEquals(obj.encode(), body.toString());
-          context.assertEquals(APPLICATION_JSON, resp.getHeader(HttpHeaders.CONTENT_TYPE));
+          context.assertEquals(obj.encode(), resp.bodyAsString());
+          context.assertEquals(APPLICATION_JSON, resp.headers().get(HttpHeaders.CONTENT_TYPE));
           async.complete();
-        }),
+        },
         t -> {
           context.fail(t);
         });
@@ -211,14 +207,12 @@ public class OkapiClientTest {
     client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
         tenant,
         headers,
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(status, resp.statusCode());
           context.assertNull(resp.headers().get(HEADER_API_KEY));
           async.complete();
-        }),
-        t -> {
-          context.fail(t);
-        });
+        },
+        t -> context.fail(t));
   }
 
   @Test
@@ -228,13 +222,11 @@ public class OkapiClientTest {
     Async async = context.async();
     client.delete(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
         tenant,
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(200, resp.statusCode());
           async.complete();
-        }),
-        t -> {
-          context.fail(t);
-        });
+        },
+        t -> context.fail(t));
   }
 
   @Test
@@ -244,13 +236,11 @@ public class OkapiClientTest {
     Async async = context.async();
     client.put(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
         tenant,
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(200, resp.statusCode());
           async.complete();
-        }),
-        t -> {
-          context.fail(t);
-        });
+        },
+        t -> context.fail(t));
   }
 
   @Test
@@ -264,14 +254,12 @@ public class OkapiClientTest {
     client.post(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
         tenant,
         obj.encode(),
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(200, resp.statusCode());
-          context.assertEquals(obj.encode(), body.toString());
+          context.assertEquals(obj.encode(), resp.bodyAsString());
           async.complete();
-        }),
-        t -> {
-          context.fail(t);
-        });
+        },
+        t -> context.fail(t));
   }
 
   @Test
@@ -281,12 +269,10 @@ public class OkapiClientTest {
     Async async = context.async();
     client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
         tenant,
-        resp -> resp.bodyHandler(body -> {
+        resp -> {
           context.assertEquals(200, resp.statusCode());
           async.complete();
-        }),
-        t -> {
-          context.fail(t);
-        });
+        },
+        t -> context.fail(t));
   }
 }

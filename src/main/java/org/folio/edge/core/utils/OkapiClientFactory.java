@@ -11,9 +11,9 @@ public class OkapiClientFactory {
 
   public final String okapiURL;
   public final Vertx vertx;
-  public final long reqTimeoutMs;
+  public final int reqTimeoutMs;
 
-  public OkapiClientFactory(Vertx vertx, String okapiURL, long reqTimeoutMs) {
+  public OkapiClientFactory(Vertx vertx, String okapiURL, int reqTimeoutMs) {
     this.vertx = vertx;
     this.okapiURL = okapiURL;
     this.reqTimeoutMs = reqTimeoutMs;
