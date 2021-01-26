@@ -44,7 +44,8 @@ import io.vertx.ext.web.RoutingContext;
 
 /**
  * Verticle for edge module.
- * Deprecated, use {@link EdgeVerticle2} instead.
+ * @deprecated
+ * Use {@link EdgeVerticle2} instead.
  */
 @Deprecated
 public abstract class EdgeVerticle extends AbstractVerticle {
