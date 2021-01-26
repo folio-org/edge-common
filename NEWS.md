@@ -1,3 +1,12 @@
+## 3.1.0 2021-01-26
+
+There are no known breaking changes in this release, but modules should also
+upgrade to Java 11 and Log4j2 while using this release.
+
+ * [EDGCOMMON-23](https://issues.folio.org/browse/EDGCOMMON-23) Update edge-common to use Log4j2
+ * [EDGCOMMON-24](https://issues.folio.org/browse/EDGCOMMON-24) Update mockito
+ * [EDGCOMMON-28](https://issues.folio.org/browse/EDGCOMMON-28) Upgrade to Java 11
+
 ## 3.0.0 2020-10-29
 
 *IMPORTANT*: This release introduces breaking changes. There will be a single instance of okapi client per OkapiClientFactory and per tenant, which means that this client should never be closed or else there will be runtime errors. To enforce this behaviour, method close() has been removed from OkapiClient class.
