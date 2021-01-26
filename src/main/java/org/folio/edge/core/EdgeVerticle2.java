@@ -34,6 +34,10 @@ import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
 
+
+/**
+ * Verticle for edge module.
+ */
 public abstract class EdgeVerticle2 extends AbstractVerticle {
 
   private static final Logger logger = LogManager.getLogger(EdgeVerticle2.class);
