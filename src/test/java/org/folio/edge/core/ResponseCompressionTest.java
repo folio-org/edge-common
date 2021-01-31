@@ -69,7 +69,7 @@ public class ResponseCompressionTest {
                 .put(SYS_RESPONSE_COMPRESSION, true);
 
         final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
-        vertx.deployVerticle(EdgeVerticle2Test.TestVerticle.class.getName(), opt, context.asyncAssertSuccess());
+        vertx.deployVerticle(EdgeVerticleTest.TestVerticle.class.getName(), opt, context.asyncAssertSuccess());
 
         RestAssured.baseURI = "http://localhost:" + serverPort;
         RestAssured.port = serverPort;

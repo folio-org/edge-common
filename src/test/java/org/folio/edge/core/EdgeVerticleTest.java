@@ -52,9 +52,9 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 @RunWith(VertxUnitRunner.class)
-public class EdgeVerticle2Test {
+public class EdgeVerticleTest {
 
-  private static final Logger logger = LogManager.getLogger(EdgeVerticle2Test.class);
+  private static final Logger logger = LogManager.getLogger(EdgeVerticleTest.class);
 
   private static final String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
   private static final String badApiKey = apiKey + "0000";
@@ -247,7 +247,7 @@ public class EdgeVerticle2Test {
     assertEquals(MSG_REQUEST_TIMEOUT, resp.body().asString());
   }
 
-  public static class TestVerticle extends EdgeVerticle2 {
+  public static class TestVerticle extends EdgeVerticle {
 
     @Override
     public Router defineRoutes() {

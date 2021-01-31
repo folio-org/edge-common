@@ -42,9 +42,9 @@ import org.folio.edge.core.security.SecureStoreFactory;
 /**
  * Verticle for edge module.
  */
-public abstract class EdgeVerticle2 extends AbstractVerticle {
+public abstract class EdgeVerticle extends AbstractVerticle {
 
-  private static final Logger logger = LogManager.getLogger(EdgeVerticle2.class);
+  private static final Logger logger = LogManager.getLogger(EdgeVerticle.class);
 
   protected SecureStore secureStore;
 
