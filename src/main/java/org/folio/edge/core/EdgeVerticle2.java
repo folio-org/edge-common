@@ -24,7 +24,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -43,6 +47,8 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
   private static final Logger logger = LogManager.getLogger(EdgeVerticle2.class);
 
   protected SecureStore secureStore;
+
+  private static Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
 
   @Override
   public void start(Promise<Void> promise) {
@@ -94,13 +100,38 @@ public abstract class EdgeVerticle2 extends AbstractVerticle {
   public abstract Router defineRoutes();
 
   protected SecureStore initializeSecureStore(String secureStorePropFile) {
-    Properties secureStoreProps = EdgeVerticle.getProperties(secureStorePropFile);
+    Properties secureStoreProps = getProperties(secureStorePropFile);
 
     // Order of precedence: system property, properties file, default
     String type = config().getString(SYS_SECURE_STORE_TYPE,
         secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
 
     return SecureStoreFactory.getSecureStore(type, secureStoreProps);
+  }
+
+  static Properties getProperties(String secureStorePropFile) {
+    Properties secureStoreProps = new Properties();
+
+    if (secureStorePropFile != null) {
+      URL url = null;
+      try {
+        if (isURL.matcher(secureStorePropFile).matches()) {
+          url = new URL(secureStorePropFile);
+        }
+
+        try (
+            InputStream in = url == null ? new FileInputStream(secureStorePropFile) : url.openStream()) {
+          secureStoreProps.load(in);
+          logger.info("Successfully loaded properties from: " +
+              secureStorePropFile);
+        }
+      } catch (Exception e) {
+        logger.warn("Failed to load secure store properties.", e);
+      }
+    } else {
+      logger.warn("No secure store properties file specified.  Using defaults");
+    }
+    return secureStoreProps;
   }
 
   protected void handleHealthCheck(RoutingContext ctx) {
