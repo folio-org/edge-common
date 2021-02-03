@@ -17,6 +17,8 @@ The intent of edge-common is to simplify the implementation of edge APIs by prov
 
 1. Extend [EdgeVerticle](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/EdgeVerticle.java) and define your API routes by overriding the `public Router defineRoutes()` method.  See [edge-rtac/MainVerticle](https://github.com/folio-org/edge-rtac/blob/master/src/main/java/org/folio/edge/rtac/MainVerticle.java) for details.
 
+   From version 1.0.0 to 3.1.0 of edge-common there were two Verticle implementations, `EdgeVerticle` and `EdgeVerticle2`. Edge-common version 4.0.0 only offers one implementation, `EdgeVerticle` (which happen to be similar to `EdgeVerticle2` in earlier implementations).
+
    This provides you with all the basics including configuration, initialization of secure store and token cache, etc.
 
 1. Use [InstitutionalUserHelper](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/InstitutionalUserHelper.java) for common/shared tasks like parsing API keys, getting OKAPI tokens, etc.
