@@ -1,12 +1,6 @@
 package org.folio.edge.core;
 
-import static org.folio.edge.core.Constants.DEFAULT_LOG_LEVEL;
-import static org.folio.edge.core.Constants.DEFAULT_NULL_TOKEN_CACHE_TTL_MS;
-import static org.folio.edge.core.Constants.DEFAULT_PORT;
-import static org.folio.edge.core.Constants.DEFAULT_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.DEFAULT_SECURE_STORE_TYPE;
-import static org.folio.edge.core.Constants.DEFAULT_TOKEN_CACHE_CAPACITY;
-import static org.folio.edge.core.Constants.DEFAULT_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.PROP_SECURE_STORE_TYPE;
 import static org.folio.edge.core.Constants.SYS_API_KEY_SOURCES;
 import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
@@ -14,11 +8,21 @@ import static org.folio.edge.core.Constants.SYS_NULL_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
+import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_TYPE;
 import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_CAPACITY;
 import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
+
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -34,85 +38,59 @@ import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.http.HttpServer;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 
 /**
  * Verticle for edge module.
- * @deprecated
- * Use {@link EdgeVerticle2} instead.
  */
-@Deprecated
 public abstract class EdgeVerticle extends AbstractVerticle {
 
   private static final Logger logger = LogManager.getLogger(EdgeVerticle.class);
 
+  protected SecureStore secureStore;
+
   private static Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
 
-  public final int port;
-  public final String okapiURL;
-  public final String apiKeySources;
-  public final int reqTimeoutMs;
+  @Override
+  public void start(Promise<Void> promise) {
+    JsonObject jo = Constants.DEFAULT_DEPLOYMENT_OPTIONS.copy();
+    config().mergeIn(jo.mergeIn(config()));
 
-  public final HttpServer server;
-  public final SecureStore secureStore;
-  public final Router router;
+    final int port = config().getInteger(SYS_PORT);
+    logger.info("Using port: {}", port);
 
-  protected EdgeVerticle() {
-    super();
-
-    final String logLvl = System.getProperty(SYS_LOG_LEVEL, DEFAULT_LOG_LEVEL);
+    final String logLvl = config().getString(SYS_LOG_LEVEL);
     Configurator.setRootLevel(Level.toLevel(logLvl));
     logger.info("Using log level: {}", logLvl);
 
-    final String portStr = System.getProperty(SYS_PORT, DEFAULT_PORT);
-    port = Integer.parseInt(portStr);
-    logger.info("Using port: {}", port);
+    logger.info("Using okapi URL: {}", config().getString(SYS_OKAPI_URL));
+    logger.info("Using API key sources: {}", config().getString(SYS_API_KEY_SOURCES));
 
-    okapiURL = System.getProperty(SYS_OKAPI_URL);
-    logger.info("Using okapi URL: {}", okapiURL);
+    final long cacheTtlMs = config().getLong(SYS_TOKEN_CACHE_TTL_MS);
+    logger.info("Using token cache TTL (ms): {}", cacheTtlMs);
 
-    apiKeySources = System.getProperty(SYS_API_KEY_SOURCES);
-    logger.info("Using API key sources: {}", apiKeySources);
-
-    final String tokenCacheTtlMs = System.getProperty(SYS_TOKEN_CACHE_TTL_MS);
-    final long cacheTtlMs = tokenCacheTtlMs != null ? Long.parseLong(tokenCacheTtlMs) : DEFAULT_TOKEN_CACHE_TTL_MS;
-    logger.info("Using token cache TTL (ms): {}", tokenCacheTtlMs);
-
-    final String nullTokenCacheTtlMs = System.getProperty(SYS_NULL_TOKEN_CACHE_TTL_MS);
-    final long failureCacheTtlMs = nullTokenCacheTtlMs != null ? Long.parseLong(nullTokenCacheTtlMs)
-        : DEFAULT_NULL_TOKEN_CACHE_TTL_MS;
+    final long failureCacheTtlMs = config().getLong(SYS_NULL_TOKEN_CACHE_TTL_MS);
     logger.info("Using token cache TTL (ms): {}", failureCacheTtlMs);
 
-    final String tokenCacheCapacity = System.getProperty(SYS_TOKEN_CACHE_CAPACITY);
-    final int cacheCapacity = tokenCacheCapacity != null ? Integer.parseInt(tokenCacheCapacity)
-        : DEFAULT_TOKEN_CACHE_CAPACITY;
-    logger.info("Using token cache capacity: {}", tokenCacheCapacity);
+    final int cacheCapacity = config().getInteger(SYS_TOKEN_CACHE_CAPACITY);
+    logger.info("Using token cache capacity: {}", cacheCapacity);
 
-    final String requestTimeout = System.getProperty(SYS_REQUEST_TIMEOUT_MS);
-    reqTimeoutMs = requestTimeout != null ? Integer.parseInt(requestTimeout)
-        : DEFAULT_REQUEST_TIMEOUT_MS;
-    logger.info("Using request timeout (ms): {}", reqTimeoutMs);
+    logger.info("Using request timeout (ms): {}", config().getLong(SYS_REQUEST_TIMEOUT_MS));
 
     // initialize the TokenCache
     TokenCache.initialize(cacheTtlMs, failureCacheTtlMs, cacheCapacity);
 
-    final String secureStorePropFile = System.getProperty(SYS_SECURE_STORE_PROP_FILE);
-    secureStore = initializeSecureStore(secureStorePropFile);
+    secureStore = initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE));
 
-    vertx = Vertx.vertx();
-    server = vertx.createHttpServer();
+    // initialize response compression
+    final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
+    logger.info("Response compression enabled: {}", isCompressionSupported);
+    final HttpServerOptions serverOptions = new HttpServerOptions();
+    serverOptions.setCompressionSupported(isCompressionSupported);
 
-    router = defineRoutes();
-  }
+    final HttpServer server = getVertx().createHttpServer(serverOptions);
 
-  @Override
-  public void start(Promise<Void> promise) {
+    final Router router = defineRoutes();
+
     server.requestHandler(router)
         .listen(port)
         .<Void>mapEmpty()
@@ -125,7 +103,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
     Properties secureStoreProps = getProperties(secureStorePropFile);
 
     // Order of precedence: system property, properties file, default
-    String type = System.getProperty(SYS_SECURE_STORE_TYPE,
+    String type = config().getString(SYS_SECURE_STORE_TYPE,
         secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
 
     return SecureStoreFactory.getSecureStore(type, secureStoreProps);

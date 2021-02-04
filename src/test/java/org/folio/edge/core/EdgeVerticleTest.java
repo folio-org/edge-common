@@ -20,7 +20,6 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.vertx.core.VertxException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.model.ClientInfo;
@@ -41,8 +40,10 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxException;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -76,13 +77,14 @@ public class EdgeVerticleTest {
 
     vertx = Vertx.vertx();
 
-    System.setProperty(SYS_PORT, String.valueOf(serverPort));
-    System.setProperty(SYS_OKAPI_URL, "http://localhost:" + okapiPort);
-    System.setProperty(SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties");
-    System.setProperty(SYS_LOG_LEVEL, "TRACE");
-    System.setProperty(SYS_REQUEST_TIMEOUT_MS, String.valueOf(requestTimeoutMs));
+    JsonObject jo = new JsonObject()
+        .put(SYS_PORT, serverPort)
+        .put(SYS_OKAPI_URL, "http://localhost:" + okapiPort)
+        .put(SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
+        .put(SYS_LOG_LEVEL, "TRACE")
+        .put(SYS_REQUEST_TIMEOUT_MS, requestTimeoutMs);
 
-    final DeploymentOptions opt = new DeploymentOptions();
+    final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
     vertx.deployVerticle(TestVerticle.class.getName(), opt, context.asyncAssertSuccess());
 
     RestAssured.baseURI = "http://localhost:" + serverPort;
@@ -249,7 +251,7 @@ public class EdgeVerticleTest {
 
     @Override
     public Router defineRoutes() {
-      OkapiClientFactory ocf = new OkapiClientFactory(vertx, okapiURL, reqTimeoutMs);
+      OkapiClientFactory ocf = new OkapiClientFactory(vertx, config().getString(SYS_OKAPI_URL), config().getInteger(SYS_REQUEST_TIMEOUT_MS));
       InstitutionalUserHelper iuHelper = new InstitutionalUserHelper(secureStore);
       ApiKeyHelper apiKeyHelper = new ApiKeyHelper("HEADER,PARAM,PATH");
 
