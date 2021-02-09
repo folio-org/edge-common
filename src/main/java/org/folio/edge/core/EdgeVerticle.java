@@ -102,7 +102,7 @@ public abstract class EdgeVerticle extends AbstractVerticle {
   }
 
   public Router defineRoutes() {
-    return null;
+    throw new IllegalArgumentException("defineRoutes must be defined for HTTP service");
   }
 
   protected SecureStore initializeSecureStore(String secureStorePropFile) {
