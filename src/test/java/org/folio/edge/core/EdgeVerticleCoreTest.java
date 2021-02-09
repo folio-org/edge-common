@@ -1,7 +1,7 @@
 package org.folio.edge.core;
 
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import static org.folio.edge.core.Constants.SYS_PORT;
 
 @RunWith(VertxUnitRunner.class)
-public class EdgeVerticleNoHttpServerTest {
+public class EdgeVerticleCoreTest {
 
   static Vertx vertx;
 
@@ -30,16 +30,7 @@ public class EdgeVerticleNoHttpServerTest {
   }
 
   @Test
-  public void test1(TestContext context) {
-    vertx.deployVerticle(new TestVerticleNoDefineRoutes()).onComplete(context.asyncAssertFailure(cause -> {
-      context.assertEquals("defineRoutes must be defined for HTTP service", cause.getMessage());
-    }));
-  }
-  public static class TestVerticleNoDefineRoutes extends EdgeVerticle {
-  }
-
-  @Test
-  public void test2(TestContext context) {
+  public void test(TestContext context) {
     int serverPort = TestUtils.getPort();
     JsonObject jo = new JsonObject()
         .put(SYS_PORT, serverPort);
@@ -51,16 +42,19 @@ public class EdgeVerticleNoHttpServerTest {
     }));
   }
 
-  public static class TestVerticleTcpServer extends EdgeVerticle {
+  public static class TestVerticleTcpServer extends EdgeVerticleCore {
     int port;
     @Override
-    public Future<Void> startService() {
-      port = config().getInteger(SYS_PORT);
-      return vertx.createNetServer()
+    public void start(Promise<Void> promise) {
+      Promise promise1 = Promise.promise();
+      super.start(promise1);
+      promise1.future().compose(res -> {
+        port = config().getInteger(SYS_PORT);
+        return vertx.createNetServer()
           .connectHandler(socket -> {
             socket.close();
           }).listen(port).mapEmpty();
+      }).onComplete(promise);
     }
   }
-
 }

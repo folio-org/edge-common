@@ -1,144 +1,53 @@
 package org.folio.edge.core;
 
-import static org.folio.edge.core.Constants.DEFAULT_SECURE_STORE_TYPE;
-import static org.folio.edge.core.Constants.PROP_SECURE_STORE_TYPE;
-import static org.folio.edge.core.Constants.SYS_API_KEY_SOURCES;
-import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
-import static org.folio.edge.core.Constants.SYS_NULL_TOKEN_CACHE_TTL_MS;
-import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
-import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
-import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
-import static org.folio.edge.core.Constants.SYS_SECURE_STORE_TYPE;
-import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_CAPACITY;
-import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
-import java.util.regex.Pattern;
-
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.folio.edge.core.cache.TokenCache;
-import org.folio.edge.core.security.SecureStore;
-import org.folio.edge.core.security.SecureStoreFactory;
-
 
 /**
  * Verticle for edge module.
  */
-public abstract class EdgeVerticle extends AbstractVerticle {
+public abstract class EdgeVerticle extends EdgeVerticleCore {
 
   private static final Logger logger = LogManager.getLogger(EdgeVerticle.class);
 
-  protected SecureStore secureStore;
-
-  private static Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
-
   @Override
   public void start(Promise<Void> promise) {
-    JsonObject jo = Constants.DEFAULT_DEPLOYMENT_OPTIONS.copy();
-    config().mergeIn(jo.mergeIn(config()));
+    Promise<Void> promise1 = Promise.promise();
+    super.start(promise1);
+    Future<Void> f = promise1.future().compose(res -> {
+        final int port = config().getInteger(SYS_PORT);
+        logger.info("Using port: {}", port);
 
-    final String logLvl = config().getString(SYS_LOG_LEVEL);
-    Configurator.setRootLevel(Level.toLevel(logLvl));
-    logger.info("Using log level: {}", logLvl);
+        // initialize response compression
+        final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
+        logger.info("Response compression enabled: {}", isCompressionSupported);
+        final HttpServerOptions serverOptions = new HttpServerOptions();
+        serverOptions.setCompressionSupported(isCompressionSupported);
 
-    logger.info("Using okapi URL: {}", config().getString(SYS_OKAPI_URL));
-    logger.info("Using API key sources: {}", config().getString(SYS_API_KEY_SOURCES));
+        final HttpServer server = getVertx().createHttpServer(serverOptions);
 
-    final long cacheTtlMs = config().getLong(SYS_TOKEN_CACHE_TTL_MS);
-    logger.info("Using token cache TTL (ms): {}", cacheTtlMs);
+        final Router router = defineRoutes();
 
-    final long failureCacheTtlMs = config().getLong(SYS_NULL_TOKEN_CACHE_TTL_MS);
-    logger.info("Using token cache TTL (ms): {}", failureCacheTtlMs);
-
-    final int cacheCapacity = config().getInteger(SYS_TOKEN_CACHE_CAPACITY);
-    logger.info("Using token cache capacity: {}", cacheCapacity);
-
-    logger.info("Using request timeout (ms): {}", config().getLong(SYS_REQUEST_TIMEOUT_MS));
-
-    // initialize the TokenCache
-    TokenCache.initialize(cacheTtlMs, failureCacheTtlMs, cacheCapacity);
-
-    secureStore = initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE));
-
-    startService().onComplete(promise);
+        return server.requestHandler(router)
+          .listen(port)
+          .mapEmpty();
+      });
+    f.onComplete(promise);
   }
 
-  public Future<Void> startService() {
-    final int port = config().getInteger(SYS_PORT);
-    logger.info("Using port: {}", port);
-
-    // initialize response compression
-    final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
-    logger.info("Response compression enabled: {}", isCompressionSupported);
-    final HttpServerOptions serverOptions = new HttpServerOptions();
-    serverOptions.setCompressionSupported(isCompressionSupported);
-
-    final HttpServer server = getVertx().createHttpServer(serverOptions);
-
-    final Router router = defineRoutes();
-
-    return server.requestHandler(router)
-        .listen(port)
-        .mapEmpty();
-  }
-
-  public Router defineRoutes() {
-    throw new IllegalArgumentException("defineRoutes must be defined for HTTP service");
-  }
-
-  protected SecureStore initializeSecureStore(String secureStorePropFile) {
-    Properties secureStoreProps = getProperties(secureStorePropFile);
-
-    // Order of precedence: system property, properties file, default
-    String type = config().getString(SYS_SECURE_STORE_TYPE,
-        secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
-
-    return SecureStoreFactory.getSecureStore(type, secureStoreProps);
-  }
-
-  static Properties getProperties(String secureStorePropFile) {
-    Properties secureStoreProps = new Properties();
-
-    if (secureStorePropFile != null) {
-      URL url = null;
-      try {
-        if (isURL.matcher(secureStorePropFile).matches()) {
-          url = new URL(secureStorePropFile);
-        }
-
-        try (
-            InputStream in = url == null ? new FileInputStream(secureStorePropFile) : url.openStream()) {
-          secureStoreProps.load(in);
-          logger.info("Successfully loaded properties from: " +
-              secureStorePropFile);
-        }
-      } catch (Exception e) {
-        logger.warn("Failed to load secure store properties.", e);
-      }
-    } else {
-      logger.warn("No secure store properties file specified.  Using defaults");
-    }
-    return secureStoreProps;
-  }
+  public abstract Router defineRoutes();
 
   protected void handleHealthCheck(RoutingContext ctx) {
     ctx.response()
