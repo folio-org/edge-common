@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import static org.folio.edge.core.Constants.SYS_PORT;
 
 @RunWith(VertxUnitRunner.class)
-public class EdgeVerticleTestNoHttpServer {
+public class EdgeVerticleNoHttpServerTest {
 
   static Vertx vertx;
 
