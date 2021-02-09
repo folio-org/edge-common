@@ -20,6 +20,9 @@ import java.util.regex.Pattern;
 import static org.folio.edge.core.Constants.*;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 
+/**
+ * Verticle for Edge module with no built-in HTTP listener.
+ */
 public class EdgeVerticleCore extends AbstractVerticle {
   private static final Logger logger = LogManager.getLogger(EdgeVerticleCore.class);
 

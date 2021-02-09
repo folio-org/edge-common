@@ -1,6 +1,7 @@
 package org.folio.edge.core;
 
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -46,9 +47,7 @@ public class EdgeVerticleCoreTest {
     int port;
     @Override
     public void start(Promise<Void> promise) {
-      Promise promise1 = Promise.promise();
-      super.start(promise1);
-      promise1.future().compose(res -> {
+      Future.<Void>future(p -> super.start(p)).<Void>compose(res -> {
         port = config().getInteger(SYS_PORT);
         return vertx.createNetServer()
           .connectHandler(socket -> {

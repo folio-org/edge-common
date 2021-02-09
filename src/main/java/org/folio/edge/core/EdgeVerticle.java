@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Verticle for edge module.
+ * Verticle for edge module which starts a HTTP service.
  */
 public abstract class EdgeVerticle extends EdgeVerticleCore {
 
@@ -24,9 +24,7 @@ public abstract class EdgeVerticle extends EdgeVerticleCore {
 
   @Override
   public void start(Promise<Void> promise) {
-    Promise<Void> promise1 = Promise.promise();
-    super.start(promise1);
-    Future<Void> f = promise1.future().compose(res -> {
+    Future.<Void>future(p -> super.start(p)).<Void>compose(res -> {
         final int port = config().getInteger(SYS_PORT);
         logger.info("Using port: {}", port);
 
@@ -43,8 +41,7 @@ public abstract class EdgeVerticle extends EdgeVerticleCore {
         return server.requestHandler(router)
           .listen(port)
           .mapEmpty();
-      });
-    f.onComplete(promise);
+      }).onComplete(promise);
   }
 
   public abstract Router defineRoutes();
