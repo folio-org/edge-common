@@ -15,6 +15,7 @@ import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_CAPACITY;
 import static org.folio.edge.core.Constants.SYS_TOKEN_CACHE_TTL_MS;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -55,9 +56,6 @@ public abstract class EdgeVerticle extends AbstractVerticle {
     JsonObject jo = Constants.DEFAULT_DEPLOYMENT_OPTIONS.copy();
     config().mergeIn(jo.mergeIn(config()));
 
-    final int port = config().getInteger(SYS_PORT);
-    logger.info("Using port: {}", port);
-
     final String logLvl = config().getString(SYS_LOG_LEVEL);
     Configurator.setRootLevel(Level.toLevel(logLvl));
     logger.info("Using log level: {}", logLvl);
@@ -81,6 +79,13 @@ public abstract class EdgeVerticle extends AbstractVerticle {
 
     secureStore = initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE));
 
+    startService().onComplete(promise);
+  }
+
+  public Future<Void> startService() {
+    final int port = config().getInteger(SYS_PORT);
+    logger.info("Using port: {}", port);
+
     // initialize response compression
     final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
     logger.info("Response compression enabled: {}", isCompressionSupported);
@@ -91,13 +96,14 @@ public abstract class EdgeVerticle extends AbstractVerticle {
 
     final Router router = defineRoutes();
 
-    server.requestHandler(router)
+    return server.requestHandler(router)
         .listen(port)
-        .<Void>mapEmpty()
-        .onComplete(promise);
+        .mapEmpty();
   }
 
-  public abstract Router defineRoutes();
+  public Router defineRoutes() {
+    return null;
+  }
 
   protected SecureStore initializeSecureStore(String secureStorePropFile) {
     Properties secureStoreProps = getProperties(secureStorePropFile);
