@@ -39,9 +39,9 @@ public class EdgeVerticleCoreTest {
 
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
     TestVerticleTcpServer verticle = new TestVerticleTcpServer();
-    vertx.deployVerticle(verticle, opt).onComplete(context.asyncAssertSuccess(res -> {
-      context.assertEquals(verticle.port, serverPort);
-    }));
+    vertx.deployVerticle(verticle, opt).onComplete(context.asyncAssertSuccess(res ->
+      context.assertEquals(verticle.port, serverPort)
+    ));
   }
 
   public static class TestVerticleTcpServer extends EdgeVerticleCore {
@@ -51,9 +51,9 @@ public class EdgeVerticleCoreTest {
       Future.<Void>future(p -> super.start(p)).<Void>compose(res -> {
         port = config().getInteger(SYS_PORT);
         return vertx.createNetServer()
-          .connectHandler(socket -> {
-            socket.close();
-          }).listen(port).mapEmpty();
+          .connectHandler(socket ->
+            socket.close()
+          ).listen(port).mapEmpty();
       }).onComplete(promise);
     }
   }
@@ -65,10 +65,10 @@ public class EdgeVerticleCoreTest {
     JsonObject jo = new JsonObject()
       .put(SYS_SECURE_STORE_PROP_FILE, "sx://foo.com");
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
-    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause -> {
+    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause ->
       context.assertEquals("Failed to load secure store properties: sx:/foo.com"
-        + " (No such file or directory)", cause.getMessage());
-    }));
+        + " (No such file or directory)", cause.getMessage())
+    ));
   }
 
   // test getProperties failure handling
@@ -79,9 +79,10 @@ public class EdgeVerticleCoreTest {
     JsonObject jo = new JsonObject()
       .put(SYS_SECURE_STORE_PROP_FILE, "http://127.0.0.1:" + serverPort);
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
-    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause -> {
-      context.assertEquals("Failed to load secure store properties: Connection refused", cause.getMessage());
-    }));
+    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause ->
+      context.assertTrue(cause.getMessage().startsWith("Failed to load secure store properties: Connection refused"),
+        cause.getMessage())
+    ));
   }
 
 }
