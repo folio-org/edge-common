@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.folio.edge.core.Constants.SYS_PORT;
+import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 
 @RunWith(VertxUnitRunner.class)
 public class EdgeVerticleCoreTest {
@@ -31,7 +32,7 @@ public class EdgeVerticleCoreTest {
   }
 
   @Test
-  public void test(TestContext context) {
+  public void testTcpServer(TestContext context) {
     int serverPort = TestUtils.getPort();
     JsonObject jo = new JsonObject()
         .put(SYS_PORT, serverPort);
@@ -56,4 +57,31 @@ public class EdgeVerticleCoreTest {
       }).onComplete(promise);
     }
   }
+
+  // test getProperties failure handling
+  // not doing it directly because we want to check that the Verticle reports failure
+  @Test
+  public void testGetPropertiesFailure1(TestContext context) {
+    JsonObject jo = new JsonObject()
+      .put(SYS_SECURE_STORE_PROP_FILE, "sx://foo.com");
+    final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
+    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause -> {
+      context.assertEquals("Failed to load secure store properties: sx:/foo.com"
+        + " (No such file or directory)", cause.getMessage());
+    }));
+  }
+
+  // test getProperties failure handling
+  // not doing it directly because we want to check that the Verticle reports failure
+  @Test
+  public void testGetPropertiesFailure2(TestContext context) {
+    int serverPort = TestUtils.getPort();
+    JsonObject jo = new JsonObject()
+      .put(SYS_SECURE_STORE_PROP_FILE, "http://127.0.0.1:" + serverPort);
+    final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
+    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause -> {
+      context.assertEquals("Failed to load secure store properties: Connection refused", cause.getMessage());
+    }));
+  }
+
 }

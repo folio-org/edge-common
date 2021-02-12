@@ -1,6 +1,7 @@
 package org.folio.edge.core;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.Level;
@@ -28,7 +29,7 @@ public class EdgeVerticleCore extends AbstractVerticle {
 
   protected SecureStore secureStore;
 
-  private static Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
+  private static final Pattern isURL = Pattern.compile("(?i)^http[s]?://.*");
 
   @Override
   public void start(Promise<Void> promise) {
@@ -56,22 +57,25 @@ public class EdgeVerticleCore extends AbstractVerticle {
     // initialize the TokenCache
     TokenCache.initialize(cacheTtlMs, failureCacheTtlMs, cacheCapacity);
 
-    secureStore = initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE));
-
-    promise.complete();
+    initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE))
+      .onSuccess(res -> {
+        secureStore = res;
+        promise.complete();
+      })
+      .onFailure(promise::fail);
   }
 
-  protected SecureStore initializeSecureStore(String secureStorePropFile) {
-    Properties secureStoreProps = getProperties(secureStorePropFile);
+  protected Future<SecureStore> initializeSecureStore(String secureStorePropFile) {
+    return getProperties(secureStorePropFile).compose(secureStoreProps -> {
+      // Order of precedence: system property, properties file, default
+      String type = config().getString(SYS_SECURE_STORE_TYPE,
+        secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
 
-    // Order of precedence: system property, properties file, default
-    String type = config().getString(SYS_SECURE_STORE_TYPE,
-      secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
-
-    return SecureStoreFactory.getSecureStore(type, secureStoreProps);
+      return Future.succeededFuture(SecureStoreFactory.getSecureStore(type, secureStoreProps));
+    });
   }
 
-  static Properties getProperties(String secureStorePropFile) {
+  static Future<Properties> getProperties(String secureStorePropFile) {
     Properties secureStoreProps = new Properties();
 
     if (secureStorePropFile != null) {
@@ -88,12 +92,13 @@ public class EdgeVerticleCore extends AbstractVerticle {
             secureStorePropFile);
         }
       } catch (Exception e) {
-        logger.warn("Failed to load secure store properties.", e);
+        logger.warn(e.getMessage(), e);
+        return Future.failedFuture("Failed to load secure store properties: " + e.getMessage());
       }
     } else {
       logger.warn("No secure store properties file specified.  Using defaults");
     }
-    return secureStoreProps;
+    return Future.succeededFuture(secureStoreProps);
   }
 
 }
