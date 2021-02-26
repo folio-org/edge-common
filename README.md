@@ -11,38 +11,53 @@ Common/Shared library for Edge APIs.
 
 ## Overview
 
-The intent of edge-common is to simplify the implementation of edge APIs by providing much of the boilerplate code shared among these APIs.
+The intent of edge-common is to simplify the implementation of edge
+APIs by providing much of the boilerplate code shared among these APIs.
 
 ### Usage
 
-1. Extend [EdgeVerticle](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/EdgeVerticle.java) and define your API routes by overriding the `public Router defineRoutes()` method.  See [edge-rtac/MainVerticle](https://github.com/folio-org/edge-rtac/blob/master/src/main/java/org/folio/edge/rtac/MainVerticle.java) for details.
+1. Extend [EdgeVerticleHttp](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/EdgeVerticleHttp.java)
+and define your API routes by overriding the `public Router defineRoutes()`
+method. See some of the unit tests to be inspired, such as
+[EdgeVerticleHttpTest](src/test/java/org/folio/edge/core/EdgeVerticleHttpTest.java)
+or
+[EdgeVerticleCoreTest](src/test/java/org/folio/edge/core/EdgeVerticleCoreTest.java).
 
-   From version 1.0.0 to 3.1.0 of edge-common there were two Verticle implementations, `EdgeVerticle` and `EdgeVerticle2`. Edge-common version 4.0.0 only offers one implementation, `EdgeVerticle` (which happen to be similar to `EdgeVerticle2` in earlier implementations).
+   From version 1.0.0 to 3.1.0 of edge-common there were two Verticle implementations, `EdgeVerticle` and `EdgeVerticle2`.
+   Edge-common version 4.0.0 offers two implementation, `EdgeVerticleCore` and `EdgeVerticleHttp` (which happen to be similar to `EdgeVerticle2` in earlier versions).
 
    This provides you with all the basics including configuration, initialization of secure store and token cache, etc.
 
-1. Use [InstitutionalUserHelper](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/InstitutionalUserHelper.java) for common/shared tasks like parsing API keys, getting OKAPI tokens, etc.
-1. Extend or use [OkapiClient](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/utils/OkapiClient.java) directly for making calls into FOLIO.
+1. Use [InstitutionalUserHelper](src/main/java/org/folio/edge/core/InstitutionalUserHelper.java) for common/shared tasks like parsing API keys, getting OKAPI tokens, etc.
+1. Extend or use [OkapiClient](src/main/java/org/folio/edge/core/utils/OkapiClient.java) directly for making calls into FOLIO.
 
 1. Other bits you may find helpful:
- - A generic [Cache](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/cache/Cache.java) class (See also: [TokenCache](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/cache/TokenCache.java) and [PatronIdCache](https://github.com/folio-org/edge-patron/blob/master/src/main/java/org/folio/edge/patron/cache/PatronIdCache.java))
- - [Mappers](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/utils/Mappers.java) class containing static JSON/XML Mapper instances, common date formats, etc.
- - A [MockOkapi](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/utils/test/MockOkapi.java) to facilitate mocking in unit tests.
- - Commonly used [Constants](https://github.com/folio-org/edge-common/blob/master/src/main/java/org/folio/edge/core/Constants.java)
+ - A generic [Cache](src/main/java/org/folio/edge/core/cache/Cache.java) class
+   (See also: [TokenCache](src/main/java/org/folio/edge/core/cache/TokenCache.java) and
+   [PatronIdCache](src/main/java/org/folio/edge/patron/cache/PatronIdCache.java))
+ - [Mappers](src/main/java/org/folio/edge/core/utils/Mappers.java) class containing static JSON/XML Mapper instances, common date formats, etc.
+ - A [MockOkapi](src/main/java/org/folio/edge/core/utils/test/MockOkapi.java) to facilitate mocking in unit tests.
+ - Commonly used [Constants](src/main/java/org/folio/edge/core/Constants.java)
 
 The existing edge APIs: [edge-patron](https://github.com/folio-org/edge-patron), [edge-rtac](https://github.com/folio-org/edge-rtac), and [edge-orders](https://github.com/folio-org/edge-orders) make extensive use of these features, and serve as examples for how to use edge-common.
 
 ## Dependency Management
 
-Edge APIs should provide Module Descriptors which define their dependencies (e.g. on backend modules).  Registering these module descriptors with OKAPI allows FOLIO's dependency management to be leveraged/extended to the edge APIs.  See existing edge APIs for examples.
+Edge APIs should provide Module Descriptors which define their dependencies
+(e.g. on backend modules).  Registering these module descriptors with OKAPI
+allows FOLIO's dependency management to be leveraged/extended to the edge
+APIs.  See existing edge APIs for examples.
 
 ## Security
 
-For now, some level of security is achieved via API Keys.  Eventually we may want to implement a more sophisticated security model, e.g. based off of OAuth2, etc.
+For now, some level of security is achieved via API Keys. Eventually we may
+want to implement a more sophisticated security model, e.g. based off of
+OAuth2, etc.
 
 ### API Keys
 
-The API Keys used by the edge APIs are a URL safe base64 encoding of the three pieces of information:
+The API Keys used by the edge APIs are a URL safe base64 encoding of the
+three pieces of information:
 
 1. Salt - A random string of characters known only to the issuer of the API key, e.g. `nZ56F3LeAa`
 1. Tenant ID - A FOLIO tenant ID, e.g. `diku`
