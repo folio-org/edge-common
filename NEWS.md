@@ -1,3 +1,23 @@
+## 4.0.0 2021-02-26
+
+This releases changes the API for edge-common. There are no known changes
+to the HTTP behavior or the configuration of edge-common.
+
+The existing HTTP-based verticle has been renamed to `EdgeVerticleHttp`.
+A new verticle without a built-in listener is offered, `EdgeVerticleCore`.
+
+Since edge-common is now based on Vert.x 4.0.0, that will probably
+also require updates to module code. Refer to
+[4.0.0 Deprecations and breaking changes](https://github.com/vert-x3/wiki/wiki/4.0.0-Deprecations-and-breaking-changes)
+
+Issues pertaining to this release (some of which are related):
+
+ * [EDGCOMMON-5](https://issues.folio.org/browse/EDGCOMMON-5) Merge EdgeVerticle2 -> EdgeVerticle
+ * [EDGCOMMON-19](https://issues.folio.org/browse/EDGCOMMON-19) Update dependencies
+ * [EDGCOMMON-30](https://issues.folio.org/browse/EDGCOMMON-30) Update to Vert.x 4
+ * [EDGCOMMON-31](https://issues.folio.org/browse/EDGCOMMON-31) Allow non-HTTP server
+ * [EDGCOMMON-32](https://issues.folio.org/browse/EDGCOMMON-32) EdgeVerticleHttp and update documentaion
+
 ## 3.1.0 2021-01-26
 
 There are no known breaking changes in this release, but modules should also
