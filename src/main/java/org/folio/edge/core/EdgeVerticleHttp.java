@@ -18,9 +18,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * Verticle for edge module which starts a HTTP service.
  */
-public abstract class EdgeVerticle extends EdgeVerticleCore {
+public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
 
-  private static final Logger logger = LogManager.getLogger(EdgeVerticle.class);
+  private static final Logger logger = LogManager.getLogger(EdgeVerticleHttp.class);
 
   @Override
   public void start(Promise<Void> promise) {

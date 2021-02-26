@@ -52,9 +52,9 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 @RunWith(VertxUnitRunner.class)
-public class EdgeVerticleTest {
+public class EdgeVerticleHttpTest {
 
-  private static final Logger logger = LogManager.getLogger(EdgeVerticleTest.class);
+  private static final Logger logger = LogManager.getLogger(EdgeVerticleHttpTest.class);
 
   private static final String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
   private static final String badApiKey = apiKey + "0000";
@@ -85,7 +85,7 @@ public class EdgeVerticleTest {
         .put(SYS_REQUEST_TIMEOUT_MS, requestTimeoutMs);
 
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
-    vertx.deployVerticle(TestVerticle.class.getName(), opt, context.asyncAssertSuccess());
+    vertx.deployVerticle(TestVerticleHttp.class.getName(), opt, context.asyncAssertSuccess());
 
     RestAssured.baseURI = "http://localhost:" + serverPort;
     RestAssured.port = serverPort;
@@ -247,7 +247,7 @@ public class EdgeVerticleTest {
     assertEquals(MSG_REQUEST_TIMEOUT, resp.body().asString());
   }
 
-  public static class TestVerticle extends EdgeVerticle {
+  public static class TestVerticleHttp extends EdgeVerticleHttp {
 
     @Override
     public Router defineRoutes() {
