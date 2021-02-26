@@ -16,7 +16,7 @@ Issues pertaining to this release (some of which are related):
  * [EDGCOMMON-19](https://issues.folio.org/browse/EDGCOMMON-19) Update dependencies
  * [EDGCOMMON-30](https://issues.folio.org/browse/EDGCOMMON-30) Update to Vert.x 4
  * [EDGCOMMON-31](https://issues.folio.org/browse/EDGCOMMON-31) Allow non-HTTP server
- * [EDGCOMMON-32](https://issues.folio.org/browse/EDGCOMMON-32) EdgeVerticleHttp and update documentaion
+ * [EDGCOMMON-32](https://issues.folio.org/browse/EDGCOMMON-32) EdgeVerticleHttp and update documentation
 
 ## 3.1.0 2021-01-26
 
