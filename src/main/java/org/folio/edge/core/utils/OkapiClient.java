@@ -33,7 +33,7 @@ public class OkapiClient {
   public final String okapiURL;
   public final WebClient client;
   public final String tenant;
-  public final int reqTimeout;
+  public int reqTimeout;
   public final Vertx vertx;
 
   protected final MultiMap defaultHeaders = MultiMap.caseInsensitiveMultiMap();
@@ -48,16 +48,20 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
-  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout) {
+  public OkapiClient(Vertx vertx, WebClient client, String okapiURL, String tenant) {
     this.vertx = vertx;
-    this.reqTimeout = timeout;
+    this.client = client;
     this.okapiURL = okapiURL;
     this.tenant = tenant;
-    WebClientOptions options = new WebClientOptions().setKeepAlive(false).setTryUseCompression(true)
-        .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout)
-        .setConnectTimeout(timeout);
-    client = WebClient.create(vertx, options);
     initDefaultHeaders();
+  }
+
+  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout) {
+    this(vertx, WebClient.create(vertx,
+      new WebClientOptions().setKeepAlive(false).setTryUseCompression(true)
+        .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout)
+        .setConnectTimeout(timeout)), okapiURL, tenant);
+    this.reqTimeout = timeout;
   }
 
   protected void initDefaultHeaders() {
@@ -95,8 +99,8 @@ public class OkapiClient {
             future.complete(token);
           } else {
             logger.warn("Failed to log into FOLIO: ({}) {}",
-                () -> response.statusCode(),
-                () -> response.bodyAsString());
+                response::statusCode,
+                response::bodyAsString);
             future.complete(null);
           }
         },
