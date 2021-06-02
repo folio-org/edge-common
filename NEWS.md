@@ -1,3 +1,9 @@
+## 4.1.0 2021-06-02
+
+No changes to the API since last release.
+
+ * [EDGCOMMON-34](https://issues.folio.org/browse/EDGCOMMON-34) Upgrade to Vert.x 4.1.0
+
 ## 4.0.0 2021-02-26
 
 This releases changes the API for edge-common. There are no known changes
