@@ -36,7 +36,7 @@ public class OkapiClientTest {
   private static final Logger logger = LogManager.getLogger(OkapiClientTest.class);
 
   private static final String tenant = "diku";
-  private static final int reqTimeout = 3000;
+  private static final int reqTimeout = 300;
 
   private OkapiClientFactory ocf;
   private OkapiClient client;
