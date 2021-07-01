@@ -2,15 +2,19 @@ package org.folio.edge.core.utils;
 
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.HEADER_API_KEY;
+import static org.folio.edge.core.Constants.PARAM_API_KEY;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
+import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import io.netty.handler.timeout.TimeoutException;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -274,5 +279,26 @@ public class OkapiClientTest {
           async.complete();
         },
         t -> context.fail(t));
+  }
+
+  @Test
+  public void testTimeoutExceptionWhenResponseToGetRequestIsDelayed(TestContext context) {
+    logger.info("=== Test get w/ headers === ");
+
+    var headers = MultiMap.caseInsensitiveMultiMap();
+    // Header used to tell the mock Okapi to delay the response
+    headers.set(X_DURATION, Integer.toString(reqTimeout * 2));
+    headers.set(X_ECHO_STATUS, "200");
+    headers.set(HEADER_API_KEY, "foobarbaz");
+
+    Async async = context.async();
+    client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
+      tenant,
+      headers,
+      resp -> context.fail("shouldn't receive a response before the timeout occurs"),
+      t -> {
+        context.assertTrue(t instanceof java.util.concurrent.TimeoutException);
+        async.complete();
+      });
   }
 }
