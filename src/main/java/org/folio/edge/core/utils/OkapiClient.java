@@ -226,6 +226,8 @@ public class OkapiClient {
     logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant,
         () ->request.headers().get(X_OKAPI_TOKEN));
 
+    request.timeout(reqTimeout);
+
     return request.send();
   }
 
