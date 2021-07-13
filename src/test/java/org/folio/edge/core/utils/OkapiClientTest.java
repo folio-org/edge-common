@@ -283,8 +283,6 @@ public class OkapiClientTest {
 
   @Test
   public void testTimeoutExceptionWhenResponseToGetRequestIsDelayed(TestContext context) {
-    logger.info("=== Test get w/ headers === ");
-
     var headers = MultiMap.caseInsensitiveMultiMap();
     // Header used to tell the mock Okapi to delay the response
     headers.set(X_DURATION, Integer.toString(reqTimeout * 2));
@@ -293,8 +291,7 @@ public class OkapiClientTest {
 
     Async async = context.async();
     client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
-      tenant,
-      headers,
+      tenant, headers,
       resp -> context.fail("shouldn't receive a response before the timeout occurs"),
       t -> {
         context.assertTrue(t instanceof java.util.concurrent.TimeoutException);
@@ -304,8 +301,6 @@ public class OkapiClientTest {
 
   @Test
   public void testTimeoutExceptionWhenResponseToPostRequestIsDelayed(TestContext context) {
-    logger.info("=== Test get w/ headers === ");
-
     var headers = MultiMap.caseInsensitiveMultiMap();
     // Header used to tell the mock Okapi to delay the response
     headers.set(X_DURATION, Integer.toString(reqTimeout * 2));
@@ -314,9 +309,25 @@ public class OkapiClientTest {
 
     Async async = context.async();
     client.post(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
-      tenant,
-      "",
-      headers,
+      tenant, "", headers,
+      resp -> context.fail("shouldn't receive a response before the timeout occurs"),
+      t -> {
+        context.assertTrue(t instanceof java.util.concurrent.TimeoutException);
+        async.complete();
+      });
+  }
+
+  @Test
+  public void testTimeoutExceptionWhenResponseToDeleteRequestIsDelayed(TestContext context) {
+    var headers = MultiMap.caseInsensitiveMultiMap();
+    // Header used to tell the mock Okapi to delay the response
+    headers.set(X_DURATION, Integer.toString(reqTimeout * 2));
+    headers.set(X_ECHO_STATUS, "200");
+    headers.set(HEADER_API_KEY, "foobarbaz");
+
+    Async async = context.async();
+    client.delete(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
+      tenant, headers,
       resp -> context.fail("shouldn't receive a response before the timeout occurs"),
       t -> {
         context.assertTrue(t instanceof java.util.concurrent.TimeoutException);

@@ -197,6 +197,8 @@ public class OkapiClient {
     logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant,
         () -> request.headers().get(X_OKAPI_TOKEN));
 
+    request.timeout(reqTimeout);
+
     return request.send();
   }
 
