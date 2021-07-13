@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -240,6 +241,7 @@ public class EdgeVerticleHttpTest {
       .get(String.format("/always/login?apikey=%s", apiKey))
       .then()
       .contentType(TEXT_PLAIN)
+      .log().ifError()
       .statusCode(408)
       .extract()
       .response();
@@ -320,7 +322,7 @@ public class EdgeVerticleHttpTest {
                 t -> handleProxyException(ctx, t));
           })
           .exceptionally(t -> {
-            if (t.getCause() instanceof VertxException) {
+            if (t.getCause() instanceof TimeoutException) {
               requestTimeout(ctx, MSG_REQUEST_TIMEOUT);
             } else {
               accessDenied(ctx, MSG_ACCESS_DENIED);

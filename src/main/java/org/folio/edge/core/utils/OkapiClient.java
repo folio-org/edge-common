@@ -162,6 +162,8 @@ public class OkapiClient {
     logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant,
         () -> request.headers().get(X_OKAPI_TOKEN));
 
+    request.timeout(reqTimeout);
+
     if (payload != null) {
       logger.trace("Payload {}", () -> payload);
       return request.sendBuffer(Buffer.buffer(payload));
@@ -195,6 +197,8 @@ public class OkapiClient {
     logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant,
         () -> request.headers().get(X_OKAPI_TOKEN));
 
+    request.timeout(reqTimeout);
+
     return request.send();
   }
 
@@ -222,6 +226,8 @@ public class OkapiClient {
     logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant,
         () ->request.headers().get(X_OKAPI_TOKEN));
 
+    request.timeout(reqTimeout);
+
     return request.send();
   }
 
@@ -247,6 +253,8 @@ public class OkapiClient {
     }
     logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant,
         () -> request.headers().get(X_OKAPI_TOKEN));
+
+    request.timeout(reqTimeout);
 
     return request.send();
   }
