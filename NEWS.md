@@ -1,3 +1,7 @@
+## 4.2.0 2021-07-13
+
+* Defines request timeout when making HTTP requests (EDGCOMMON-36)
+
 ## 4.1.0 2021-06-02
 
 No changes to the API since last release.
