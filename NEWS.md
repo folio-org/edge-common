@@ -1,6 +1,10 @@
+## 4.2.1 2021-12-14
+
+ * [EDGCOMMON-38](https://issues.folio.org/browse/EDGCOMMON-38) Upgrade to log4j 2.16.0, Vert.x 4.2.2
+
 ## 4.2.0 2021-07-13
 
-* Defines request timeout when making HTTP requests (EDGCOMMON-36)
+ * [EDGCOMMON-36](https://issues.folio.org/browse/EDGCOMMON-36) Defines request timeout when making HTTP requests
 
 ## 4.1.0 2021-06-02
 
