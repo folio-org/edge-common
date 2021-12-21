@@ -1,3 +1,7 @@
+## 4.2.2 2021-12-21
+
+ * [EDGCOMMON-40](https://issues.folio.org/browse/EDGCOMMON-40) Upgrade to log4j 2.17.0
+
 ## 4.2.1 2021-12-14
 
  * [EDGCOMMON-38](https://issues.folio.org/browse/EDGCOMMON-38) Upgrade to log4j 2.16.0, Vert.x 4.2.2
