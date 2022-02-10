@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.model.AWSSimpleSystemsManagementException;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
@@ -177,5 +177,15 @@ public class AwsParamStoreTest {
     AwsParamStore secureStore = new AwsParamStore(properties);
     assertNotNull(secureStore);
     assertFalse(secureStore.getUseIAM());
+  }
+
+  @Test(expected = SdkClientException.class)
+  public void testGetCredentialsEndpointNull() {
+    new AwsParamStore.ECSCredentialsEndpointProvider(null, null).getCredentialsEndpoint();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetCredentialsEndpointURISyntaxException() {
+    new AwsParamStore.ECSCredentialsEndpointProvider("", ":#").getCredentialsEndpoint();
   }
 }

@@ -48,14 +48,16 @@ public class VaultStoreTest {
             200,
             APPLICATION_JSON,
             String.format("{\"data\":{\"%s\":\"%s\"}}", tenant, password).getBytes()),
-        0);
+        0,
+        Logical.logicalOperations.readV2);
 
     LogicalResponse failureResp = new LogicalResponse(
         new RestResponse(
             404,
             APPLICATION_JSON,
             "{\"errors\":[]}".getBytes()),
-        0);
+        0,
+        Logical.logicalOperations.readV2);
 
     Logical logical = mock(Logical.class);
     when(vault.logical()).thenReturn(logical);
