@@ -103,7 +103,7 @@ public class AwsParamStore extends SecureStore {
     }
 
     @Override
-    public URI getCredentialsEndpoint() throws URISyntaxException {
+    public URI getCredentialsEndpoint() {
       String path = ecsCredPath;
       if (path == null) {
         path = System.getenv(ECS_CREDENTIALS_PATH_VAR);
@@ -113,7 +113,11 @@ public class AwsParamStore extends SecureStore {
             "No credentials path was provided and the environment variable " + ECS_CREDENTIALS_PATH_VAR + " is empty");
       }
 
-      return new URI(ecsCredEndpoint + path);
+      try {
+        return new URI(ecsCredEndpoint + path);
+      } catch (URISyntaxException e) {
+        throw new IllegalArgumentException(e);
+      }
     }
   }
 

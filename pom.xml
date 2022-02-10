@@ -37,21 +37,14 @@
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-stack-depchain</artifactId>
-        <version>4.2.2</version>
+        <version>4.2.4</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <type>pom</type>
-        <scope>import</scope>
-        <version>2.11.3</version>
-	</dependency>
-      <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-bom</artifactId>
-        <version>2.17.0</version>
+        <version>2.17.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -63,13 +56,13 @@
     <dependency>
       <groupId>nl.jqno.equalsverifier</groupId>
       <artifactId>equalsverifier</artifactId>
-      <version>2.4.6</version>
+      <version>3.9</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>4.4.0</version>
+      <version>4.5.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -101,7 +94,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>3.4.6</version>
+      <version>4.3.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -111,7 +104,7 @@
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
-      <version>3.0.0</version>
+      <version>4.1.1</version>
     </dependency>
     <dependency>
       <groupId>args4j</groupId>
@@ -128,19 +121,19 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ssm</artifactId>
-      <version>1.11.313</version>
+      <version>1.12.153</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>4.4.9</version>
+      <version>4.4.15</version>
     </dependency>
 
     <!-- Only needed for VaultStore -->
     <dependency>
       <groupId>com.bettercloud</groupId>
       <artifactId>vault-java-driver</artifactId>
-      <version>3.1.0</version>
+      <version>5.1.0</version>
     </dependency>
 
     <!-- we use log4j as our logging implementation -->
