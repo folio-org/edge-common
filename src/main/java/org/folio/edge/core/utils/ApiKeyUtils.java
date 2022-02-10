@@ -1,5 +1,6 @@
 package org.folio.edge.core.utils;
 
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Random;
 
@@ -13,7 +14,7 @@ import io.vertx.core.json.JsonObject;
 public class ApiKeyUtils {
 
   public static final String ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  public static final Random RANDOM = new Random(System.nanoTime());
+  public static final Random RANDOM = new SecureRandom();
   public static final int DEFAULT_SALT_LEN = 10;
 
   @Option(name = "-p",
