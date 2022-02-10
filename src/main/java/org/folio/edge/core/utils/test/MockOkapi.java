@@ -11,6 +11,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +43,7 @@ public class MockOkapi {
   public static final String X_DURATION = "X-Duration";
   public static final String X_ECHO_STATUS = "X-Echo-Status";
 
-  public static final String MOCK_TOKEN = "mynameisyonyonsonicomefromwisconsoniworkatalumbermillthereallthepeopleimeetasiwalkdownthestreetaskhowinthehelldidyougethereisaymynameisyonyonsonicomefromwisconson";
+  public static final String MOCK_TOKEN = UUID.randomUUID().toString();
 
   public final int okapiPort;
   protected final Vertx vertx;
