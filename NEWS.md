@@ -1,3 +1,8 @@
+## 4.2.3 2022-02-17
+
+ * [EDGCOMMON-43](https://issues.folio.org/browse/EDGCOMMON-43) EDGCOMMON-43 Update dependencies including Vert.x 4.2.4, Log4j 2.17.1
+ * [EDGCOMMON-42](https://issues.folio.org/browse/EDGCOMMON-43) EDGCOMMON-42 Use cryptographically strong random for token and salt
+
 ## 4.2.2 2021-12-21
 
  * [EDGCOMMON-40](https://issues.folio.org/browse/EDGCOMMON-40) Upgrade to log4j 2.17.0
