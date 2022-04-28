@@ -25,6 +25,7 @@ import io.vertx.core.json.JsonObject;
 import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.okapi.common.WebClientFactory;
 
 public class OkapiClient {
 
@@ -53,10 +54,10 @@ public class OkapiClient {
     this.reqTimeout = timeout;
     this.okapiURL = okapiURL;
     this.tenant = tenant;
-    WebClientOptions options = new WebClientOptions().setKeepAlive(false).setTryUseCompression(true)
+    WebClientOptions options = new WebClientOptions().setTryUseCompression(true)
         .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout)
         .setConnectTimeout(timeout);
-    client = WebClient.create(vertx, options);
+    client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();
   }
 
