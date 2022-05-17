@@ -1,5 +1,11 @@
 package org.folio.edge.core;
 
+import static org.folio.edge.core.Constants.SYS_PORT;
+import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.startsWith;
+
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -12,9 +18,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.folio.edge.core.Constants.SYS_PORT;
-import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 
 @RunWith(VertxUnitRunner.class)
 public class EdgeVerticleCoreTest {
@@ -66,8 +69,7 @@ public class EdgeVerticleCoreTest {
       .put(SYS_SECURE_STORE_PROP_FILE, "sx://foo.com");
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
     vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause ->
-      context.assertEquals("Failed to load secure store properties: sx:/foo.com"
-        + " (No such file or directory)", cause.getMessage())
+      assertThat(cause.getMessage(), startsWith("Failed to load secure store properties: sx:/foo.com"))
     ));
   }
 
@@ -80,8 +82,7 @@ public class EdgeVerticleCoreTest {
       .put(SYS_SECURE_STORE_PROP_FILE, "http://127.0.0.1:" + serverPort);
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
     vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause ->
-      context.assertTrue(cause.getMessage().startsWith("Failed to load secure store properties: Connection refused"),
-        cause.getMessage())
+      assertThat(cause.getMessage(), containsString("Connection refused"))
     ));
   }
 
