@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
+import io.vertx.core.Vertx;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import java.util.Properties;
@@ -22,6 +23,7 @@ public class VaultStoreContainerTest {
         .withVaultToken("bee")
         .withSecretInVault("secret/diku", "diku_admin=password123");
   private static Properties properties = new Properties();
+  private static Vertx vertx = Vertx.vertx();
 
   @BeforeClass
   public static void beforeClass() {
@@ -40,14 +42,14 @@ public class VaultStoreContainerTest {
   }
 
   @Test
-  public void lookup(TestContext context) {
-    new VaultStore(properties).lookup("secret", "diku", "diku_admin")
+  public void getSucceededFuture(TestContext context) {
+    new VaultStore(properties).get(vertx, "secret", "diku", "diku_admin")
     .onComplete(context.asyncAssertSuccess(value -> assertThat(value, is("password123"))));
   }
 
   @Test
-  public void lookupFailure(TestContext context) {
-    new VaultStore(properties).lookup("secret", "diku", "foo")
+  public void getFailedFuture(TestContext context) {
+    new VaultStore(properties).get(vertx, "secret", "diku", "foo")
     .onComplete(context.asyncAssertFailure(e -> assertThat(e, is(instanceOf(NotFoundException.class)))));
   }
 
