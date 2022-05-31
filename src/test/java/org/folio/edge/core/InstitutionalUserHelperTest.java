@@ -27,7 +27,7 @@ public class InstitutionalUserHelperTest {
     var secureStore = mock(SecureStore.class);
     when(secureStore.get(any(), any(), any(), eq("name"))).thenReturn(Future.succeededFuture("pass"));
     var okapiClient = mock(OkapiClient.class);
-    when(okapiClient.doLogin(eq("name"), eq("pass"))).thenReturn(Future.succeededFuture("tok"));
+    when(okapiClient.doLogin("name", "pass")).thenReturn(Future.succeededFuture("tok"));
     var institutionalUserHelper = new InstitutionalUserHelper(secureStore);
     institutionalUserHelper.fetchToken(okapiClient, null, null, "name")
     .onComplete(context.asyncAssertSuccess(result -> assertThat(result, is("tok"))));
