@@ -1,34 +1,24 @@
 package org.folio.edge.core.utils.test;
 
-import static org.awaitility.Awaitility.await;
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.DEFAULT_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.awaitility.core.ConditionTimeoutException;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 
 public class MockOkapi {
 
@@ -56,17 +46,11 @@ public class MockOkapi {
   }
 
   public void close(TestContext context) {
-    final Async async = context.async();
-    vertx.close(res -> {
-      if (res.failed()) {
-        logger.error("Failed to shut down mock OKAPI server", res.cause());
-        fail(res.cause().getMessage());
-      } else {
-        logger.info("Successfully shut down mock OKAPI server");
-      }
-      async.complete();
-    });
-  }
+    vertx.close()
+    .onSuccess(x -> logger.info("Successfully shut down mock OKAPI server"))
+    .onFailure(e -> logger.error("Failed to shut down mock OKAPI server", e))
+    .onComplete(context.asyncAssertSuccess());
+ }
 
   protected Router defineRoutes() {
     Router router = Router.router(vertx);
@@ -84,15 +68,9 @@ public class MockOkapi {
 
     // Setup Mock Okapi...
     HttpServer server = vertx.createHttpServer();
-
-    final Async async = context.async();
-    server.requestHandler(defineRoutes()).listen(okapiPort, result -> {
-      if (result.failed()) {
-        logger.warn(result.cause());
-      }
-      context.assertTrue(result.succeeded());
-      async.complete();
-    });
+    server.requestHandler(defineRoutes()).listen(okapiPort)
+    .onFailure(e -> logger.warn(e.getMessage(), e))
+    .onComplete(context.asyncAssertSuccess());
   }
 
   public void durationHandler(RoutingContext ctx) {
@@ -104,20 +82,9 @@ public class MockOkapi {
       } catch (NumberFormatException e) {
         logger.warn("Invalid value specified for " + X_DURATION + " sleeping default request timeout instead");
       }
-      final long end = System.currentTimeMillis() + dur;
-      final long max = dur;
 
-      VertxCompletableFuture.runAsync(() -> {
-        logger.info("Waiting until " + new Date(end) + " before continuing");
-        try {
-          await().with()
-            .pollInterval(500, TimeUnit.MILLISECONDS)
-            .atMost(max, TimeUnit.MILLISECONDS)
-            .until(() -> System.currentTimeMillis() > end);
-        } catch (ConditionTimeoutException e) {
-          logger.info("Continuing request handling after waiting " + max + " ms");
-        }
-      }).thenRun(ctx::next);
+      logger.info("Waiting for " + dur + " ms before continuing");
+      vertx.setTimer(dur, x -> ctx.next());
     } else {
       ctx.next();
     }
