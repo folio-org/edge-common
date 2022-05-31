@@ -83,7 +83,7 @@ public class MockOkapi {
         logger.warn("Invalid value specified for " + X_DURATION + " sleeping default request timeout instead");
       }
 
-      logger.info("Waiting for " + dur + " ms before continuing");
+      logger.info("Waiting for {} ms before continuing", dur);
       vertx.setTimer(dur, x -> ctx.next());
     } else {
       ctx.next();

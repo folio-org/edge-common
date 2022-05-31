@@ -101,7 +101,7 @@ public class OkapiClient {
             return null;
           }
         })
-        .onFailure(cause -> logger.error("Exception during login: " + cause.getMessage(), cause));
+        .onFailure(cause -> logger.error("Exception during login: {}", cause.getMessage(), cause));
   }
 
   public CompletableFuture<Boolean> healthy() {
@@ -120,7 +120,7 @@ public class OkapiClient {
           return false;
         })
         .otherwise(t -> {
-          logger.error("Exception checking OKAPI's health: " + t.getMessage(), t);
+          logger.error("Exception checking OKAPI's health: {}", t.getMessage(), t);
           return false;
         });
   }

@@ -2,21 +2,18 @@ package org.folio.edge.core.utils;
 
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.HEADER_API_KEY;
-import static org.folio.edge.core.Constants.PARAM_API_KEY;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.utils.test.MockOkapi;
@@ -26,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import io.netty.handler.timeout.TimeoutException;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -111,6 +107,25 @@ public class OkapiClientTest {
     logger.info("=== Test health check === ");
 
     assertTrue(client.healthy().get());
+  }
+
+  @Test
+  public void testHealthyNoHost(TestContext context) throws Exception {
+    int freePort = TestUtils.getPort();
+    var factory = new OkapiClientFactory(Vertx.vertx(), "http://localhost:" + freePort, reqTimeout);
+    assertFalse(factory.getOkapiClient(tenant).healthy().get());
+  }
+
+  @Test
+  public void testHealthy500(TestContext context) {
+    Vertx.vertx().createHttpServer()
+    .requestHandler(request -> request.response().setStatusCode(500).end())
+    .listen(0)
+    .compose(server -> {
+      var factory = new OkapiClientFactory(Vertx.vertx(), "http://localhost:" + server.actualPort(), reqTimeout);
+      return factory.getOkapiClient(tenant).health();
+    })
+    .onComplete(context.asyncAssertSuccess(health -> assertFalse(health)));
   }
 
   @Test
