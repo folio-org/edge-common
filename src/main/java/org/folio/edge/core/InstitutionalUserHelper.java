@@ -1,5 +1,8 @@
 package org.folio.edge.core;
 
+import io.vertx.core.Context;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.logging.log4j.LogManager;
@@ -8,12 +11,9 @@ import org.folio.edge.core.cache.TokenCache;
 import org.folio.edge.core.cache.TokenCache.NotInitializedException;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
-import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
-
-import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 
 public class InstitutionalUserHelper {
   private static final Logger logger = LogManager.getLogger(InstitutionalUserHelper.class);
@@ -41,41 +41,40 @@ public class InstitutionalUserHelper {
   }
 
   public CompletableFuture<String> getToken(OkapiClient client, String clientId, String tenant, String username) {
-    VertxCompletableFuture<String> future = new VertxCompletableFuture<>(client.vertx);
+    return fetchToken(client, clientId, tenant, username).toCompletionStage().toCompletableFuture();
+  }
 
-    String token = null;
+  public Future<String> fetchToken(OkapiClient client, String clientId, String tenant, String username) {
     try {
       TokenCache cache = TokenCache.getInstance();
-      token = cache.get(clientId, tenant, username);
-    } catch (NotInitializedException e) {
+      String token = cache.get(clientId, tenant, username);
+      if (token != null) {
+        logger.info("Using cached token");
+        return Future.succeededFuture(token);
+      }
+    } catch (Exception e) {
       logger.warn("Failed to access TokenCache", e);
     }
 
-    if (token != null) {
-      logger.info("Using cached token");
-      future.complete(token);
-    } else {
-      String password;
-      try {
-        password = secureStore.get(clientId, tenant, username);
-      } catch (NotFoundException e) {
-        logger.error("Exception retrieving password", e);
-        future.completeExceptionally(e);
-        return future;
-      }
-      client.login(username, password).thenAcceptAsync(t -> {
-        try {
-          TokenCache.getInstance().put(clientId, tenant, username, t);
-        } catch (NotInitializedException e) {
-          logger.warn("Failed to cache token", e);
-        }
-        future.complete(t);
-      }).exceptionally(t -> {
-        logger.error("Exception during login", t);
-        future.completeExceptionally(t);
-        return null;
-      });
+    return secureStore.get(getVertx(), clientId, tenant, username)
+        .compose(password -> client.doLogin(username, password))
+        .onFailure(e -> logger.error("Exception during login", e))
+        .onSuccess(token -> {
+          try {
+            TokenCache.getInstance().put(clientId, tenant, username, token);
+          } catch (NotInitializedException e2) {
+            logger.warn("Failed to cache token", e2);
+          }
+        });
+  }
+
+  private Vertx getVertx() {
+    Context context = Vertx.currentContext();
+
+    if (context != null) {
+      return context.owner();
     }
-    return future;
+
+    return Vertx.vertx();
   }
 }

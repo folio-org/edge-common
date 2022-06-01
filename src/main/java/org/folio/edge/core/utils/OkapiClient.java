@@ -22,7 +22,6 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonObject;
-import me.escoffier.vertx.completablefuture.VertxCompletableFuture;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.okapi.common.WebClientFactory;
@@ -68,65 +67,62 @@ public class OkapiClient {
   }
 
   public CompletableFuture<String> login(String username, String password) {
-    return login(username, password, null);
+    return doLogin(username, password).toCompletionStage().toCompletableFuture();
+  }
+
+  public Future<String> doLogin(String username, String password) {
+    return doLogin(username, password, null);
   }
 
   public CompletableFuture<String> login(String username, String password, MultiMap headers) {
-    VertxCompletableFuture<String> future = new VertxCompletableFuture<>(vertx);
+    return doLogin(username, password, headers).toCompletionStage().toCompletableFuture();
+  }
 
+  public Future<String> doLogin(String username, String password, MultiMap headers) {
     if (username == null || password == null) {
-      future.complete(null);
-      return future;
+      return Future.succeededFuture();
     }
 
     JsonObject payload = new JsonObject();
     payload.put("username", username);
     payload.put("password", password);
 
-    post(
-        okapiURL + "/authn/login",
-        tenant,
-        payload.encode(),
-        combineHeadersWithDefaults(headers),
-        response -> {
+    return post(okapiURL + "/authn/login", tenant, payload.encode(), combineHeadersWithDefaults(headers))
+        .map(response -> {
           if (response.statusCode() == 201) {
             logger.info("Successfully logged into FOLIO");
             String token = response.getHeader(X_OKAPI_TOKEN);
             setToken(token);
-            future.complete(token);
+            return token;
           } else {
             logger.warn("Failed to log into FOLIO: ({}) {}",
                 () -> response.statusCode(),
                 () -> response.bodyAsString());
-            future.complete(null);
+            return null;
           }
-        },
-        cause -> {
-          logger.error("Exception during login: " + cause.getMessage());
-          future.completeExceptionally(cause);
-        });
-    return future;
+        })
+        .onFailure(cause -> logger.error("Exception during login: {}", cause.getMessage(), cause));
   }
 
   public CompletableFuture<Boolean> healthy() {
-    VertxCompletableFuture<Boolean> future = new VertxCompletableFuture<>(vertx);
-    get(
-        okapiURL + "/_/proxy/health",
-        tenant, response -> {
+    return health().toCompletionStage().toCompletableFuture();
+  }
+
+  public Future<Boolean> health() {
+    return get(okapiURL + "/_/proxy/health", tenant, null)
+        .map(response -> {
           int status = response.statusCode();
           if (status == 200) {
-            future.complete(true);
-          } else {
-            logger.error("OKAPI is unhealthy! status: {} body: {}",
-                () -> status, response::bodyAsString);
-            future.complete(false);
+            return true;
           }
-        },
-        t -> {
-          logger.error("Exception checking OKAPI's health: " + t.getMessage());
-          future.complete(false);
+          logger.error("OKAPI is unhealthy! status: {} body: {}",
+              () -> status, response::bodyAsString);
+          return false;
+        })
+        .otherwise(t -> {
+          logger.error("Exception checking OKAPI's health: {}", t.getMessage(), t);
+          return false;
         });
-    return future;
   }
 
   public String getToken() {
