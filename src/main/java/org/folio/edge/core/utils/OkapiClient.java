@@ -257,20 +257,20 @@ public class OkapiClient {
   }
 
   protected MultiMap combineHeadersWithDefaults(MultiMap headers) {
-    MultiMap combined = null;
+    if (headers == null || headers.isEmpty()) {
+      return defaultHeaders;
+    }
 
-    if (headers != null) {
-      headers.remove(HEADER_API_KEY);
-      if (headers.size() > 0) {
-        combined = MultiMap.caseInsensitiveMultiMap();
-        combined.addAll(headers);
-        for (Entry<String, String> entry : defaultHeaders.entries()) {
-          if (!combined.contains(entry.getKey())) {
-            combined.set(entry.getKey(), entry.getValue());
-          }
-        }
+    MultiMap combined = MultiMap.caseInsensitiveMultiMap();
+    combined.addAll(headers);
+    // remove from combined because headers might not be case insensitive
+    combined.remove(HEADER_API_KEY);
+    combined.remove(X_OKAPI_TENANT);  // don't allow to overwrite: https://issues.folio.org/browse/EDGCOMMON-47
+    for (Entry<String, String> entry : defaultHeaders.entries()) {
+      if (!combined.contains(entry.getKey())) {
+        combined.set(entry.getKey(), entry.getValue());
       }
     }
-    return combined != null ? combined : defaultHeaders;
+    return combined;
   }
 }
