@@ -1,3 +1,16 @@
+## 4.3.0 2022-06-02
+
+ * [EDGCOMMON-49](https://issues.folio.org/browse/EDGCOMMON-49) Upgrade dependencies: Vert.x 4.3.1, ...
+ * [EDGCOMMON-48](https://issues.folio.org/browse/EDGCOMMON-48) Remove vertx-completable-future
+ * [EDGCOMMON-47](https://issues.folio.org/browse/EDGCOMMON-47) Fix behavior when tenant header is present in a request]
+ * [EDGCOMMON-46](https://issues.folio.org/browse/EDGCOMMON-46) Vert.x 4.2.7 fixing jackson-databind DoS (CVE-2020-36518)
+ * [EDGCOMMON-45](https://issues.folio.org/browse/EDGCOMMON-45) Reuse WebClient for pooling, pipe-lining, multiplexing
+ * [EDGCOMMON-43](https://issues.folio.org/browse/EDGCOMMON-43) Update dependencies including Vert.x 4.2.4, Log4j 2.17.1
+ * [EDGCOMMON-42](https://issues.folio.org/browse/EDGCOMMON-43) cryptographically strong random for token and salt
+ * [EDGCOMMON-40](https://issues.folio.org/browse/EDGCOMMON-40) Upgrade to log4j 2.17.0
+ * [EDGCOMMON-38](https://issues.folio.org/browse/EDGCOMMON-38) Upgrade to log4j 2.16.0, Vert.x 4.2.2
+ * [EDGCOMMON-21](https://issues.folio.org/browse/EDGCOMMON-21) Do not block the Vert.x main thread when retrieving data from the secure store
+
 ## 4.2.0 2021-07-13
 
 * Defines request timeout when making HTTP requests (EDGCOMMON-36)
