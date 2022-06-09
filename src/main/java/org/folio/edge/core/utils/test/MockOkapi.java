@@ -115,7 +115,7 @@ public class MockOkapi {
     HttpServer server = vertx.createHttpServer();
     return server.requestHandler(defineRoutes()).listen(okapiPort)
         .onFailure(e -> logger.warn(e.getMessage(), e))
-        .onSuccess(httpServer -> this.httpServer = httpServer);
+        .onSuccess(anHttpServer -> httpServer = anHttpServer);
   }
 
   public void durationHandler(RoutingContext ctx) {
