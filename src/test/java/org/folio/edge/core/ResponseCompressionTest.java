@@ -56,7 +56,8 @@ public class ResponseCompressionTest {
         knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
 
         mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
-        mockOkapi.start(context);
+        mockOkapi.start()
+        .onComplete(context.asyncAssertSuccess());
 
         vertx = Vertx.vertx();
 

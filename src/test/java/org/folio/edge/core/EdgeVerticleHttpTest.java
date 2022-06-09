@@ -41,7 +41,6 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.VertxException;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -74,7 +73,8 @@ public class EdgeVerticleHttpTest {
     knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
 
     mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
-    mockOkapi.start(context);
+    mockOkapi.start()
+    .onComplete(context.asyncAssertSuccess());
 
     vertx = Vertx.vertx();
 

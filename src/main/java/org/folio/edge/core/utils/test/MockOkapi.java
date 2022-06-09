@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
@@ -45,11 +46,10 @@ public class MockOkapi {
     this.knownTenants = knownTenants == null ? new ArrayList<>() : knownTenants;
   }
 
-  public void close(TestContext context) {
-    vertx.close()
-    .onSuccess(x -> logger.info("Successfully shut down mock OKAPI server"))
-    .onFailure(e -> logger.error("Failed to shut down mock OKAPI server", e))
-    .onComplete(context.asyncAssertSuccess());
+  public Future<Void> close(TestContext context) {
+    return vertx.close()
+        .onSuccess(x -> logger.info("Successfully shut down mock OKAPI server"))
+        .onFailure(e -> logger.error("Failed to shut down mock OKAPI server", e));
  }
 
   protected Router defineRoutes() {
@@ -64,13 +64,37 @@ public class MockOkapi {
     return router;
   }
 
-  public void start(TestContext context) {
+  /**
+   * Start the server.
+   *
+   * <p>JUnit 4 example:
+   *
+   * <p><pre>
+   *   &#64;BeforeClass
+   *   public static void setUpOnce(TestContext context) {
+   *     MockOkapi mockOkapi = new MockOkapi(8090, List.of("diku"));
+   *     mockOkapi.start()
+   *     .onComplete(context.asyncAssertSuccess());
+   *   }
+   * </pre>
+   *
+   * <p>JUnit 5 example:
+   *
+   * <p><pre>
+   *   &#64;BeforeAll
+   *   static void setUpOnce(Vertx vertx, VertxTestContext vtc) {
+   *     MockOkapi mockOkapi = new MockOkapi(8090, List.of("diku"));
+   *     mockOkapi.start()
+   *     .onComplete(vtc.succeedingThenComplete());
+   *   }
+   * </pre>
+   */
+  public Future<HttpServer> start() {
 
     // Setup Mock Okapi...
     HttpServer server = vertx.createHttpServer();
-    server.requestHandler(defineRoutes()).listen(okapiPort)
-    .onFailure(e -> logger.warn(e.getMessage(), e))
-    .onComplete(context.asyncAssertSuccess());
+    return server.requestHandler(defineRoutes()).listen(okapiPort)
+        .onFailure(e -> logger.warn(e.getMessage(), e));
   }
 
   public void durationHandler(RoutingContext ctx) {

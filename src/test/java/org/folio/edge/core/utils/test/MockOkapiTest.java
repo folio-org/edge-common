@@ -47,7 +47,8 @@ public class MockOkapiTest {
     knownTenants.add(tenant);
 
     mockOkapi = new MockOkapi(okapiPort, knownTenants);
-    mockOkapi.start(context);
+    mockOkapi.start()
+    .onComplete(context.asyncAssertSuccess());
 
     RestAssured.baseURI = "http://localhost:" + okapiPort;
     RestAssured.port = okapiPort;
