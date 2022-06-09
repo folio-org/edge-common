@@ -37,16 +37,37 @@ public class MockOkapi {
 
   public final int okapiPort;
   protected final Vertx vertx;
+  private final boolean hasOwnVertx;
   protected final List<String> knownTenants;
+  private HttpServer httpServer;
 
-  public MockOkapi(int port, List<String> knownTenants) {
+  public MockOkapi(Vertx vertx, int port, List<String> knownTenants) {
     okapiPort = port;
-    vertx = Vertx.vertx();
+    hasOwnVertx = vertx == null;
+    this.vertx = hasOwnVertx ? Vertx.vertx() : vertx;
     this.knownTenants = knownTenants == null ? new ArrayList<>() : knownTenants;
   }
 
+  public MockOkapi(int port, List<String> knownTenants) {
+    this(null, port, knownTenants);
+  }
+
+  /**
+   * Close the HTTP server.
+   *
+   * <p>If the constructor was called with a non-null vertx then there is no
+   * need to call this method because vertx.close() automatically closes the server.
+   */
   public Future<Void> close() {
-    return vertx.close()
+    Future<Void> future;
+    if (hasOwnVertx) {
+      future = vertx.close();
+    } else if (httpServer == null) {
+      future = Future.succeededFuture();
+    } else {
+      future = httpServer.close();
+    }
+    return future
         .onSuccess(x -> logger.info("Successfully shut down mock OKAPI server"))
         .onFailure(e -> logger.error("Failed to shut down mock OKAPI server", e));
  }
@@ -93,7 +114,8 @@ public class MockOkapi {
     // Setup Mock Okapi...
     HttpServer server = vertx.createHttpServer();
     return server.requestHandler(defineRoutes()).listen(okapiPort)
-        .onFailure(e -> logger.warn(e.getMessage(), e));
+        .onFailure(e -> logger.warn(e.getMessage(), e))
+        .onSuccess(httpServer -> this.httpServer = httpServer);
   }
 
   public void durationHandler(RoutingContext ctx) {
