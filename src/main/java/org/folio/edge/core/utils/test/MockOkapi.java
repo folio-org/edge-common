@@ -16,7 +16,6 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -46,7 +45,7 @@ public class MockOkapi {
     this.knownTenants = knownTenants == null ? new ArrayList<>() : knownTenants;
   }
 
-  public Future<Void> close(TestContext context) {
+  public Future<Void> close() {
     return vertx.close()
         .onSuccess(x -> logger.info("Successfully shut down mock OKAPI server"))
         .onFailure(e -> logger.error("Failed to shut down mock OKAPI server", e));
