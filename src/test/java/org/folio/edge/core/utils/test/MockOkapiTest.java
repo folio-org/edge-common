@@ -60,7 +60,8 @@ public class MockOkapiTest {
 
   @AfterClass
   public static void tearDown(TestContext context) {
-    mockOkapi.close(context);
+    mockOkapi.close()
+    .onComplete(context.asyncAssertSuccess());
   }
 
   @Test
