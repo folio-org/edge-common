@@ -8,7 +8,6 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +32,6 @@ import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
 
 @RunWith(VertxUnitRunner.class)
@@ -55,10 +53,11 @@ public class ResponseCompressionTest {
         List<String> knownTenants = new ArrayList<>();
         knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
 
-        mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
-        mockOkapi.start(context);
-
         vertx = Vertx.vertx();
+
+        mockOkapi = spy(new MockOkapi(vertx, okapiPort, knownTenants));
+        mockOkapi.start()
+        .onComplete(context.asyncAssertSuccess());
 
         JsonObject jo = new JsonObject()
                 .put(SYS_PORT, serverPort)
@@ -78,22 +77,10 @@ public class ResponseCompressionTest {
 
     @AfterClass
     public static void tearDownOnce(TestContext context) {
-        final Async async = context.async();
         logger.info("Shutting down server");
-        vertx.close(res -> {
-            if (res.failed()) {
-                logger.error("Failed to shut down edge-common server", res.cause());
-                fail(res.cause().getMessage());
-            } else {
-                logger.info("Successfully shut down edge-common server");
-            }
-
-            logger.info("Shutting down mock Okapi");
-            mockOkapi.close(context);
-            async.complete();
-        });
+        vertx.close()  // this automatically shuts down mockOkapi
+        .onComplete(context.asyncAssertSuccess());
     }
-
 
     @Test
     public void testResponseCompression(TestContext context) {

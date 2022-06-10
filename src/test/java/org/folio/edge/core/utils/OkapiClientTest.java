@@ -56,7 +56,8 @@ public class OkapiClientTest {
     knownTenants.add(tenant);
 
     mockOkapi = new MockOkapi(okapiPort, knownTenants);
-    mockOkapi.start(context);
+    mockOkapi.start()
+    .onComplete(context.asyncAssertSuccess());
 
     ocf = new OkapiClientFactory(Vertx.vertx(), "http://localhost:" + okapiPort, reqTimeout);
     client = ocf.getOkapiClient(tenant);
@@ -64,7 +65,8 @@ public class OkapiClientTest {
 
   @After
   public void tearDown(TestContext context) {
-    mockOkapi.close(context);
+    mockOkapi.close()
+    .onComplete(context.asyncAssertSuccess());
   }
 
   @Test

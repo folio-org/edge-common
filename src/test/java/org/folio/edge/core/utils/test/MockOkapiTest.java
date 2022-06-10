@@ -11,6 +11,8 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,14 +21,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import io.restassured.RestAssured;
 import io.restassured.config.EncoderConfig;
 import io.restassured.response.Response;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.Timeout;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 
 @RunWith(VertxUnitRunner.class)
@@ -39,6 +45,9 @@ public class MockOkapiTest {
 
   private static MockOkapi mockOkapi;
 
+  @Rule
+  public Timeout timeout = Timeout.seconds(10);
+
   @BeforeClass
   public static void setUp(TestContext context) {
     int okapiPort = TestUtils.getPort();
@@ -47,7 +56,8 @@ public class MockOkapiTest {
     knownTenants.add(tenant);
 
     mockOkapi = new MockOkapi(okapiPort, knownTenants);
-    mockOkapi.start(context);
+    mockOkapi.start()
+    .onComplete(context.asyncAssertSuccess());
 
     RestAssured.baseURI = "http://localhost:" + okapiPort;
     RestAssured.port = okapiPort;
@@ -59,7 +69,8 @@ public class MockOkapiTest {
 
   @AfterClass
   public static void tearDown(TestContext context) {
-    mockOkapi.close(context);
+    mockOkapi.close()
+    .onComplete(context.asyncAssertSuccess());
   }
 
   @Test
@@ -226,5 +237,45 @@ public class MockOkapiTest {
       .response();
 
     assertEquals("", resp.body().asString());
+  }
+
+  private Future<Void> assertGet200(String uri) {
+    return Vertx.currentContext().executeBlocking(promise -> {
+      try {
+        RestAssured
+        .get(new URI(uri))
+        .then()
+        .statusCode(200);
+      } catch (URISyntaxException e) {
+        throw new RuntimeException(e);
+      }
+      promise.complete();
+    });
+  }
+
+  @Test
+  public void testVertxClose(TestContext context) {
+    int port2 = TestUtils.getPort();
+    var vertx2 = Vertx.vertx();
+    var okapi2 = new MockOkapi(vertx2, port2, List.of());
+
+    okapi2.close()
+    .onComplete(context.asyncAssertSuccess());
+  }
+
+  @Test
+  public void testHttpClose(TestContext context) {
+    int port2 = TestUtils.getPort();
+    var uri = "http://localhost:" + port2 + "/_/proxy/health";
+    var vertx2 = Vertx.vertx();
+    var okapi2 = new MockOkapi(vertx2, port2, List.of());
+
+    okapi2.start()
+    .compose(x -> assertGet200(uri))
+    .compose(x -> okapi2.close())
+    .compose(x -> vertx2.createHttpClient().close())  // vertx2 still works
+    .onComplete(context.asyncAssertSuccess())
+    .compose(x -> assertGet200(uri))
+    .onComplete(context.asyncAssertFailure());
   }
 }

@@ -12,7 +12,6 @@ import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -41,11 +40,9 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.VertxException;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
@@ -74,7 +71,8 @@ public class EdgeVerticleHttpTest {
     knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
 
     mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
-    mockOkapi.start(context);
+    mockOkapi.start()
+    .onComplete(context.asyncAssertSuccess());
 
     vertx = Vertx.vertx();
 
@@ -96,19 +94,12 @@ public class EdgeVerticleHttpTest {
   @AfterClass
   public static void tearDownOnce(TestContext context) {
     logger.info("Shutting down server");
-    final Async async = context.async();
-    vertx.close(res -> {
-      if (res.failed()) {
-        logger.error("Failed to shut down edge-common server", res.cause());
-        fail(res.cause().getMessage());
-      } else {
-        logger.info("Successfully shut down edge-common server");
-      }
 
-      logger.info("Shutting down mock Okapi");
-      mockOkapi.close(context);
-      async.complete();
-    });
+    vertx.close()
+    .onSuccess(x -> logger.info("Successfully shut down edge-common server"))
+    .compose(x -> mockOkapi.close())
+    .onSuccess(x -> logger.info("Successfully shut down mock Okapi"))
+    .onComplete(context.asyncAssertSuccess());
   }
 
   @Test
