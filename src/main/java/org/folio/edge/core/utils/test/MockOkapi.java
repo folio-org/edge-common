@@ -33,13 +33,13 @@ public class MockOkapi {
    * @deprecated Use {@link #setDelay(long)} instead. For security an edge module should not
    *     pass any headers from the external client to the back-end module unless strictly needed.
    */
-  @Deprecated
+  @Deprecated(since="4.4.0", forRemoval=true)
   public static final String X_DURATION = "X-Duration";
   /**
    * @deprecated Use proper mocking instead. For security an edge module should not
    *     pass any headers from the external client to the back-end module unless strictly needed.
    */
-  @Deprecated
+  @Deprecated(since="4.4.0", forRemoval=true)
   public static final String X_ECHO_STATUS = "X-Echo-Status";
 
   public static final String MOCK_TOKEN = UUID.randomUUID().toString();

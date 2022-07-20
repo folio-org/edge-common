@@ -92,13 +92,14 @@ public class Handler {
   }
 
   protected static boolean isTimeoutException(Throwable t) {
-    if (t == null) {
-      return false;
-    }
     if (t instanceof TimeoutException) {
       return true;
     }
-    return isTimeoutException(t.getCause());
+    var cause = t.getCause();
+    if (cause == null) {
+      return false;
+    }
+    return isTimeoutException(cause);
   }
 
   protected void handleProxyResponse(RoutingContext ctx, HttpResponse<Buffer> resp) {
