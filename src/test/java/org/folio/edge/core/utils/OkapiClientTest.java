@@ -8,7 +8,9 @@ import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -17,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.utils.test.MockOkapi;
@@ -381,4 +384,34 @@ public class OkapiClientTest {
         async.complete();
       });
   }
+
+  @Test
+  public void testTimeoutExceptionWhenSetDelay(TestContext context) {
+    assertThat(mockOkapi.getDelay(), is(0L));
+    mockOkapi.setDelay(reqTimeout * 2);
+    assertThat(mockOkapi.getDelay(), is(reqTimeout * 2L));
+    long start = System.currentTimeMillis();
+
+    Async async = context.async();
+    client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
+      tenant, null,
+      resp -> context.fail("shouldn't receive a response before the timeout occurs"),
+      t -> context.verify(verify -> {
+        assertThat(t, instanceOf(TimeoutException.class));
+        assertThat(System.currentTimeMillis()-start, greaterThanOrEqualTo((long) reqTimeout));
+        async.complete();
+      }));
+  }
+
+  @Test
+  public void testNoTimeoutWhenSetShortDelay(TestContext context) {
+    mockOkapi.setDelay(reqTimeout / 2);
+
+    Async async = context.async();
+    client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort),
+      tenant, null,
+      resp -> async.complete(),
+      t -> context.fail(t));
+  }
+
 }
