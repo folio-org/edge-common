@@ -29,8 +29,17 @@ public class MockOkapi {
    * processing a request.
    *
    * Exists for the purposes of exercising timeouts
+   *
+   * @deprecated Use {@link #setDelay(long)} instead. For security an edge module should not
+   *     pass any headers from the external client to the back-end module unless strictly needed.
    */
+  @Deprecated
   public static final String X_DURATION = "X-Duration";
+  /**
+   * @deprecated Use proper mocking instead. For security an edge module should not
+   *     pass any headers from the external client to the back-end module unless strictly needed.
+   */
+  @Deprecated
   public static final String X_ECHO_STATUS = "X-Echo-Status";
 
   public static final String MOCK_TOKEN = UUID.randomUUID().toString();
@@ -40,6 +49,7 @@ public class MockOkapi {
   private final boolean hasOwnVertx;
   protected final List<String> knownTenants;
   private HttpServer httpServer;
+  private long delay = 0;
 
   public MockOkapi(Vertx vertx, int port, List<String> knownTenants) {
     okapiPort = port;
@@ -118,6 +128,19 @@ public class MockOkapi {
         .onSuccess(anHttpServer -> httpServer = anHttpServer);
   }
 
+  /**
+   * Delay for each request that doesn't have a X-Duration header.
+   *
+   * @param delay milliseconds to wait, 0 for no wait
+   */
+  public void setDelay(long delay) {
+    this.delay = delay;
+  }
+
+  public long getDelay() {
+    return delay;
+  }
+
   public void durationHandler(RoutingContext ctx) {
     String duration = ctx.request().getHeader(X_DURATION);
     if (duration != null && !duration.isEmpty()) {
@@ -130,6 +153,9 @@ public class MockOkapi {
 
       logger.info("Waiting for {} ms before continuing", dur);
       vertx.setTimer(dur, x -> ctx.next());
+    } else if (delay > 0) {
+      logger.info("Waiting for {} ms before continuing", delay);
+      vertx.setTimer(delay, x -> ctx.next());
     } else {
       ctx.next();
     }

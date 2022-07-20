@@ -82,13 +82,23 @@ public class Handler {
         action.apply(client, params);
       })
       .exceptionally(t -> {
-        if (t instanceof TimeoutException) {
+        if (isTimeoutException(t)) {
           requestTimeout(ctx, t.getMessage());
         } else {
           accessDenied(ctx, t.getMessage());
         }
         return null;
       });
+  }
+
+  protected static boolean isTimeoutException(Throwable t) {
+    if (t == null) {
+      return false;
+    }
+    if (t instanceof TimeoutException) {
+      return true;
+    }
+    return isTimeoutException(t.getCause());
   }
 
   protected void handleProxyResponse(RoutingContext ctx, HttpResponse<Buffer> resp) {
@@ -105,7 +115,7 @@ public class Handler {
 
   protected void handleProxyException(RoutingContext ctx, Throwable t) {
     logger.error("Exception calling OKAPI", t);
-    if (t instanceof TimeoutException) {
+    if (isTimeoutException(t)) {
       requestTimeout(ctx, t.getMessage());
     } else {
       internalServerError(ctx, t.getMessage());
