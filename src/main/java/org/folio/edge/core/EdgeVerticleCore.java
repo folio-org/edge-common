@@ -13,6 +13,7 @@ import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
@@ -66,39 +67,39 @@ public class EdgeVerticleCore extends AbstractVerticle {
   }
 
   protected Future<SecureStore> initializeSecureStore(String secureStorePropFile) {
-    return getProperties(secureStorePropFile).compose(secureStoreProps -> {
+    return getProperties(secureStorePropFile).map(secureStoreProps -> {
       // Order of precedence: system property, properties file, default
       String type = config().getString(SYS_SECURE_STORE_TYPE,
         secureStoreProps.getProperty(PROP_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
 
-      return Future.succeededFuture(SecureStoreFactory.getSecureStore(type, secureStoreProps));
+      return SecureStoreFactory.getSecureStore(type, secureStoreProps);
     });
+  }
+
+  private static InputStream createInputStream(String secureStorePropFile) throws IOException {
+    if (isURL.matcher(secureStorePropFile).matches()) {
+      return new URL(secureStorePropFile).openStream();
+    }
+    return new FileInputStream(secureStorePropFile);
   }
 
   static Future<Properties> getProperties(String secureStorePropFile) {
     Properties secureStoreProps = new Properties();
 
-    if (secureStorePropFile != null) {
-      URL url = null;
-      try {
-        if (isURL.matcher(secureStorePropFile).matches()) {
-          url = new URL(secureStorePropFile);
-        }
-
-        try (
-          InputStream in = url == null ? new FileInputStream(secureStorePropFile) : url.openStream()) {
-          secureStoreProps.load(in);
-          logger.info("Successfully loaded properties from: " +
-            secureStorePropFile);
-        }
-      } catch (Exception e) {
-        logger.warn(e.getMessage(), e);
-        return Future.failedFuture("Failed to load secure store properties: " + e.getMessage());
-      }
-    } else {
-      logger.warn("No secure store properties file specified.  Using defaults");
+    if (secureStorePropFile == null) {
+      logger.info("No secure store properties file specified.  Using defaults");
+      return Future.succeededFuture(secureStoreProps);
     }
-    return Future.succeededFuture(secureStoreProps);
+
+    try (InputStream in = createInputStream(secureStorePropFile)) {
+      secureStoreProps.load(in);
+      logger.info("Successfully loaded properties from: " + secureStorePropFile);
+      return Future.succeededFuture(secureStoreProps);
+    } catch (Exception e) {
+      Exception ex = new IOException("Failed to load secure store properties: " + e.getMessage(), e);
+      logger.error(ex.getMessage(), ex);
+      return Future.failedFuture(ex);
+    }
   }
 
 }

@@ -3,7 +3,7 @@ package org.folio.edge.core;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.startsWith;
 
 import io.vertx.core.DeploymentOptions;
@@ -13,6 +13,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import java.io.FileNotFoundException;
+import java.net.ConnectException;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -68,9 +70,10 @@ public class EdgeVerticleCoreTest {
     JsonObject jo = new JsonObject()
       .put(SYS_SECURE_STORE_PROP_FILE, "sx://foo.com");
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
-    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause ->
-      assertThat(cause.getMessage(), startsWith("Failed to load secure store properties: sx:/foo.com"))
-    ));
+    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(e -> {
+      assertThat(e.getMessage(), startsWith("Failed to load secure store properties: sx:/foo.com"));
+      assertThat(e.getCause(), instanceOf(FileNotFoundException.class));
+    }));
   }
 
   // test getProperties failure handling
@@ -81,8 +84,8 @@ public class EdgeVerticleCoreTest {
     JsonObject jo = new JsonObject()
       .put(SYS_SECURE_STORE_PROP_FILE, "http://127.0.0.1:" + serverPort);
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
-    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(cause ->
-      assertThat(cause.getMessage(), containsString("Connection refused"))
+    vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(e ->
+      assertThat(e.getCause(), instanceOf(ConnectException.class))
     ));
   }
 
