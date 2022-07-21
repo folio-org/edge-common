@@ -93,7 +93,7 @@ public class EdgeVerticleCore extends AbstractVerticle {
 
     try (InputStream in = createInputStream(secureStorePropFile)) {
       secureStoreProps.load(in);
-      logger.info("Successfully loaded properties from: " + secureStorePropFile);
+      logger.info("Successfully loaded properties from: {}", secureStorePropFile);
       return Future.succeededFuture(secureStoreProps);
     } catch (Exception e) {
       Exception ex = new IOException("Failed to load secure store properties: " + e.getMessage(), e);
