@@ -1,3 +1,14 @@
+## 4.4.0 2022-07-25
+
+ * [EDGCOMMON-51](https://issues.folio.org/browse/EDGCOMMON-51) Futurize MockOkapi for Junit 5 and .compose
+ * [EDGCOMMON-52](https://issues.folio.org/browse/EDGCOMMON-52) Enable "Accept-Encoding: deflate, gzip" by default
+ * [EDGCOMMON-53](https://issues.folio.org/browse/EDGCOMMON-53) Deprecate X-Duration, provide setDelay, fix timeout reporting
+
+Upgrading notes: Edge module must no longer copy HTTP headers from the incoming request to the outgoing
+request. Remove deny list code like `ctx.request().headers().remove(CONTENT_LENGTH)`. For security
+use an allow list to copy only the HTTP headers that really are needed, if any. Support for this has
+been added to edge-common's Handler and MockOkapi classes.
+
 ## 4.3.0 2022-06-02
 
  * [EDGCOMMON-49](https://issues.folio.org/browse/EDGCOMMON-49) Upgrade dependencies: Vert.x 4.3.1, ...
