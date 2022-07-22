@@ -61,6 +61,7 @@ public class OkapiClient {
   }
 
   protected void initDefaultHeaders() {
+    defaultHeaders.add(HttpHeaders.ACCEPT_ENCODING, HttpHeaders.DEFLATE_GZIP);
     defaultHeaders.add(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT);
     defaultHeaders.add(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
     defaultHeaders.add(X_OKAPI_TENANT, tenant);

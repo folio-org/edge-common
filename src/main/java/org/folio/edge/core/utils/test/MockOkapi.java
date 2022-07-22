@@ -15,6 +15,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -29,8 +30,17 @@ public class MockOkapi {
    * processing a request.
    *
    * Exists for the purposes of exercising timeouts
+   *
+   * @deprecated Use {@link #setDelay(long)} instead. For security an edge module should not
+   *     pass any headers from the external client to the back-end module unless strictly needed.
    */
+  @Deprecated(since="4.4.0", forRemoval=true)
   public static final String X_DURATION = "X-Duration";
+  /**
+   * @deprecated Use proper mocking instead. For security an edge module should not
+   *     pass any headers from the external client to the back-end module unless strictly needed.
+   */
+  @Deprecated(since="4.4.0", forRemoval=true)
   public static final String X_ECHO_STATUS = "X-Echo-Status";
 
   public static final String MOCK_TOKEN = UUID.randomUUID().toString();
@@ -40,6 +50,7 @@ public class MockOkapi {
   private final boolean hasOwnVertx;
   protected final List<String> knownTenants;
   private HttpServer httpServer;
+  private long delay = 0;
 
   public MockOkapi(Vertx vertx, int port, List<String> knownTenants) {
     okapiPort = port;
@@ -112,10 +123,24 @@ public class MockOkapi {
   public Future<HttpServer> start() {
 
     // Setup Mock Okapi...
-    HttpServer server = vertx.createHttpServer();
+    var options = new HttpServerOptions().setCompressionSupported(true);
+    HttpServer server = vertx.createHttpServer(options);
     return server.requestHandler(defineRoutes()).listen(okapiPort)
         .onFailure(e -> logger.warn(e.getMessage(), e))
         .onSuccess(anHttpServer -> httpServer = anHttpServer);
+  }
+
+  /**
+   * Delay for each request that doesn't have a X-Duration header.
+   *
+   * @param delay milliseconds to wait, 0 for no wait
+   */
+  public void setDelay(long delay) {
+    this.delay = delay;
+  }
+
+  public long getDelay() {
+    return delay;
   }
 
   public void durationHandler(RoutingContext ctx) {
@@ -130,6 +155,9 @@ public class MockOkapi {
 
       logger.info("Waiting for {} ms before continuing", dur);
       vertx.setTimer(dur, x -> ctx.next());
+    } else if (delay > 0) {
+      logger.info("Waiting for {} ms before continuing", delay);
+      vertx.setTimer(delay, x -> ctx.next());
     } else {
       ctx.next();
     }
