@@ -15,6 +15,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -112,7 +113,8 @@ public class MockOkapi {
   public Future<HttpServer> start() {
 
     // Setup Mock Okapi...
-    HttpServer server = vertx.createHttpServer();
+    var options = new HttpServerOptions().setCompressionSupported(true);
+    HttpServer server = vertx.createHttpServer(options);
     return server.requestHandler(defineRoutes()).listen(okapiPort)
         .onFailure(e -> logger.warn(e.getMessage(), e))
         .onSuccess(anHttpServer -> httpServer = anHttpServer);
