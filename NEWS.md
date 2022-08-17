@@ -1,3 +1,7 @@
+## 4.4.1 2022-08-17
+
+ * [EDGCOMMON-54](https://issues.folio.org/browse/EDGCOMMON-54) Vert.x 4.3.3 fixing disabled SSL in 4.3.0/4.3.1
+
 ## 4.4.0 2022-07-25
 
  * [EDGCOMMON-51](https://issues.folio.org/browse/EDGCOMMON-51) Futurize MockOkapi for Junit 5 and .compose
