@@ -1,3 +1,7 @@
+## 4.4.2 2022-11-24
+
+ * [EDGCOMMON-56](https://issues.folio.org/browse/EDGCOMMON-56) Upgrade all dependencies; Jackson 2.14.0 fixes CVE-2022-42003
+
 ## 4.4.1 2022-08-17
 
  * [EDGCOMMON-54](https://issues.folio.org/browse/EDGCOMMON-54) Vert.x 4.3.3 fixing disabled SSL in 4.3.0/4.3.1
