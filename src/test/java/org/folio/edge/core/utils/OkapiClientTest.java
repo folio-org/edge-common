@@ -20,8 +20,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.edge.core.utils.test.MockOkapi;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.After;
@@ -62,8 +64,12 @@ public class OkapiClientTest {
     mockOkapi.start()
     .onComplete(context.asyncAssertSuccess());
 
+    TokenCacheFactory.initialize(100);
+
     ocf = new OkapiClientFactory(Vertx.vertx(), "http://localhost:" + okapiPort, reqTimeout);
     client = ocf.getOkapiClient(tenant);
+    // client.withTokenClient(new TokenClient(client.okapiURL, client.client, TokenCacheFactory.get(), tenant,
+    //        "username", () -> Future.succeededFuture("password")));
   }
 
   @After
@@ -77,22 +83,16 @@ public class OkapiClientTest {
     logger.info("=== Test successful login === ");
 
     assertNotNull(client.login("admin", "password").get());
-
-    // Ensure that the client's default headers now contain the
-    // x-okapi-token for use in subsequent okapi calls
-    assertEquals(MOCK_TOKEN, client.defaultHeaders.get(X_OKAPI_TOKEN));
   }
 
   @Test
-  public void testLoginFailure(TestContext context) throws Exception {
-    logger.info("=== Test successful login === ");
-
-    OkapiClient client = ocf.getOkapiClient("");
-    assertNull(client.login("admin", "password").get());
-
-    // Ensure that the client's default headers now contain the
-    // x-okapi-token for use in subsequent okapi calls
-    assertNull(client.defaultHeaders.get(X_OKAPI_TOKEN));
+  public void testLoginFailure(TestContext context) {
+    logger.info("=== Test unsuccessful login === ");
+    OkapiClient client = ocf.getOkapiClient("x");
+    client.doLogin("admin", "password")
+            .onComplete(context.asyncAssertFailure(res -> {
+              assertEquals("no such tenant x", res.getMessage());
+            }));
   }
 
   @Test
@@ -137,19 +137,21 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testLoginNoUsername(TestContext context) throws Exception {
+  public void testLoginNoUsername(TestContext context)  {
     logger.info("=== Test login w/ no password === ");
 
-    assertNull(client.login(null, "password").get());
-    assertNull(client.defaultHeaders.get(X_OKAPI_TOKEN));
+    client.doLogin(null, "password").onComplete(context.asyncAssertFailure(res ->
+            assertEquals("Json content error", res.getMessage())
+    ));
   }
 
   @Test
-  public void testLoginNoPassword(TestContext context) throws Exception {
+  public void testLoginNoPassword(TestContext context) {
     logger.info("=== Test login w/ no password === ");
 
-    assertNull(client.login("admin", null).get());
-    assertNull(client.defaultHeaders.get(X_OKAPI_TOKEN));
+    client.doLogin("admin", null).onComplete(context.asyncAssertFailure(res ->
+            assertEquals("Json content error", res.getMessage())
+    ));
   }
 
   @Test

@@ -8,7 +8,6 @@ import io.vertx.core.Future;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.folio.edge.core.security.SecureStore;
-import org.folio.edge.core.utils.OkapiClient;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,11 +25,9 @@ public class InstitutionalUserHelperTest {
   public void testWithoutCache(TestContext context) {
     var secureStore = mock(SecureStore.class);
     when(secureStore.get(any(), any(), any(), eq("name"))).thenReturn(Future.succeededFuture("pass"));
-    var okapiClient = mock(OkapiClient.class);
-    when(okapiClient.doLogin("name", "pass")).thenReturn(Future.succeededFuture("tok"));
     var institutionalUserHelper = new InstitutionalUserHelper(secureStore);
-    institutionalUserHelper.fetchToken(okapiClient, null, null, "name")
-    .onComplete(context.asyncAssertSuccess(result -> assertThat(result, is("tok"))));
+    institutionalUserHelper.fetchPassword(null, null, "name")
+    .onComplete(context.asyncAssertSuccess(result -> assertThat(result, is("pass"))));
   }
 
 }

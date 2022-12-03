@@ -181,7 +181,7 @@ public class MockOkapi {
     if (tenant == null) {
       status = 400;
       resp = "Unable to process request Tenant must be set";
-    } else if (body == null || !body.containsKey("username") || !body.containsKey("password")) {
+    } else if (body == null || body.getString("username") == null || body.getString("password") == null) {
       status = 400;
       resp = "Json content error";
     } else if (ctx.request().getHeader(HttpHeaders.CONTENT_TYPE) == null ||

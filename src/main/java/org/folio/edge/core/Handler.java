@@ -69,6 +69,7 @@ public class Handler {
     try {
       clientInfo = ApiKeyUtils.parseApiKey(key);
     } catch (MalformedApiKeyException e) {
+      logger.warn("MalformedApiKeyException");
       invalidApiKey(ctx, key);
       return;
     }
@@ -80,22 +81,7 @@ public class Handler {
             () -> iuHelper.fetchPassword(clientInfo.salt, clientInfo.tenantId, clientInfo.username));
     client.withTokenClient(tokenClient);
 
-    iuHelper.getToken(client,
-        clientInfo.salt,
-        clientInfo.tenantId,
-        clientInfo.username)
-      .thenAcceptAsync(token -> {
-        client.setToken(token);
-        action.apply(client, params);
-      })
-      .exceptionally(t -> {
-        if (isTimeoutException(t)) {
-          requestTimeout(ctx, t.getMessage());
-        } else {
-          accessDenied(ctx, t.getMessage());
-        }
-        return null;
-      });
+    action.apply(client, params);
   }
 
   protected static boolean isTimeoutException(Throwable t) {
@@ -122,9 +108,11 @@ public class Handler {
   }
 
   protected void handleProxyException(RoutingContext ctx, Throwable t) {
-    logger.error("Exception calling OKAPI", t);
+    logger.error("Exception calling OKAPI class={}", t.getClass(), t);
     if (isTimeoutException(t)) {
       requestTimeout(ctx, t.getMessage());
+    } else if (t instanceof SecureStore.NotFoundException) {
+      accessDenied(ctx, t.getMessage());
     } else {
       internalServerError(ctx, t.getMessage());
     }
