@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.ApiKeyUtils;
@@ -21,6 +22,7 @@ import org.folio.edge.core.utils.OkapiClientFactory;
 
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.ext.web.RoutingContext;
+import org.folio.vertx.login.TokenClient;
 
 public class Handler {
 
@@ -72,6 +74,11 @@ public class Handler {
     }
 
     final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
+
+    TokenClient tokenClient = new TokenClient(client.okapiURL, client.client,
+            TokenCacheFactory.get(), clientInfo.tenantId, clientInfo.username,
+            () -> iuHelper.fetchPassword(clientInfo.salt, clientInfo.tenantId, clientInfo.username));
+    client.withTokenClient(tokenClient);
 
     iuHelper.getToken(client,
         clientInfo.salt,

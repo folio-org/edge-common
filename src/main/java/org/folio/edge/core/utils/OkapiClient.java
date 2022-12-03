@@ -25,6 +25,7 @@ import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.okapi.common.WebClientFactory;
+import org.folio.vertx.login.TokenClient;
 
 public class OkapiClient {
 
@@ -35,6 +36,7 @@ public class OkapiClient {
   public final String tenant;
   public final int reqTimeout;
   public final Vertx vertx;
+  TokenClient tokenClient;
 
   protected final MultiMap defaultHeaders = MultiMap.caseInsensitiveMultiMap();
 
@@ -45,6 +47,7 @@ public class OkapiClient {
     this.okapiURL = client.okapiURL;
     this.client = client.client;
     this.setToken(client.getToken());
+    this.tokenClient = client.tokenClient;
     initDefaultHeaders();
   }
 
@@ -58,6 +61,11 @@ public class OkapiClient {
         .setConnectTimeout(timeout);
     client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();
+  }
+
+  public OkapiClient withTokenClient(TokenClient tokenClient) {
+    this.tokenClient = tokenClient;
+    return this;
   }
 
   protected void initDefaultHeaders() {

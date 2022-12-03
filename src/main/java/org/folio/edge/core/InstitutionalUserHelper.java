@@ -14,6 +14,7 @@ import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
+import org.folio.vertx.login.TokenClient;
 
 public class InstitutionalUserHelper {
   private static final Logger logger = LogManager.getLogger(InstitutionalUserHelper.class);
@@ -42,6 +43,10 @@ public class InstitutionalUserHelper {
 
   public CompletableFuture<String> getToken(OkapiClient client, String clientId, String tenant, String username) {
     return fetchToken(client, clientId, tenant, username).toCompletionStage().toCompletableFuture();
+  }
+
+  public Future<String> fetchPassword(String clientId, String tenant, String username) {
+    return secureStore.get(getVertx(), clientId, tenant, username);
   }
 
   public Future<String> fetchToken(OkapiClient client, String clientId, String tenant, String username) {

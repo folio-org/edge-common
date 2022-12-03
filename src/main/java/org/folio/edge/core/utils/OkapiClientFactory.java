@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.vertx.core.Vertx;
+import org.folio.edge.core.model.ClientInfo;
+import org.folio.vertx.login.TokenClient;
 
 public class OkapiClientFactory {
 
