@@ -14,7 +14,6 @@ import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
-import org.folio.vertx.login.TokenClient;
 
 public class InstitutionalUserHelper {
   private static final Logger logger = LogManager.getLogger(InstitutionalUserHelper.class);
