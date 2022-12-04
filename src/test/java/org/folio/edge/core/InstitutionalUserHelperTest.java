@@ -26,7 +26,7 @@ public class InstitutionalUserHelperTest {
     var secureStore = mock(SecureStore.class);
     when(secureStore.get(any(), any(), any(), eq("name"))).thenReturn(Future.succeededFuture("pass"));
     var institutionalUserHelper = new InstitutionalUserHelper(secureStore);
-    institutionalUserHelper.fetchPassword(null, null, "name")
+    institutionalUserHelper.getPassword(null, null, "name")
     .onComplete(context.asyncAssertSuccess(result -> assertThat(result, is("pass"))));
   }
 

@@ -74,7 +74,7 @@ public class Handler {
 
     final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
     client.login(clientInfo.username,
-                    () -> iuHelper.fetchPassword(clientInfo.salt, clientInfo.tenantId, clientInfo.username))
+                    () -> iuHelper.getPassword(clientInfo.salt, clientInfo.tenantId, clientInfo.username))
             .onSuccess(token -> action.apply(client, params))
             .onFailure(t -> {
               logger.info("Handler failure {}", t.getMessage());

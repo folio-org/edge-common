@@ -36,7 +36,7 @@ public class InstitutionalUserHelper {
     return ApiKeyUtils.parseApiKey(apiKey);
   }
 
-  public Future<String> fetchPassword(String clientId, String tenant, String username) {
+  public Future<String> getPassword(String clientId, String tenant, String username) {
     return secureStore.get(getVertx(), clientId, tenant, username);
   }
 
