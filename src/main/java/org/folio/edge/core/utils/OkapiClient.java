@@ -4,6 +4,7 @@ import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.HEADER_API_KEY;
 import static org.folio.edge.core.Constants.JSON_OR_TEXT;
 import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
+import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.okapi.common.WebClientFactory;
+import org.folio.okapi.common.XOkapiHeaders;
 import org.folio.vertx.login.TokenClient;
 import org.folio.vertx.tokencache.TokenCache;
 
@@ -74,7 +76,12 @@ public class OkapiClient {
 
   @Deprecated
   public CompletableFuture<String> login(String username, String password) {
-    return doLogin(username, password).toCompletionStage().toCompletableFuture();
+    return doLogin(username, password, null).toCompletionStage().toCompletableFuture();
+  }
+
+  @Deprecated
+  public Future<String> doLogin(String username, String password) {
+    return doLogin(username, password, null);
   }
 
   @Deprecated
@@ -84,12 +91,13 @@ public class OkapiClient {
 
   @Deprecated
   public Future<String> doLogin(String username, String password, MultiMap headers) {
-    return doLogin(username, password);
+    return loginWithSupplier(username, () -> Future.succeededFuture(password));
   }
 
-  public Future<String> doLogin(String username, String password) {
-    tokenClient = new TokenClient(okapiURL, client, TokenCacheFactory.get(), tenant,
-            username, password);
+  public Future<String> loginWithSupplier(String username, Supplier<Future<String>> getPasswordSupplier) {
+    logger.info("loginWithSupplier username={} cache={}", username, TokenCacheFactory.get());
+    tokenClient = new TokenClient(okapiURL, client, TokenCacheFactory.get(),
+            tenant, username, getPasswordSupplier);
     return tokenClient.getToken().map(token -> {
       this.token = token;
       return token;
@@ -139,11 +147,11 @@ public class OkapiClient {
 
     request.timeout(reqTimeout);
 
-    logger.info("tokenClient = {}", tokenClient);
     if (tokenClient == null) {
       return Future.succeededFuture(request);
     }
     return tokenClient.getToken().map(token -> {
+      request.putHeader(X_OKAPI_TOKEN, token);
       this.token = token;
       return request;
     });

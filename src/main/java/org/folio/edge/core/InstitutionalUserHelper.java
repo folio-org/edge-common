@@ -38,8 +38,8 @@ public class InstitutionalUserHelper {
   }
 
   public Future<String> fetchToken(OkapiClient client, String clientId, String tenant, String username) {
-    return secureStore.get(getVertx(), clientId, tenant, username)
-            .compose(password -> client.doLogin(username, password));
+    return client.loginWithSupplier(username,
+            () -> secureStore.get(getVertx(), clientId, tenant, username));
   }
 
   private Vertx getVertx() {

@@ -152,7 +152,6 @@ public class MockOkapi {
       } catch (NumberFormatException e) {
         logger.warn("Invalid value specified for " + X_DURATION + " sleeping default request timeout instead");
       }
-
       logger.info("Waiting for {} ms before continuing", dur);
       vertx.setTimer(dur, x -> ctx.next());
     } else if (delay > 0) {
