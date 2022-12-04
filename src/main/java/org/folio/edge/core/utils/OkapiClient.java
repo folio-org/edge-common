@@ -4,11 +4,11 @@ import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.HEADER_API_KEY;
 import static org.folio.edge.core.Constants.JSON_OR_TEXT;
 import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
-import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
@@ -25,8 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.okapi.common.WebClientFactory;
-import org.folio.okapi.common.XOkapiHeaders;
 import org.folio.vertx.login.TokenClient;
+import org.folio.vertx.tokencache.TokenCache;
 
 public class OkapiClient {
 
@@ -38,6 +38,7 @@ public class OkapiClient {
   public final int reqTimeout;
   public final Vertx vertx;
   TokenClient tokenClient;
+  String token;
 
   protected final MultiMap defaultHeaders = MultiMap.caseInsensitiveMultiMap();
 
@@ -64,11 +65,6 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
-  public OkapiClient withTokenClient(TokenClient tokenClient) {
-    this.tokenClient = tokenClient;
-    return this;
-  }
-
   protected void initDefaultHeaders() {
     defaultHeaders.add(HttpHeaders.ACCEPT_ENCODING, HttpHeaders.DEFLATE_GZIP);
     defaultHeaders.add(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT);
@@ -93,10 +89,16 @@ public class OkapiClient {
 
   @Deprecated
   public Future<String> doLogin(String username, String password, MultiMap headers) {
+    return login(username, () -> Future.succeededFuture(password));
+  }
+
+  public Future<String> login(String username, Supplier<Future<String>> getPasswordSupplier) {
     tokenClient = new TokenClient(okapiURL, client, TokenCacheFactory.get(), tenant,
-            username, () -> Future.succeededFuture(password));
-    return prepareTokenAndHeaders(client.getAbs(okapiURL), headers)
-            .map(request -> request.headers().get(XOkapiHeaders.TOKEN));
+            username, getPasswordSupplier);
+    return tokenClient.getToken().map(token -> {
+      this.token = token;
+      return token;
+    });
   }
 
   public CompletableFuture<Boolean> healthy() {
@@ -121,14 +123,12 @@ public class OkapiClient {
   }
 
   public String getToken() {
-    return defaultHeaders.get(X_OKAPI_TOKEN);
+    return token;
   }
 
   public void setToken(String token) {
-    defaultHeaders.set(X_OKAPI_TOKEN, token == null ? "" : token);
+    this.token = token;
   }
-
-
 
   public void post(String url, String tenant, String payload, Handler<HttpResponse<Buffer>> responseHandler,
       Handler<Throwable> exceptionHandler) {
@@ -148,7 +148,10 @@ public class OkapiClient {
     if (tokenClient == null) {
       return Future.succeededFuture(request);
     }
-    return tokenClient.getToken(request);
+    return tokenClient.getToken().map(token -> {
+      this.token = token;
+      return request;
+    });
   }
 
   public void post(String url, String tenant, String payload, MultiMap headers,
@@ -161,8 +164,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> post(String url, String tenant, String payload, MultiMap headers) {
     return prepareTokenAndHeaders(client.postAbs(url), headers).compose(request -> {
-      logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant,
-              () -> request.headers().get(X_OKAPI_TOKEN));
+      logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
       if (payload != null) {
         logger.trace("Payload {}", () -> payload);
         return request.sendBuffer(Buffer.buffer(payload));
@@ -187,8 +189,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> delete(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.deleteAbs(url), headers).compose(request -> {
-      logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant,
-              () -> request.headers().get(X_OKAPI_TOKEN));
+      logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
       return request.send();
     });
   }
@@ -207,8 +208,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> put(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.putAbs(url), headers).compose(request -> {
-      logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant,
-              () -> request.headers().get(X_OKAPI_TOKEN));
+      logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
       return request.send();
     });
   }
@@ -227,8 +227,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> get(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.getAbs(url), headers).compose(request -> {
-      logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant,
-              () -> request.headers().get(X_OKAPI_TOKEN));
+      logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
       return request.send();
     });
   }

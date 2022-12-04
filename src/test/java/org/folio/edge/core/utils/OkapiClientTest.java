@@ -3,8 +3,6 @@ package org.folio.edge.core.utils;
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.HEADER_API_KEY;
 import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
-import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
-import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,7 +12,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;

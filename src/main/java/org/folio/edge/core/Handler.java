@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.ApiKeyUtils;
@@ -22,7 +21,6 @@ import org.folio.edge.core.utils.OkapiClientFactory;
 
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.ext.web.RoutingContext;
-import org.folio.vertx.login.TokenClient;
 
 public class Handler {
 
@@ -43,7 +41,7 @@ public class Handler {
   }
 
   protected void handleCommon(RoutingContext ctx, String[] requiredParams, String[] optionalParams,
-      TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
+          TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
     String key = keyHelper.getApiKey(ctx);
     if (key == null || key.isEmpty()) {
       invalidApiKey(ctx, "");
@@ -75,13 +73,17 @@ public class Handler {
     }
 
     final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
-
-    TokenClient tokenClient = new TokenClient(client.okapiURL, client.client,
-            TokenCacheFactory.get(), clientInfo.tenantId, clientInfo.username,
-            () -> iuHelper.fetchPassword(clientInfo.salt, clientInfo.tenantId, clientInfo.username));
-    client.withTokenClient(tokenClient);
-
-    action.apply(client, params);
+    client.login(clientInfo.username,
+                    () -> iuHelper.fetchPassword(clientInfo.salt, clientInfo.tenantId, clientInfo.username))
+            .onSuccess(token -> action.apply(client, params))
+            .onFailure(t -> {
+              logger.info("Handler failure {}", t.getMessage());
+              if (isTimeoutException(t)) {
+                requestTimeout(ctx, t.getMessage());
+              } else {
+                accessDenied(ctx, t.getMessage());
+              }
+            });
   }
 
   protected static boolean isTimeoutException(Throwable t) {
@@ -104,15 +106,17 @@ public class Handler {
     if (logger.isDebugEnabled()) {
         logger.debug("response: " + resp.bodyAsString());
     }
-    ctx.response().end(resp.body());
+    if (resp.body() == null) {
+      ctx.response().end();
+    } else {
+      ctx.response().end(resp.body());
+    }
   }
 
   protected void handleProxyException(RoutingContext ctx, Throwable t) {
     logger.error("Exception calling OKAPI class={}", t.getClass(), t);
     if (isTimeoutException(t)) {
       requestTimeout(ctx, t.getMessage());
-    } else if (t instanceof SecureStore.NotFoundException) {
-      accessDenied(ctx, t.getMessage());
     } else {
       internalServerError(ctx, t.getMessage());
     }

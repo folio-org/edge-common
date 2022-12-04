@@ -1,39 +1,30 @@
 package org.folio.edge.core;
 
-import static org.folio.edge.core.Constants.MSG_ACCESS_DENIED;
-import static org.folio.edge.core.Constants.MSG_REQUEST_TIMEOUT;
-import static org.folio.edge.core.Constants.PARAM_API_KEY;
 import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
-import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
-import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.ApiKeyUtils;
-import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
-import org.folio.edge.core.utils.OkapiClient;
 import org.folio.edge.core.utils.OkapiClientFactory;
 import org.folio.edge.core.utils.test.MockOkapi;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -58,7 +49,7 @@ public class EdgeVerticleHttpTest {
   private static final String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
   private static final String badApiKey = apiKey + "0000";
   private static final String unknownTenantApiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "foobarbaz", "userA");
-  private static final int requestTimeoutMs = 10000;
+  private static final int requestTimeoutMs = 5000;
 
   private static Vertx vertx;
   private static MockOkapi mockOkapi;
@@ -182,7 +173,7 @@ public class EdgeVerticleHttpTest {
 
   @Test
   public void test404(TestContext context) {
-    logger.info("=== Test 404 rseponse ===");
+    logger.info("=== Test 404 response ===");
 
     final Response resp = RestAssured
       .with()
@@ -223,23 +214,34 @@ public class EdgeVerticleHttpTest {
     verify(mockOkapi).loginHandler(any());
   }
 
-  @Ignore
   @Test
   public void testRequestTimeout(TestContext context) {
     logger.info("=== Test request timeout ===");
 
-    final Response resp = RestAssured
-      .with()
-      .header(X_DURATION, requestTimeoutMs * 2)
-      .get(String.format("/always/login?apikey=%s", apiKey))
-      .then()
-      .contentType(TEXT_PLAIN)
-      .log().ifError()
-      .statusCode(408)
-      .extract()
-      .response();
+    RestAssured
+            .with()
+            .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
+            .then()
+            .log().ifError()
+            .statusCode(200)
+            .extract()
+            .response();
 
-    assertEquals(MSG_REQUEST_TIMEOUT, resp.body().asString());
+    mockOkapi.setDelay(requestTimeoutMs * 2);
+
+    Response resp = RestAssured
+            .with()
+            .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
+            .then()
+            .contentType(TEXT_PLAIN)
+            .log().ifError()
+            .statusCode(408)
+            .extract()
+            .response();
+
+    mockOkapi.setDelay(0);
+    assertTrue(resp.body().
+            asString().startsWith("The timeout period of 5000ms has been exceeded while executing POST"));
   }
 
   public static class TestVerticleHttp extends EdgeVerticleHttp {
@@ -247,16 +249,15 @@ public class EdgeVerticleHttpTest {
     @Override
     public Router defineRoutes() {
       OkapiClientFactory ocf = new OkapiClientFactory(vertx, config().getString(SYS_OKAPI_URL), config().getInteger(SYS_REQUEST_TIMEOUT_MS));
-      InstitutionalUserHelper iuHelper = new InstitutionalUserHelper(secureStore);
       ApiKeyHelper apiKeyHelper = new ApiKeyHelper("HEADER,PARAM,PATH");
 
       Router router = Router.router(vertx);
       router.route().handler(BodyHandler.create());
       router.route(HttpMethod.GET, "/admin/health").handler(this::handleHealthCheck);
-      router.route(HttpMethod.GET, "/always/login")
-        .handler(new GetTokenHandler(iuHelper, ocf, secureStore, apiKeyHelper, false)::handle);
+
       router.route(HttpMethod.GET, "/login/and/do/something")
-        .handler(new GetTokenHandler(iuHelper, ocf, secureStore, apiKeyHelper, true)::handle);
+        .handler(new GetTokenHandler(ocf, secureStore, apiKeyHelper)::handle);
+
       router.route(HttpMethod.GET, "/internal/server/error")
         .handler(new handle500(secureStore, ocf)::handle);
       return router;
@@ -264,66 +265,23 @@ public class EdgeVerticleHttpTest {
   }
 
   private static class GetTokenHandler extends Handler {
-    public final boolean useCache;
-
-    public GetTokenHandler(InstitutionalUserHelper iuHelper, OkapiClientFactory ocf, SecureStore secureStore,
-        ApiKeyHelper keyHelper, boolean useCache) {
+    public GetTokenHandler(OkapiClientFactory ocf, SecureStore secureStore, ApiKeyHelper keyHelper) {
       super(secureStore, ocf, keyHelper);
-      this.useCache = useCache;
     }
 
     public void handle(RoutingContext ctx) {
-      logger.info("handle useCache = {}", useCache);
-      if (useCache) {
-        super.handleCommon(ctx,
-            new String[] { "foo" },
-            new String[] {},
-            (client, params) -> {
-              logger.info("Token: " + client.getToken());
-              client.post(String.format("%s/echo", client.okapiURL),
-                  client.tenant,
-                  ctx.getBodyAsString(),
-                  ctx.request().headers(),
-                  resp -> handleProxyResponse(ctx, resp),
-                  t -> handleProxyException(ctx, t));
-            });
-      } else {
-        ClientInfo clientInfo;
-        try {
-          clientInfo = ApiKeyUtils.parseApiKey(ctx.request().getParam(PARAM_API_KEY));
-        } catch (MalformedApiKeyException e) {
-          accessDenied(ctx, MSG_ACCESS_DENIED);
-          return;
-        }
-
-        String password = null;
-        try {
-          password = iuHelper.secureStore.get(clientInfo.salt, clientInfo.tenantId, clientInfo.username);
-        } catch (NotFoundException e) {
-          accessDenied(ctx, MSG_ACCESS_DENIED);
-          return;
-        }
-
-        final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
-        client.login(clientInfo.username, password, ctx.request().headers())
-          .thenAcceptAsync(token -> {
-            logger.info("Token: " + token);
-            client.post(String.format("%s/echo", client.okapiURL),
-                client.tenant,
-                ctx.getBodyAsString(),
-                ctx.request().headers(),
-                resp -> handleProxyResponse(ctx, resp),
-                t -> handleProxyException(ctx, t));
-          })
-          .exceptionally(t -> {
-            if (t.getCause() instanceof TimeoutException) {
-              requestTimeout(ctx, MSG_REQUEST_TIMEOUT);
-            } else {
-              accessDenied(ctx, MSG_ACCESS_DENIED);
-            }
-            return null;
-          });
-      }
+      super.handleCommon(ctx,
+              new String[] { "foo" },
+              new String[] {},
+              (client, params) -> {
+                logger.info("Token: " + client.getToken());
+                client.post(String.format("%s/echo", client.okapiURL),
+                        client.tenant,
+                        ctx.getBodyAsString(),
+                        ctx.request().headers(),
+                        resp -> handleProxyResponse(ctx, resp),
+                        t -> handleProxyException(ctx, t));
+              });
     }
   }
 
@@ -335,8 +293,8 @@ public class EdgeVerticleHttpTest {
 
     public void handle(RoutingContext ctx) {
       ocf.getOkapiClient("").get("http://url.invalid.", "",
-          resp -> handleProxyResponse(ctx, resp),
-          t -> handleProxyException(ctx, t));
+              resp -> handleProxyResponse(ctx, resp),
+              t -> handleProxyException(ctx, t));
     }
 
   }
