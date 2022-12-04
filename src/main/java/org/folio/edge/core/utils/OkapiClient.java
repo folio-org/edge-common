@@ -78,23 +78,18 @@ public class OkapiClient {
   }
 
   @Deprecated
-  public Future<String> doLogin(String username, String password) {
-    return doLogin(username, password, null);
-  }
-
-  @Deprecated
   public CompletableFuture<String> login(String username, String password, MultiMap headers) {
     return doLogin(username, password, headers).toCompletionStage().toCompletableFuture();
   }
 
   @Deprecated
   public Future<String> doLogin(String username, String password, MultiMap headers) {
-    return login(username, () -> Future.succeededFuture(password));
+    return doLogin(username, password);
   }
 
-  public Future<String> login(String username, Supplier<Future<String>> getPasswordSupplier) {
+  public Future<String> doLogin(String username, String password) {
     tokenClient = new TokenClient(okapiURL, client, TokenCacheFactory.get(), tenant,
-            username, getPasswordSupplier);
+            username, password);
     return tokenClient.getToken().map(token -> {
       this.token = token;
       return token;

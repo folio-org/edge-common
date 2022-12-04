@@ -10,6 +10,7 @@ import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.ApiKeyUtils;
 import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
+import org.folio.edge.core.utils.OkapiClient;
 
 public class InstitutionalUserHelper {
   private static final Logger logger = LogManager.getLogger(InstitutionalUserHelper.class);
@@ -36,8 +37,9 @@ public class InstitutionalUserHelper {
     return ApiKeyUtils.parseApiKey(apiKey);
   }
 
-  public Future<String> getPassword(String clientId, String tenant, String username) {
-    return secureStore.get(getVertx(), clientId, tenant, username);
+  public Future<String> fetchToken(OkapiClient client, String clientId, String tenant, String username) {
+    return secureStore.get(getVertx(), clientId, tenant, username)
+            .compose(password -> client.doLogin(username, password));
   }
 
   private Vertx getVertx() {
