@@ -356,7 +356,13 @@ public class OkapiClient {
     combined.addAll(headers);
     // remove from combined because headers might not be case insensitive
     combined.remove(HEADER_API_KEY);
-    combined.remove(X_OKAPI_TENANT);  // don't allow to overwrite: https://issues.folio.org/browse/EDGCOMMON-47
+    // don't allow to overwrite tenant or token.
+    // Tenant can be configured in the settings only,
+    // token can be set using login/doLogin/setToken only.
+    // https://issues.folio.org/browse/EDGCOMMON-47
+    // https://issues.folio.org/browse/EDGCOMMON-59
+    combined.remove(X_OKAPI_TENANT);
+    combined.remove(X_OKAPI_TOKEN);
     for (Entry<String, String> entry : defaultHeaders.entries()) {
       if (!combined.contains(entry.getKey())) {
         combined.set(entry.getKey(), entry.getValue());

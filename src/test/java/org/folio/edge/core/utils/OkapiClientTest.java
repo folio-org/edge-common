@@ -11,6 +11,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -305,11 +306,14 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testWrongTenantHeader(TestContext context) {
-    var headers = MultiMap.caseInsensitiveMultiMap().add(X_OKAPI_TENANT, "foo");
+  public void testWrongTenantTokenHeaders(TestContext context) {
+    var headers = MultiMap.caseInsensitiveMultiMap()
+        .add(X_OKAPI_TENANT, "foo")
+        .add(X_OKAPI_TOKEN, "foo");
     client.get(String.format("http://localhost:%s/echo", mockOkapi.okapiPort), "bar", headers)
     .onComplete(context.asyncAssertSuccess(response -> {
       assertThat(response.getHeader(X_OKAPI_TENANT), is("diku"));
+      assertThat(response.getHeader(X_OKAPI_TOKEN), is(nullValue()));
     }));
   }
 
