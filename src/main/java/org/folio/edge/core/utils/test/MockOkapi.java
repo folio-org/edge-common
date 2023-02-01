@@ -8,6 +8,8 @@ import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import io.vertx.core.json.DecodeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.Future;
@@ -170,33 +172,37 @@ public class MockOkapi {
   }
 
   public void loginHandler(RoutingContext ctx) {
-    JsonObject body = ctx.getBodyAsJson();
 
     String tenant = ctx.request().getHeader(X_OKAPI_TENANT);
 
     String contentType = TEXT_PLAIN;
     int status;
     String resp;
-    if (tenant == null) {
+    try {
+      JsonObject body = ctx.getBodyAsJson();
+      if (tenant == null) {
+        status = 400;
+        resp = "Unable to process request Tenant must be set";
+      } else if (body.getString("username") == null || body.getString("password") == null) {
+        status = 400;
+        resp = "Json content error";
+      } else if (ctx.request().getHeader(HttpHeaders.CONTENT_TYPE) == null ||
+          !ctx.request().getHeader(HttpHeaders.CONTENT_TYPE).equals(APPLICATION_JSON)) {
+        status = 400;
+        resp = String.format("Content-type header must be [\"%s\"]", APPLICATION_JSON);
+      } else if (!knownTenants.contains(tenant)) {
+        status = 400;
+        resp = String.format("no such tenant %s", tenant);
+      } else {
+        status = 201;
+        resp = body.toString();
+        contentType = APPLICATION_JSON;
+        ctx.response().putHeader(X_OKAPI_TOKEN, MOCK_TOKEN);
+      }
+    } catch (DecodeException e) {
       status = 400;
-      resp = "Unable to process request Tenant must be set";
-    } else if (body == null || body.getString("username") == null || body.getString("password") == null) {
-      status = 400;
-      resp = "Json content error";
-    } else if (ctx.request().getHeader(HttpHeaders.CONTENT_TYPE) == null ||
-        !ctx.request().getHeader(HttpHeaders.CONTENT_TYPE).equals(APPLICATION_JSON)) {
-      status = 400;
-      resp = String.format("Content-type header must be [\"%s\"]", APPLICATION_JSON);
-    } else if (!knownTenants.contains(tenant)) {
-      status = 400;
-      resp = String.format("no such tenant %s", tenant);
-    } else {
-      status = 201;
-      resp = body.toString();
-      contentType = APPLICATION_JSON;
-      ctx.response().putHeader(X_OKAPI_TOKEN, MOCK_TOKEN);
+      resp = e.getMessage();
     }
-
     ctx.response()
       .setStatusCode(status)
       .putHeader(HttpHeaders.CONTENT_TYPE, contentType)

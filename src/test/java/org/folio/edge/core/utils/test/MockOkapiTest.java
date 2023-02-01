@@ -7,6 +7,8 @@ import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
@@ -278,4 +280,52 @@ public class MockOkapiTest {
     .compose(x -> assertGet200(uri))
     .onComplete(context.asyncAssertFailure());
   }
+
+  @Test
+  public void testLoginMissingUserName(TestContext context) {
+    logger.info("=== Test login missing username ===");
+
+    JsonObject payload = new JsonObject();
+    payload.put("password", "password");
+    String json = payload.encode();
+
+    RestAssured
+        .given()
+        .body(json)
+        .and()
+        .contentType(APPLICATION_JSON)
+        .and()
+        .header(X_OKAPI_TENANT, tenant)
+        .and()
+        .header(HttpHeaders.ACCEPT, String.format("%s, %s", APPLICATION_JSON, TEXT_PLAIN))
+        .when()
+        .post("/authn/login")
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(400)
+        .body(is("Json content error"));
+  }
+
+  @Test
+  public void testLoginBadJson(TestContext context) {
+    logger.info("=== Test login bad json ===");
+
+    String json = "{";
+    RestAssured
+        .given()
+        .body(json)
+        .and()
+        .contentType(APPLICATION_JSON)
+        .and()
+        .header(X_OKAPI_TENANT, tenant)
+        .and()
+        .header(HttpHeaders.ACCEPT, String.format("%s, %s", APPLICATION_JSON, TEXT_PLAIN))
+        .when()
+        .post("/authn/login")
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(400)
+        .body(containsString("Failed to decode"));
+  }
+
 }
