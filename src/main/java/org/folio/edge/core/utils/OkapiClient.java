@@ -81,11 +81,29 @@ public class OkapiClient {
     return doLogin(username, password, null);
   }
 
+  /**
+   * Login.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   @Deprecated
   public CompletableFuture<String> login(String username, String password, MultiMap headers) {
     return doLogin(username, password, headers).toCompletionStage().toCompletableFuture();
   }
 
+  /**
+   * Login.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   @Deprecated
   public Future<String> doLogin(String username, String password, MultiMap headers) {
     return loginWithSupplier(username, () -> Future.succeededFuture(password));
@@ -161,6 +179,15 @@ public class OkapiClient {
     });
   }
 
+  /**
+   * Send POST request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public void post(String url, String tenant, String payload, MultiMap headers,
                    Handler<HttpResponse<Buffer>> responseHandler,
                    Handler<Throwable> exceptionHandler) {
@@ -169,6 +196,15 @@ public class OkapiClient {
         .onFailure(exceptionHandler);
   }
 
+  /**
+   * Send POST request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public Future<HttpResponse<Buffer>> post(String url, String tenant, String payload, MultiMap headers) {
     return prepareTokenAndHeaders(client.postAbs(url), headers).compose(request -> {
       logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
@@ -186,6 +222,15 @@ public class OkapiClient {
     delete(url, tenant, null, responseHandler, exceptionHandler);
   }
 
+  /**
+   * Send DELETE request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public void delete(String url, String tenant, MultiMap headers,
                      Handler<HttpResponse<Buffer>> responseHandler,
                      Handler<Throwable> exceptionHandler) {
@@ -194,6 +239,15 @@ public class OkapiClient {
         .onFailure(exceptionHandler);
   }
 
+  /**
+   * Send DELETE request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public Future<HttpResponse<Buffer>> delete(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.deleteAbs(url), headers).compose(request -> {
       logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
@@ -206,6 +260,15 @@ public class OkapiClient {
     put(url, tenant, null, responseHandler, exceptionHandler);
   }
 
+  /**
+   * Send PUT request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public void put(String url, String tenant, MultiMap headers,
                   Handler<HttpResponse<Buffer>> responseHandler, Handler<Throwable> exceptionHandler) {
     put(url, tenant, headers)
@@ -213,6 +276,15 @@ public class OkapiClient {
         .onFailure(exceptionHandler);
   }
 
+  /**
+   * Send PUT request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public Future<HttpResponse<Buffer>> put(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.putAbs(url), headers).compose(request -> {
       logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
@@ -225,6 +297,15 @@ public class OkapiClient {
     get(url, tenant, null, responseHandler, exceptionHandler);
   }
 
+  /**
+   * Send GET request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public void get(String url, String tenant, MultiMap headers,
                   Handler<HttpResponse<Buffer>> responseHandler, Handler<Throwable> exceptionHandler) {
     get(url, tenant, headers)
@@ -232,6 +313,15 @@ public class OkapiClient {
         .onFailure(exceptionHandler);
   }
 
+  /**
+   * Send GET request.
+   *
+   * @param headers additional HTTP headers to combine with {@link #defaultHeaders}, can be null or empty.
+   *     NEVER pass request.headers(), this is vulnerable to header injection!
+   *     NEVER use a deny list like request.headers().remove(HttpHeaders.ACCEPT),
+   *     this is vulnerable to header injection! If a header from the request is needed use a white list:
+   *     {@code new MultiMap.caseInsensitiveMultiMap().add("X-Myheader", request.headers().get("X-Myheader"))}
+   */
   public Future<HttpResponse<Buffer>> get(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.getAbs(url), headers).compose(request -> {
       logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
@@ -248,7 +338,13 @@ public class OkapiClient {
     combined.addAll(headers);
     // remove from combined because headers might not be case insensitive
     combined.remove(HEADER_API_KEY);
-    combined.remove(X_OKAPI_TENANT);  // don't allow to overwrite: https://issues.folio.org/browse/EDGCOMMON-47
+    // don't allow to overwrite tenant or token.
+    // Tenant can be configured in the settings only,
+    // token can be set using login/doLogin/setToken only.
+    // https://issues.folio.org/browse/EDGCOMMON-47
+    // https://issues.folio.org/browse/EDGCOMMON-59
+    combined.remove(X_OKAPI_TENANT);
+    combined.remove(X_OKAPI_TOKEN);
     for (Entry<String, String> entry : defaultHeaders.entries()) {
       if (!combined.contains(entry.getKey())) {
         combined.set(entry.getKey(), entry.getValue());

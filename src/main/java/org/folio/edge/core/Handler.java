@@ -67,7 +67,6 @@ public class Handler {
     try {
       clientInfo = ApiKeyUtils.parseApiKey(key);
     } catch (MalformedApiKeyException e) {
-      logger.warn("MalformedApiKeyException");
       invalidApiKey(ctx, key);
       return;
     }
