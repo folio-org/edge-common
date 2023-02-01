@@ -96,10 +96,16 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testCopyConstructor() throws Exception {
+  public void testCopyConstructor() {
     logger.info("=== Test copy constructor === ");
 
+    assertFalse(client.defaultHeaders.contains(X_OKAPI_TOKEN));
+
     client.setToken("foobarbaz");
+    assertEquals("foobarbaz", client.defaultHeaders.get(X_OKAPI_TOKEN));
+
+    client.setToken(null);
+    assertFalse(client.defaultHeaders.contains(X_OKAPI_TOKEN));
 
     OkapiClient copy = new OkapiClient(client);
 
@@ -111,14 +117,14 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testHealthy(TestContext context) throws Exception {
+  public void testHealthy() throws Exception {
     logger.info("=== Test health check === ");
 
     assertTrue(client.healthy().get());
   }
 
   @Test
-  public void testHealthyNoHost(TestContext context) throws Exception {
+  public void testHealthyNoHost() throws Exception {
     int freePort = TestUtils.getPort();
     var factory = new OkapiClientFactory(Vertx.vertx(), "http://localhost:" + freePort, reqTimeout);
     assertFalse(factory.getOkapiClient(tenant).healthy().get());
@@ -137,7 +143,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testLoginNoUsername(TestContext context)  {
+  public void testLoginNoUsername()  {
     logger.info("=== Test login w/ no password === ");
 
     assertThrows(IllegalArgumentException.class, () -> client.doLogin(null, "password"));
@@ -153,7 +159,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testDeleteWithHeaders(TestContext context) throws Exception {
+  public void testDeleteWithHeaders(TestContext context) {
     logger.info("=== Test delete w/ headers === ");
 
     int status = 204;
@@ -173,7 +179,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testPutWithHeaders(TestContext context) throws Exception {
+  public void testPutWithHeaders(TestContext context) {
     logger.info("=== Test put w/ headers === ");
 
     int status = 204;
@@ -193,7 +199,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testPostWithHeaders(TestContext context) throws Exception {
+  public void testPostWithHeaders(TestContext context) {
     logger.info("=== Test post w/ headers === ");
 
     int status = 201;
@@ -222,7 +228,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testGetWithHeaders(TestContext context) throws Exception {
+  public void testGetWithHeaders(TestContext context) {
     logger.info("=== Test get w/ headers === ");
 
     int status = 404;
@@ -244,7 +250,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testDeleteWithoutHeaders(TestContext context) throws Exception {
+  public void testDeleteWithoutHeaders(TestContext context) {
     logger.info("=== Test delete w/o headers === ");
 
     Async async = context.async();
@@ -258,7 +264,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testPutWithoutHeaders(TestContext context) throws Exception {
+  public void testPutWithoutHeaders(TestContext context) {
     logger.info("=== Test put w/o headers === ");
 
     Async async = context.async();
@@ -272,7 +278,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testPostWithoutHeaders(TestContext context) throws Exception {
+  public void testPostWithoutHeaders(TestContext context) {
     logger.info("=== Test post w/o headers === ");
 
     JsonObject obj = new JsonObject();
@@ -291,7 +297,7 @@ public class OkapiClientTest {
   }
 
   @Test
-  public void testGetWithoutHeaders(TestContext context) throws Exception {
+  public void testGetWithoutHeaders(TestContext context) {
     logger.info("=== Test get w/o headers === ");
 
     Async async = context.async();
