@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class OkapiClientTest {
     OkapiClient client = ocf.getOkapiClient("x");
     client.doLogin("admin", "password")
             .onComplete(context.asyncAssertFailure(res -> {
-              assertEquals("no such tenant x", res.getMessage());
+              assertEquals("POST /authn/login returned status 400: no such tenant x", res.getMessage());
             }));
   }
 
@@ -137,9 +138,7 @@ public class OkapiClientTest {
   public void testLoginNoUsername(TestContext context)  {
     logger.info("=== Test login w/ no password === ");
 
-    client.doLogin(null, "password").onComplete(context.asyncAssertFailure(res ->
-            assertEquals("Json content error", res.getMessage())
-    ));
+    assertThrows(IllegalArgumentException.class, () -> client.doLogin(null, "password"));
   }
 
   @Test
@@ -147,7 +146,7 @@ public class OkapiClientTest {
     logger.info("=== Test login w/ no password === ");
 
     client.doLogin("admin", null).onComplete(context.asyncAssertFailure(res ->
-            assertEquals("Json content error", res.getMessage())
+            assertEquals("POST /authn/login returned status 400: Json content error", res.getMessage())
     ));
   }
 

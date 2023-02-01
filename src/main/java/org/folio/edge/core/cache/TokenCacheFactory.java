@@ -1,18 +1,18 @@
 package org.folio.edge.core.cache;
 
-import org.folio.vertx.tokencache.TokenCache;
+import org.folio.okapi.common.refreshtoken.tokencache.TenantUserCache;
 
 public class TokenCacheFactory {
 
     private TokenCacheFactory() { }
 
-    static org.folio.vertx.tokencache.TokenCache instance;
+    static TenantUserCache instance;
 
     public static void initialize(int capacity) {
-        instance = org.folio.vertx.tokencache.TokenCache.create(capacity);
+        instance = new TenantUserCache(capacity);
     }
 
-    public static TokenCache get() {
+    public static TenantUserCache get() {
         return instance;
     }
 }

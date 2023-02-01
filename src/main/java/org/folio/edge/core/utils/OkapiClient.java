@@ -26,9 +26,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.okapi.common.WebClientFactory;
-import org.folio.okapi.common.XOkapiHeaders;
-import org.folio.vertx.login.TokenClient;
-import org.folio.vertx.tokencache.TokenCache;
+import org.folio.okapi.common.refreshtoken.client.Client;
+import org.folio.okapi.common.refreshtoken.client.ClientOptions;
 
 public class OkapiClient {
 
@@ -39,9 +38,7 @@ public class OkapiClient {
   public final String tenant;
   public final int reqTimeout;
   public final Vertx vertx;
-  TokenClient tokenClient;
-  String token;
-
+  Client tokenClient;
   protected final MultiMap defaultHeaders = MultiMap.caseInsensitiveMultiMap();
 
   public OkapiClient(OkapiClient client) {
@@ -96,10 +93,13 @@ public class OkapiClient {
 
   public Future<String> loginWithSupplier(String username, Supplier<Future<String>> getPasswordSupplier) {
     logger.info("loginWithSupplier username={} cache={}", username, TokenCacheFactory.get());
-    tokenClient = new TokenClient(okapiURL, client, TokenCacheFactory.get(),
+    ClientOptions clientOptions = new ClientOptions()
+        .okapiUrl(okapiURL)
+        .webClient(client);
+    tokenClient = Client.createLoginClient(clientOptions, TokenCacheFactory.get(),
             tenant, username, getPasswordSupplier);
     return tokenClient.getToken().map(token -> {
-      this.token = token;
+      setToken(token);
       return token;
     });
   }
@@ -126,11 +126,15 @@ public class OkapiClient {
   }
 
   public String getToken() {
-    return token;
+    return defaultHeaders.get(X_OKAPI_TOKEN);
   }
 
   public void setToken(String token) {
-    this.token = token;
+    if (token == null) {
+      defaultHeaders.remove(X_OKAPI_TOKEN);
+    } else {
+      defaultHeaders.set(X_OKAPI_TOKEN, token);
+    }
   }
 
   public void post(String url, String tenant, String payload, Handler<HttpResponse<Buffer>> responseHandler,
@@ -152,7 +156,7 @@ public class OkapiClient {
     }
     return tokenClient.getToken().map(token -> {
       request.putHeader(X_OKAPI_TOKEN, token);
-      this.token = token;
+      setToken(token);
       return request;
     });
   }
@@ -167,7 +171,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> post(String url, String tenant, String payload, MultiMap headers) {
     return prepareTokenAndHeaders(client.postAbs(url), headers).compose(request -> {
-      logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
+      logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
       if (payload != null) {
         logger.trace("Payload {}", () -> payload);
         return request.sendBuffer(Buffer.buffer(payload));
@@ -192,7 +196,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> delete(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.deleteAbs(url), headers).compose(request -> {
-      logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
+      logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
       return request.send();
     });
   }
@@ -211,7 +215,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> put(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.putAbs(url), headers).compose(request -> {
-      logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
+      logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
       return request.send();
     });
   }
@@ -230,7 +234,7 @@ public class OkapiClient {
 
   public Future<HttpResponse<Buffer>> get(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.getAbs(url), headers).compose(request -> {
-      logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant, () -> token);
+      logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant, () -> getToken());
       return request.send();
     });
   }
