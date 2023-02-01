@@ -4,8 +4,6 @@ import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.model.ClientInfo;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.utils.ApiKeyUtils;
@@ -13,8 +11,6 @@ import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.OkapiClient;
 
 public class InstitutionalUserHelper {
-  private static final Logger logger = LogManager.getLogger(InstitutionalUserHelper.class);
-
   protected final SecureStore secureStore;
 
   public InstitutionalUserHelper(SecureStore secureStore) {
