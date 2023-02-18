@@ -1,3 +1,8 @@
+## 4.4.3 2023-02-20
+
+ * [EDGCOMMON-59](https://issues.folio.org/browse/EDGCOMMON-59) Explain header injection in OkapiClient javadoc
+ * [EDGCOMMON-63](https://issues.folio.org/browse/EDGCOMMON-63) Vert.x 4.3.8, okapi-common 4.14.11, aws-java-sdk-ssm 1.12.408, httpcore 4.4.16
+
 ## 4.4.2 2022-11-24
 
  * [EDGCOMMON-56](https://issues.folio.org/browse/EDGCOMMON-56) Upgrade all dependencies; Jackson 2.14.0 fixes CVE-2022-42003
