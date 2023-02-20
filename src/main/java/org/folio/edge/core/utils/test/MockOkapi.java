@@ -133,7 +133,7 @@ public class MockOkapi {
   }
 
   /**
-   * Delay for each request that doesn't have a X-Duration header.
+   * Delay for each request that doesn't have an X-Duration header.
    *
    * @param delay milliseconds to wait, 0 for no wait
    */
@@ -154,6 +154,7 @@ public class MockOkapi {
       } catch (NumberFormatException e) {
         logger.warn("Invalid value specified for " + X_DURATION + " sleeping default request timeout instead");
       }
+
       logger.info("Waiting for {} ms before continuing", dur);
       vertx.setTimer(dur, x -> ctx.next());
     } else if (delay > 0) {

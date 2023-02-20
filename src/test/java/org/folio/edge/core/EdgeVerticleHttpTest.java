@@ -7,8 +7,7 @@ import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -24,12 +23,12 @@ import org.folio.edge.core.utils.OkapiClientFactory;
 import org.folio.edge.core.utils.test.MockOkapi;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -88,160 +87,142 @@ public class EdgeVerticleHttpTest {
     logger.info("Shutting down server");
 
     vertx.close()
-    .onSuccess(x -> logger.info("Successfully shut down edge-common server"))
-    .compose(x -> mockOkapi.close())
-    .onSuccess(x -> logger.info("Successfully shut down mock Okapi"))
-    .onComplete(context.asyncAssertSuccess());
+        .onSuccess(x -> logger.info("Successfully shut down edge-common server"))
+        .compose(x -> mockOkapi.close())
+        .onSuccess(x -> logger.info("Successfully shut down mock Okapi"))
+        .onComplete(context.asyncAssertSuccess());
+  }
+
+  @Before
+  public void before() {
+    mockOkapi.setDelay(0);
   }
 
   @Test
-  public void testAdminHealth(TestContext context) {
+  public void testAdminHealth() {
     logger.info("=== Test the health check endpoint ===");
 
-    final Response resp = RestAssured
-      .get("/admin/health")
-      .then()
-      .contentType(TEXT_PLAIN)
-      .statusCode(200)
-      .extract()
-      .response();
-
-    assertEquals("\"OK\"", resp.body().asString());
+    RestAssured
+        .get("/admin/health")
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(200)
+        .body(is("\"OK\""));
   }
 
   @Test
-  public void testLoginUnknownApiKey(TestContext context) {
+  public void testLoginUnknownApiKey() {
     logger.info("=== Test request with unknown apiKey (tenant) ===");
 
     RestAssured
-      .get(String.format("/login/and/do/something?apikey=%s&foo=bar", unknownTenantApiKey))
-      .then()
-      .contentType(TEXT_PLAIN)
-      .statusCode(403);
+        .get(String.format("/login/and/do/something?apikey=%s&foo=bar", unknownTenantApiKey))
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(403);
   }
 
   @Test
-  public void testLoginMissingApiKey(TestContext context) {
+  public void testLoginMissingApiKey() {
     logger.info("=== Test request without specifying an apiKey ===");
 
     RestAssured
-      .get("/login/and/do/something?apikey=&foo=bar")
-      .then()
-      .contentType(TEXT_PLAIN)
-      .statusCode(401);
+        .get("/login/and/do/something?apikey=&foo=bar")
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(401);
   }
 
   @Test
-  public void testLoginBadApiKey(TestContext context) {
+  public void testLoginBadApiKey() {
     logger.info("=== Test request with malformed apiKey ===");
 
     RestAssured
-      .get(String.format("/login/and/do/something?apikey=%s&foo=bar", badApiKey))
-      .then()
-      .contentType(TEXT_PLAIN)
-      .statusCode(401);
+        .get(String.format("/login/and/do/something?apikey=%s&foo=bar", badApiKey))
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(401);
   }
 
   @Test
-  public void testExceptionHandler(TestContext context) {
+  public void testExceptionHandler() {
     logger.info("=== Test the exception handler ===");
 
     RestAssured
-      .get("/internal/server/error")
-      .then()
-      .contentType(TEXT_PLAIN)
-      .statusCode(500);
+        .get("/internal/server/error")
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(500);
   }
 
   @Test
-  public void testMissingRequired(TestContext context) {
+  public void testMissingRequired() {
     logger.info("=== Test request w/ missing required parameter ===");
 
-    final Response resp = RestAssured
-      .with()
-      .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
-      .body("success")
-      .get(String.format("/login/and/do/something?apikey=%s", apiKey))
-      .then()
-      .contentType(TEXT_PLAIN)
-      .statusCode(400)
-      .extract()
-      .response();
-
-    assertEquals("Missing required parameter: foo", resp.body().asString());
+    RestAssured
+        .with()
+        .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+        .body("success")
+        .get(String.format("/login/and/do/something?apikey=%s", apiKey))
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(400)
+        .body(is("Missing required parameter: foo"));
   }
 
   @Test
-  public void test404(TestContext context) {
+  public void test404() {
     logger.info("=== Test 404 response ===");
 
-    final Response resp = RestAssured
-      .with()
-      .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
-      .header(X_ECHO_STATUS, "404")
-      .body("Not Found")
-      .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
-      .then()
-      .contentType(TEXT_PLAIN)
-      .statusCode(404)
-      .extract()
-      .response();
-
-    assertEquals("Not Found", resp.body().asString());
+    RestAssured
+        .with()
+        .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+        .header(X_ECHO_STATUS, "404")
+        .body("Not Found")
+        .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(404)
+        .body(is("Not Found"));
   }
 
   @Test
-  public void testCachedToken(TestContext context) {
+  public void testCachedToken() {
     logger.info("=== Test the tokens are cached and reused ===");
 
     int iters = 5;
 
     for (int i = 0; i < iters; i++) {
-      final Response resp = RestAssured
-        .with()
-        .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
-        .body("success")
-        .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
-        .then()
-        .contentType(TEXT_PLAIN)
-        .statusCode(200)
-        .extract()
-        .response();
-
-      assertEquals("success", resp.body().asString());
+      RestAssured
+          .with()
+          .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+          .body("success")
+          .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
+          .then()
+          .contentType(TEXT_PLAIN)
+          .statusCode(200)
+          .body(is("success"));
     }
 
     verify(mockOkapi).loginHandler(any());
   }
 
   @Test
-  public void testRequestTimeout(TestContext context) {
+  public void testRequestTimeout() {
     logger.info("=== Test request timeout ===");
 
     RestAssured
-            .with()
-            .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
-            .then()
-            .log().ifError()
-            .statusCode(200)
-            .extract()
-            .response();
+        .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
+        .then()
+        .statusCode(200);
 
     mockOkapi.setDelay(requestTimeoutMs * 2);
 
-    Response resp = RestAssured
-            .with()
-            .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
-            .then()
-            .contentType(TEXT_PLAIN)
-            .log().ifError()
-            .statusCode(408)
-            .extract()
-            .response();
-
-    mockOkapi.setDelay(0);
-    assertTrue(resp.body().
-            asString().startsWith("The timeout period of 5000ms has been exceeded while executing POST"));
+    RestAssured
+        .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
+        .then()
+        .contentType(TEXT_PLAIN)
+        .statusCode(408)
+        .body(containsString("The timeout period of 5000ms has been exceeded while executing POST"));
   }
 
   public static class TestVerticleHttp extends EdgeVerticleHttp {
