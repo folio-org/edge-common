@@ -203,9 +203,9 @@ public class OkapiClient {
    */
   public Future<HttpResponse<Buffer>> post(String url, String tenant, String payload, MultiMap headers) {
     return prepareTokenAndHeaders(client.postAbs(url), headers).compose(request -> {
-      logger.info("POST {} tenant: {} token: {}", () -> url, () -> tenant, this::getToken);
+      logger.info("POST {} tenant: {}", url, tenant);
       if (payload != null) {
-        logger.trace("Payload {}", () -> payload);
+        logger.trace("Payload {}", payload);
         return request.sendBuffer(Buffer.buffer(payload));
       } else {
         return request.send();
@@ -246,7 +246,7 @@ public class OkapiClient {
    */
   public Future<HttpResponse<Buffer>> delete(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.deleteAbs(url), headers).compose(request -> {
-      logger.info("DELETE {} tenant: {} token: {}", () -> url, () -> tenant, this::getToken);
+      logger.info("DELETE {} tenant: {}", url, tenant);
       return request.send();
     });
   }
@@ -283,7 +283,7 @@ public class OkapiClient {
    */
   public Future<HttpResponse<Buffer>> put(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.putAbs(url), headers).compose(request -> {
-      logger.info("PUT {} tenant: {} token: {}", () -> url, () -> tenant, this::getToken);
+      logger.info("PUT {} tenant: {}", url, tenant);
       return request.send();
     });
   }
@@ -320,7 +320,7 @@ public class OkapiClient {
    */
   public Future<HttpResponse<Buffer>> get(String url, String tenant, MultiMap headers) {
     return prepareTokenAndHeaders(client.getAbs(url), headers).compose(request -> {
-      logger.info("GET {} tenant: {} token: {}", () -> url, () -> tenant, this::getToken);
+      logger.info("GET {} tenant: {}", url, tenant);
       return request.send();
     });
   }
