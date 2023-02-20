@@ -31,7 +31,6 @@ import org.junit.runner.RunWith;
 import io.restassured.RestAssured;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
@@ -160,7 +159,7 @@ public class EdgeVerticleHttpTest {
 
     RestAssured
         .with()
-        .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+        .contentType(TEXT_PLAIN)
         .body("success")
         .get(String.format("/login/and/do/something?apikey=%s", apiKey))
         .then()
@@ -175,7 +174,7 @@ public class EdgeVerticleHttpTest {
 
     RestAssured
         .with()
-        .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+        .contentType(TEXT_PLAIN)
         .header(X_ECHO_STATUS, "404")
         .body("Not Found")
         .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
@@ -194,7 +193,7 @@ public class EdgeVerticleHttpTest {
     for (int i = 0; i < iters; i++) {
       RestAssured
           .with()
-          .header(HttpHeaders.CONTENT_TYPE.toString(), TEXT_PLAIN)
+          .contentType(TEXT_PLAIN)
           .body("success")
           .get(String.format("/login/and/do/something?apikey=%s&foo=bar", apiKey))
           .then()
