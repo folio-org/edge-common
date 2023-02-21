@@ -25,9 +25,10 @@ public class InstitutionalUserHelperTest {
   @Test
   public void testWithoutCache(TestContext context) {
     var secureStore = mock(SecureStore.class);
-    when(secureStore.get(any(), any(), any(), eq("name"))).thenReturn(Future.succeededFuture("pass"));
+
     var okapiClient = mock(OkapiClient.class);
-    when(okapiClient.doLogin("name", "pass")).thenReturn(Future.succeededFuture("tok"));
+    when(okapiClient.loginWithSupplier(eq("name"), any())).thenReturn(Future.succeededFuture("tok"));
+
     var institutionalUserHelper = new InstitutionalUserHelper(secureStore);
     institutionalUserHelper.fetchToken(okapiClient, null, null, "name")
     .onComplete(context.asyncAssertSuccess(result -> assertThat(result, is("tok"))));

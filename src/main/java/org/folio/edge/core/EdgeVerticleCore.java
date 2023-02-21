@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.folio.edge.core.cache.TokenCache;
+import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.edge.core.security.SecureStore;
 import org.folio.edge.core.security.SecureStoreFactory;
 
@@ -56,7 +56,7 @@ public class EdgeVerticleCore extends AbstractVerticle {
     logger.info("Using request timeout (ms): {}", config().getLong(SYS_REQUEST_TIMEOUT_MS));
 
     // initialize the TokenCache
-    TokenCache.initialize(cacheTtlMs, failureCacheTtlMs, cacheCapacity);
+    TokenCacheFactory.initialize(cacheCapacity);
 
     initializeSecureStore(config().getString(SYS_SECURE_STORE_PROP_FILE))
       .onSuccess(res -> {

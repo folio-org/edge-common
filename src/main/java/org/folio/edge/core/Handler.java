@@ -41,7 +41,7 @@ public class Handler {
   }
 
   protected void handleCommon(RoutingContext ctx, String[] requiredParams, String[] optionalParams,
-      TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
+          TwoParamVoidFunction<OkapiClient, Map<String, String>> action) {
     String key = keyHelper.getApiKey(ctx);
     if (key == null || key.isEmpty()) {
       invalidApiKey(ctx, "");
@@ -72,23 +72,16 @@ public class Handler {
     }
 
     final OkapiClient client = ocf.getOkapiClient(clientInfo.tenantId);
-
-    iuHelper.getToken(client,
-        clientInfo.salt,
-        clientInfo.tenantId,
-        clientInfo.username)
-      .thenAcceptAsync(token -> {
-        client.setToken(token);
-        action.apply(client, params);
-      })
-      .exceptionally(t -> {
-        if (isTimeoutException(t)) {
-          requestTimeout(ctx, t.getMessage());
-        } else {
-          accessDenied(ctx, t.getMessage());
-        }
-        return null;
-      });
+    iuHelper.fetchToken(client, clientInfo.salt, clientInfo.tenantId, clientInfo.username)
+            .onSuccess(token -> action.apply(client, params))
+            .onFailure(t -> {
+              logger.info("Handler failure {}", t.getMessage());
+              if (isTimeoutException(t)) {
+                requestTimeout(ctx, t.getMessage());
+              } else {
+                accessDenied(ctx, t.getMessage());
+              }
+            });
   }
 
   protected static boolean isTimeoutException(Throwable t) {
@@ -111,11 +104,15 @@ public class Handler {
     if (logger.isDebugEnabled()) {
         logger.debug("response: " + resp.bodyAsString());
     }
-    ctx.response().end(resp.body());
+    if (resp.body() == null) {
+      ctx.response().end();
+    } else {
+      ctx.response().end(resp.body());
+    }
   }
 
   protected void handleProxyException(RoutingContext ctx, Throwable t) {
-    logger.error("Exception calling OKAPI", t);
+    logger.error("Exception calling OKAPI class={}", t.getClass(), t);
     if (isTimeoutException(t)) {
       requestTimeout(ctx, t.getMessage());
     } else {
