@@ -173,12 +173,12 @@
   <build>
     <plugins>
       <!-- We specify the Maven compiler plugin as we need to set it to
-        Java 11 -->
+        Java 17 -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.1</version>
         <configuration>
-          <release>11</release>
+          <release>17</release>
         </configuration>
       </plugin>
 
