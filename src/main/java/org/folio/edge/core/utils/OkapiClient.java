@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import com.amazonaws.util.StringUtils;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.HttpRequest;
@@ -36,6 +37,7 @@ public class OkapiClient {
   public final String okapiURL;
   public final WebClient client;
   public final String tenant;
+  public String secondaryTenant;
   public final int reqTimeout;
   public final Vertx vertx;
   Client tokenClient;
@@ -52,6 +54,12 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
+  public OkapiClient(OkapiClient client, String secondaryTenant) {
+    this(client);
+    this.secondaryTenant = secondaryTenant;
+    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenant);
+  }
+
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout) {
     this.vertx = vertx;
     this.reqTimeout = timeout;
@@ -64,11 +72,17 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
+  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, String secondaryTenant, int timeout) {
+    this(vertx, okapiURL, tenant, timeout);
+    this.secondaryTenant = secondaryTenant;
+    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenant);
+  }
+
   protected void initDefaultHeaders() {
     defaultHeaders.add(HttpHeaders.ACCEPT_ENCODING, HttpHeaders.DEFLATE_GZIP);
     defaultHeaders.add(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT);
     defaultHeaders.add(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
-    defaultHeaders.add(X_OKAPI_TENANT, tenant);
+    defaultHeaders.add(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenant) ? tenant : secondaryTenant);
   }
 
   public CompletableFuture<String> login(String username, String password) {

@@ -46,6 +46,7 @@ public class OkapiClientTest {
   private static final Logger logger = LogManager.getLogger(OkapiClientTest.class);
 
   private static final String tenant = "diku";
+  private static final String secondaryTenant = "diku_second";
   private static final int reqTimeout = 300;
 
   private OkapiClientFactory ocf;
@@ -423,4 +424,20 @@ public class OkapiClientTest {
       t -> context.fail(t));
   }
 
+  @Test
+  public void testSecondaryTenantConstructorHeader() {
+    logger.info("=== Test secondary tenant constructor ===");
+    OkapiClient secondaryClient = new OkapiClient(client, secondaryTenant);
+    assertEquals(secondaryClient.secondaryTenant, secondaryClient.defaultHeaders.get(X_OKAPI_TENANT));
+    assertEquals(secondaryClient.tokenClient, secondaryClient.defaultHeaders.get(X_OKAPI_TOKEN));
+  }
+
+  @Test
+  public void testSecondaryTenantConstructorWithHeader() {
+    logger.info("=== Test secondary tenant with vertx constructor ===");
+    int freePort = TestUtils.getPort();
+    OkapiClient secondaryClient = new OkapiClient(Vertx.vertx(), "http://localhost:" + freePort, tenant, secondaryTenant, reqTimeout);
+    assertEquals(secondaryClient.secondaryTenant, secondaryClient.defaultHeaders.get(X_OKAPI_TENANT));
+    assertEquals(secondaryClient.tokenClient, secondaryClient.defaultHeaders.get(X_OKAPI_TOKEN));
+  }
 }
