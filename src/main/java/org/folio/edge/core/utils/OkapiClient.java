@@ -57,7 +57,7 @@ public class OkapiClient {
   public OkapiClient(OkapiClient client, String secondaryTenantId) {
     this(client);
     this.secondaryTenantId = secondaryTenantId;
-    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
+    defaultHeaders.set(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenantId) ? tenant : secondaryTenantId);
   }
 
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout) {
@@ -75,14 +75,14 @@ public class OkapiClient {
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, String secondaryTenantId, int timeout) {
     this(vertx, okapiURL, tenant, timeout);
     this.secondaryTenantId = secondaryTenantId;
-    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
+    defaultHeaders.set(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenantId) ? tenant : secondaryTenantId);
   }
 
   protected void initDefaultHeaders() {
     defaultHeaders.add(HttpHeaders.ACCEPT_ENCODING, HttpHeaders.DEFLATE_GZIP);
     defaultHeaders.add(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT);
     defaultHeaders.add(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
-    defaultHeaders.add(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenantId) ? tenant : secondaryTenantId);
+    defaultHeaders.add(X_OKAPI_TENANT, tenant);
   }
 
   public CompletableFuture<String> login(String username, String password) {
