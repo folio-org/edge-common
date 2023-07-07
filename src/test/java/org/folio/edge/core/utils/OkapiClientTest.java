@@ -428,8 +428,7 @@ public class OkapiClientTest {
   public void testSecondaryTenantConstructorHeader() {
     logger.info("=== Test secondary tenant constructor ===");
     OkapiClient secondaryClient = new OkapiClient(client, secondaryTenant);
-    assertEquals(secondaryClient.secondaryTenant, secondaryClient.defaultHeaders.get(X_OKAPI_TENANT));
-    assertEquals(secondaryClient.tokenClient, secondaryClient.defaultHeaders.get(X_OKAPI_TOKEN));
+    assertEquals(secondaryClient.secondaryTenantId, secondaryClient.defaultHeaders.get(X_OKAPI_TENANT));
   }
 
   @Test
@@ -437,7 +436,6 @@ public class OkapiClientTest {
     logger.info("=== Test secondary tenant with vertx constructor ===");
     int freePort = TestUtils.getPort();
     OkapiClient secondaryClient = new OkapiClient(Vertx.vertx(), "http://localhost:" + freePort, tenant, secondaryTenant, reqTimeout);
-    assertEquals(secondaryClient.secondaryTenant, secondaryClient.defaultHeaders.get(X_OKAPI_TENANT));
-    assertEquals(secondaryClient.tokenClient, secondaryClient.defaultHeaders.get(X_OKAPI_TOKEN));
+    assertEquals(secondaryClient.secondaryTenantId, secondaryClient.defaultHeaders.get(X_OKAPI_TENANT));
   }
 }

@@ -37,7 +37,7 @@ public class OkapiClient {
   public final String okapiURL;
   public final WebClient client;
   public final String tenant;
-  public String secondaryTenant;
+  public String secondaryTenantId;
   public final int reqTimeout;
   public final Vertx vertx;
   Client tokenClient;
@@ -54,10 +54,10 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
-  public OkapiClient(OkapiClient client, String secondaryTenant) {
+  public OkapiClient(OkapiClient client, String secondaryTenantId) {
     this(client);
-    this.secondaryTenant = secondaryTenant;
-    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenant);
+    this.secondaryTenantId = secondaryTenantId;
+    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
   }
 
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout) {
@@ -72,17 +72,17 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
-  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, String secondaryTenant, int timeout) {
+  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, String secondaryTenantId, int timeout) {
     this(vertx, okapiURL, tenant, timeout);
-    this.secondaryTenant = secondaryTenant;
-    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenant);
+    this.secondaryTenantId = secondaryTenantId;
+    defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
   }
 
   protected void initDefaultHeaders() {
     defaultHeaders.add(HttpHeaders.ACCEPT_ENCODING, HttpHeaders.DEFLATE_GZIP);
     defaultHeaders.add(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT);
     defaultHeaders.add(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
-    defaultHeaders.add(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenant) ? tenant : secondaryTenant);
+    defaultHeaders.add(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenantId) ? tenant : secondaryTenantId);
   }
 
   public CompletableFuture<String> login(String username, String password) {
