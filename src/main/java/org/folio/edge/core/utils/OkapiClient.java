@@ -57,7 +57,9 @@ public class OkapiClient {
   public OkapiClient(OkapiClient client, String secondaryTenantId) {
     this(client);
     this.secondaryTenantId = secondaryTenantId;
-    defaultHeaders.set(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenantId) ? tenant : secondaryTenantId);
+    if (!StringUtils.isNullOrEmpty(secondaryTenantId)) {
+      defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
+    }
   }
 
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout) {
@@ -75,7 +77,9 @@ public class OkapiClient {
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, String secondaryTenantId, int timeout) {
     this(vertx, okapiURL, tenant, timeout);
     this.secondaryTenantId = secondaryTenantId;
-    defaultHeaders.set(X_OKAPI_TENANT, StringUtils.isNullOrEmpty(secondaryTenantId) ? tenant : secondaryTenantId);
+    if (!StringUtils.isNullOrEmpty(secondaryTenantId)) {
+      defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
+    }
   }
 
   protected void initDefaultHeaders() {
