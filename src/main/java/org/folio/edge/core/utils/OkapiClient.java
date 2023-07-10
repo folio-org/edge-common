@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import com.amazonaws.util.StringUtils;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.HttpRequest;
@@ -36,6 +37,7 @@ public class OkapiClient {
   public final String okapiURL;
   public final WebClient client;
   public final String tenant;
+  public String secondaryTenantId;
   public final int reqTimeout;
   public final Vertx vertx;
   Client tokenClient;
@@ -52,6 +54,14 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
+  public OkapiClient(OkapiClient client, String secondaryTenantId) {
+    this(client);
+    this.secondaryTenantId = secondaryTenantId;
+    if (!StringUtils.isNullOrEmpty(secondaryTenantId)) {
+      defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
+    }
+  }
+
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout) {
     this.vertx = vertx;
     this.reqTimeout = timeout;
@@ -62,6 +72,14 @@ public class OkapiClient {
         .setConnectTimeout(timeout);
     client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();
+  }
+
+  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, String secondaryTenantId, int timeout) {
+    this(vertx, okapiURL, tenant, timeout);
+    this.secondaryTenantId = secondaryTenantId;
+    if (!StringUtils.isNullOrEmpty(secondaryTenantId)) {
+      defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
+    }
   }
 
   protected void initDefaultHeaders() {
