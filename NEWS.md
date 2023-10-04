@@ -1,3 +1,10 @@
+## 4.5.0 2023-10-05
+
+ * [EDGCOMMON-57](https://issues.folio.org/browse/EDGCOMMON-57) Use refresh token aware client from okapi-common
+ * [EDGCOMMON-64](https://issues.folio.org/browse/EDGCOMMON-64) Java 17
+ * [EDGCOMMON-67](https://issues.folio.org/browse/EDGCOMMON-67) Provide a consortia-level access point/mechanism for retrieving patron data
+ * [EDGCOMMON-68](https://issues.folio.org/browse/EDGCOMMON-68) Poppy dependency upgrades: Vert.x 4.4.5, ...
+
 ## 4.4.3 2023-02-20
 
  * [EDGCOMMON-59](https://issues.folio.org/browse/EDGCOMMON-59) Explain header injection in OkapiClient javadoc
