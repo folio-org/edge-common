@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>edge-common</artifactId>
-  <version>4.5.0-SNAPSHOT</version>
+  <version>4.5.0</version>
   <packaging>jar</packaging>
 
   <name>Edge API - Common</name>
@@ -17,7 +17,7 @@
     <url>https://github.com/folio-org/edge-common.git</url>
     <connection>scm:git:git://github.com/folio-org/edge-common.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/edge-common.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v4.5.0</tag>
   </scm>
 
   <licenses>
