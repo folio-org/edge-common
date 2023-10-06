@@ -1,3 +1,7 @@
+## 4.5.1 2023-10-06
+
+ * [EDGCOMMON-70](https://issues.folio.org/browse/EDGCOMMON-70) Failure to find org.apache.maven.plugins:maven-deploy-plugin:jar:3.6.0
+
 ## 4.5.0 2023-10-05
 
  * [EDGCOMMON-57](https://issues.folio.org/browse/EDGCOMMON-57) Use refresh token aware client from okapi-common
