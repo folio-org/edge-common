@@ -1,3 +1,7 @@
+## 4.5.2 2023-11-06
+
+ * [EDGCOMMON-72](https://issues.folio.org/browse/EDGCOMMON-72) Vert.x 4.4.6, Netty 4.1.100.Final
+
 ## 4.5.1 2023-10-06
 
  * [EDGCOMMON-70](https://issues.folio.org/browse/EDGCOMMON-70) Failure to find org.apache.maven.plugins:maven-deploy-plugin:jar:3.6.0
