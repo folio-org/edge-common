@@ -18,7 +18,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
@@ -88,7 +87,7 @@ public class MockOkapiTest {
         .body(json.getBytes())
         .contentType(APPLICATION_JSON)
         .header(X_OKAPI_TENANT, tenant)
-        .header(HttpHeaders.ACCEPT, JSON_OR_TEXT)
+        .accept(JSON_OR_TEXT)
         .when()
         .post("/authn/login")
         .then()
@@ -123,7 +122,7 @@ public class MockOkapiTest {
         .body(json.getBytes())
         .contentType(APPLICATION_JSON)
         .header(X_OKAPI_TENANT, tenant)
-        .header(HttpHeaders.ACCEPT, JSON_OR_TEXT)
+        .accept(JSON_OR_TEXT)
         .when()
         .post("/authn/login")
         .then()
@@ -148,7 +147,7 @@ public class MockOkapiTest {
         .body(json.getBytes())
         .contentType(APPLICATION_JSON)
         .header(X_OKAPI_TENANT, unknownTenant)
-        .header(HttpHeaders.ACCEPT, JSON_OR_TEXT)
+        .accept(JSON_OR_TEXT)
         .when()
         .post("/authn/login")
         .then()
@@ -262,7 +261,7 @@ public class MockOkapiTest {
         .body(json)
         .contentType(APPLICATION_JSON)
         .header(X_OKAPI_TENANT, tenant)
-        .header(HttpHeaders.ACCEPT, JSON_OR_TEXT)
+        .accept(JSON_OR_TEXT)
         .when()
         .post("/authn/login")
         .then()
@@ -281,7 +280,7 @@ public class MockOkapiTest {
         .body(json)
         .contentType(APPLICATION_JSON)
         .header(X_OKAPI_TENANT, tenant)
-        .header(HttpHeaders.ACCEPT, JSON_OR_TEXT)
+        .accept(JSON_OR_TEXT)
         .when()
         .post("/authn/login")
         .then()

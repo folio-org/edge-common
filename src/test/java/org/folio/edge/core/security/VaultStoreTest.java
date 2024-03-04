@@ -8,16 +8,17 @@ import static org.mockito.Mockito.when;
 import java.util.Properties;
 
 import org.folio.edge.core.security.SecureStore.NotFoundException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.api.Logical;
-import com.bettercloud.vault.response.LogicalResponse;
-import com.bettercloud.vault.rest.RestResponse;
+import io.github.jopenlibs.vault.Vault;
+import io.github.jopenlibs.vault.api.Logical;
+import io.github.jopenlibs.vault.response.LogicalResponse;
+import io.github.jopenlibs.vault.rest.RestResponse;
 
 public class VaultStoreTest {
 
@@ -27,6 +28,8 @@ public class VaultStoreTest {
   @InjectMocks
   VaultStore secureStore;
 
+  private AutoCloseable mocks;
+
   @Before
   public void setUp() throws Exception {
 
@@ -34,7 +37,12 @@ public class VaultStoreTest {
 
     secureStore = new VaultStore(props);
 
-    MockitoAnnotations.initMocks(this);
+    mocks = MockitoAnnotations.openMocks(this);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    mocks.close();
   }
 
   @Test(expected = NotFoundException.class)

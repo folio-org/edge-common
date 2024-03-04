@@ -67,7 +67,6 @@ public class TestUtilsTest {
   @Test(expected = AssertionError.class)
   public void testAssertLogThrown() {
     Logger log = LogManager.getLogger("testAssertLogThrown");
-    String msg = "hello world";
     Level lvl = Level.INFO;
     Throwable t = new IllegalArgumentException("il");
     TestUtils.assertLogMessage(log, 1, 1, lvl, "x", t, () -> {
@@ -80,10 +79,17 @@ public class TestUtilsTest {
   }
 
   @Test
+  public void testAssertLogMessageCorrectLevel() {
+    Logger log = LogManager.getLogger("testAssertLogMessageWrongLevel");
+    String msg = "hello world";
+    TestUtils.assertLogMessage(log, 1, 1, Level.ERROR, msg, null,
+        () -> logMessages(log, msg, 1, Level.ERROR));
+  }
+
+  @Test(expected = AssertionError.class)
   public void testAssertLogMessageWrongLevel() {
     Logger log = LogManager.getLogger("testAssertLogMessageWrongLevel");
     String msg = "hello world";
-    // logLevel not really checked, so this succeeds
     TestUtils.assertLogMessage(log, 1, 1, Level.ERROR, msg, null,
         () -> logMessages(log, msg, 1, Level.INFO));
   }
