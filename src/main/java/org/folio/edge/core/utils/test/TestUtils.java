@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
-
 import org.junit.Assert;
 
 public class TestUtils {
@@ -75,7 +74,7 @@ public class TestUtils {
    * @param logger that is used in test code
    * @param minTimes minimum number of log events
    * @param maxTimes maximum number of log events
-   * @param logLevel level to test against (not working, so not checked)
+   * @param logLevel expected level for first message
    * @param expectedMsg expected message for first message
    * @param t expected Throwable (not working, pass null always)
    * @param func function to execute which presumably logs
@@ -103,7 +102,7 @@ public class TestUtils {
     if (logLevel != null) {
       Assert.assertFalse(appender.events.isEmpty());
       Level gotLevel = appender.events.get(0).getLevel();
-      Assert.assertTrue(gotLevel == Level.OFF || gotLevel == logLevel);
+      Assert.assertEquals("log level", logLevel, gotLevel);
     }
 
     if (expectedMsg != null) {
@@ -124,7 +123,7 @@ public class TestUtils {
 
     @Override
     public void append(LogEvent event) {
-      events.add(event);
+      events.add(event.toImmutable());
     }
 
   }

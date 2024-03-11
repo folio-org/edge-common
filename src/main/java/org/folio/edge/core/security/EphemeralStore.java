@@ -22,7 +22,6 @@ public class EphemeralStore extends SecureStore {
 
   public EphemeralStore(Properties properties) {
     super(properties);
-    logger.info("Initializing...");
 
     if (properties != null) {
       String tenants = properties.getProperty(PROP_TENANTS);
