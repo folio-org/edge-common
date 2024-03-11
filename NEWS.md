@@ -1,3 +1,7 @@
+## 4.6.3 2024-03-04
+
+ * [EDGCOMMON-74](https://folio-org.atlassian.net/browse/EDGCOMMON-74) aws-java-sdk-ssm 1.12.645 removing ion-java 1.0.2
+
 ## 4.5.2 2023-11-06
 
  * [EDGCOMMON-72](https://issues.folio.org/browse/EDGCOMMON-72) Vert.x 4.4.6, Netty 4.1.100.Final
