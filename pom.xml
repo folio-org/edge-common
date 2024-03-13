@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>edge-common</artifactId>
-  <version>4.6.0-SNAPSHOT</version>
+  <version>4.7.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Edge API - Common</name>
