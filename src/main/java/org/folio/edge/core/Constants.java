@@ -24,6 +24,10 @@ public class Constants {
   public static final String SYS_REQUEST_TIMEOUT_MS = "request_timeout_ms";
   public static final String SYS_API_KEY_SOURCES = "api_key_sources";
   public static final String SYS_RESPONSE_COMPRESSION = "response_compression";
+  public static final String SYS_SSL_ENABLED = "ssl_enabled";
+  public static final String SYS_KEYSTORE_PATH = "keystore_path";
+  public static final String SYS_KEYSTORE_PASSWORD = "keystore_password";
+  public static final String SYS_KEYSTORE_ALIAS = "keystore_alias";
 
   // Property names
   public static final String PROP_SECURE_STORE_TYPE = "secureStore.type";
@@ -38,6 +42,7 @@ public class Constants {
   public static final int DEFAULT_TOKEN_CACHE_CAPACITY = 100;
   public static final String DEFAULT_API_KEY_SOURCES = "PARAM,HEADER,PATH";
   public static final boolean DEFAULT_RESPONSE_COMPRESSION = false;
+  public static final boolean DEFAULT_SSL_ENABLED = false;
 
   // Headers
   public static final String X_OKAPI_TENANT = "x-okapi-tenant";
@@ -97,6 +102,9 @@ public class Constants {
     defaultMap.put(SYS_RESPONSE_COMPRESSION,
         Boolean.parseBoolean(System.getProperty(SYS_RESPONSE_COMPRESSION,
             Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
+    defaultMap.put(SYS_SSL_ENABLED,
+        Boolean.parseBoolean(System.getProperty(SYS_SSL_ENABLED,
+          Boolean.toString(DEFAULT_SSL_ENABLED))));
     defaultMap.put(SYS_SECURE_STORE_PROP_FILE,
         System.getProperty(SYS_SECURE_STORE_PROP_FILE));
     defaultMap.put(SYS_OKAPI_URL,

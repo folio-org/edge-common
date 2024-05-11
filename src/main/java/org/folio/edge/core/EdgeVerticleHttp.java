@@ -1,19 +1,26 @@
 package org.folio.edge.core;
 
+import static org.folio.edge.core.Constants.SYS_KEYSTORE_ALIAS;
+import static org.folio.edge.core.Constants.SYS_KEYSTORE_PASSWORD;
+import static org.folio.edge.core.Constants.SYS_KEYSTORE_PATH;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
+import static org.folio.edge.core.Constants.SYS_SSL_ENABLED;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
-
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
+
+import java.security.Security;
 
 /**
  * Verticle for edge module which starts a HTTP service.
@@ -28,11 +35,25 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
         final int port = config().getInteger(SYS_PORT);
         logger.info("Using port: {}", port);
 
+        final HttpServerOptions serverOptions = new HttpServerOptions();
+
         // initialize response compression
         final boolean isCompressionSupported = config().getBoolean(SYS_RESPONSE_COMPRESSION);
         logger.info("Response compression enabled: {}", isCompressionSupported);
-        final HttpServerOptions serverOptions = new HttpServerOptions();
         serverOptions.setCompressionSupported(isCompressionSupported);
+
+        // initialize ssl
+        final boolean isSslEnabled = config().getBoolean(SYS_SSL_ENABLED);
+        logger.info("SSL enabled: {}", isSslEnabled);
+        serverOptions.setSsl(isSslEnabled);
+        if (isSslEnabled) {
+          var provider = new BouncyCastleFipsProvider();
+          Security.addProvider(provider);
+          serverOptions.setKeyCertOptions(new BcfksOptions()
+            .setPath(config().getString(SYS_KEYSTORE_PATH))
+            .setPassword(config().getString(SYS_KEYSTORE_PASSWORD))
+            .setAlias(config().getString(SYS_KEYSTORE_ALIAS)));
+        }
 
         final HttpServer server = getVertx().createHttpServer(serverOptions);
 
@@ -51,5 +72,14 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
       .setStatusCode(200)
       .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
       .end("\"OK\"");
+  }
+
+  public static class BcfksOptions extends JksOptions {
+
+    public static final String BCFKS_TYPE = "BCFKS";
+
+    public BcfksOptions() {
+      setType(BCFKS_TYPE);
+    }
   }
 }
