@@ -1,9 +1,14 @@
 package org.folio.edge.core.utils;
 
+import static org.folio.edge.core.Constants.BCFKS_PROVIDER;
+import static org.folio.edge.core.Constants.BCFKS_TYPE;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.net.KeyCertOptions;
+import io.vertx.core.net.KeyStoreOptions;
 
 public class OkapiClientFactory {
 
@@ -12,6 +17,7 @@ public class OkapiClientFactory {
   public final String okapiURL;
   public final Vertx vertx;
   public final int reqTimeoutMs;
+  private KeyCertOptions keyCertOptions;
 
   public OkapiClientFactory(Vertx vertx, String okapiURL, int reqTimeoutMs) {
     this.vertx = vertx;
@@ -19,7 +25,26 @@ public class OkapiClientFactory {
     this.reqTimeoutMs = reqTimeoutMs;
   }
 
+  public OkapiClientFactory(Vertx vertx,
+                            String okapiURL,
+                            int reqTimeoutMs,
+                            String keystorePath,
+                            String keystorePassword,
+                            String keyAlias) {
+    this(vertx, okapiURL, reqTimeoutMs);
+    this.keyCertOptions = new KeyStoreOptions()
+      .setType(BCFKS_TYPE)
+      .setProvider(BCFKS_PROVIDER)
+      .setPath(keystorePath)
+      .setPassword(keystorePassword)
+      .setAlias(keyAlias);
+  }
+
   public OkapiClient getOkapiClient(String tenant) {
-    return cache.computeIfAbsent(tenant, t -> new OkapiClient(vertx, okapiURL, t, reqTimeoutMs));
+    if (keyCertOptions == null) {
+      return cache.computeIfAbsent(tenant, t -> new OkapiClient(vertx, okapiURL, t, reqTimeoutMs));
+    } else {
+      return cache.computeIfAbsent(tenant, t -> new OkapiClient(vertx, okapiURL, t, reqTimeoutMs, keyCertOptions));
+    }
   }
 }

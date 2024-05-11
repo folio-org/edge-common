@@ -27,7 +27,7 @@ public class Constants {
   public static final String SYS_SSL_ENABLED = "ssl_enabled";
   public static final String SYS_KEYSTORE_PATH = "keystore_path";
   public static final String SYS_KEYSTORE_PASSWORD = "keystore_password";
-  public static final String SYS_KEYSTORE_ALIAS = "keystore_alias";
+  public static final String SYS_KEY_ALIAS = "key_alias";
 
   // Property names
   public static final String PROP_SECURE_STORE_TYPE = "secureStore.type";
@@ -69,6 +69,10 @@ public class Constants {
   public static final String MSG_REQUEST_TIMEOUT = "Request to FOLIO timed out";
   public static final String MSG_NOT_IMPLEMENTED = "Not Implemented";
   public static final String MSG_INVALID_API_KEY = "Invalid API Key";
+
+  // Security BCFKS provider
+  public static final String BCFKS_TYPE = "BCFKS";
+  public static final String BCFKS_PROVIDER = "BCFIPS";
 
   // Misc
   public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000L;

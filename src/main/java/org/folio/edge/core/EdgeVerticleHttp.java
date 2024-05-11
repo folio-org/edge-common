@@ -1,8 +1,10 @@
 package org.folio.edge.core;
 
-import static org.folio.edge.core.Constants.SYS_KEYSTORE_ALIAS;
+import static org.folio.edge.core.Constants.BCFKS_PROVIDER;
+import static org.folio.edge.core.Constants.BCFKS_TYPE;
 import static org.folio.edge.core.Constants.SYS_KEYSTORE_PASSWORD;
 import static org.folio.edge.core.Constants.SYS_KEYSTORE_PATH;
+import static org.folio.edge.core.Constants.SYS_KEY_ALIAS;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
 import static org.folio.edge.core.Constants.SYS_SSL_ENABLED;
@@ -12,7 +14,7 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.net.JksOptions;
+import io.vertx.core.net.KeyStoreOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
@@ -47,12 +49,13 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
         logger.info("SSL enabled: {}", isSslEnabled);
         serverOptions.setSsl(isSslEnabled);
         if (isSslEnabled) {
-          var provider = new BouncyCastleFipsProvider();
-          Security.addProvider(provider);
-          serverOptions.setKeyCertOptions(new BcfksOptions()
+          Security.addProvider(new BouncyCastleFipsProvider());
+          serverOptions.setKeyCertOptions(new KeyStoreOptions()
+            .setType(BCFKS_TYPE)
+            .setProvider(BCFKS_PROVIDER)
             .setPath(config().getString(SYS_KEYSTORE_PATH))
             .setPassword(config().getString(SYS_KEYSTORE_PASSWORD))
-            .setAlias(config().getString(SYS_KEYSTORE_ALIAS)));
+            .setAlias(config().getString(SYS_KEY_ALIAS)));
         }
 
         final HttpServer server = getVertx().createHttpServer(serverOptions);
@@ -72,14 +75,5 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
       .setStatusCode(200)
       .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
       .end("\"OK\"");
-  }
-
-  public static class BcfksOptions extends JksOptions {
-
-    public static final String BCFKS_TYPE = "BCFKS";
-
-    public BcfksOptions() {
-      setType(BCFKS_TYPE);
-    }
   }
 }
