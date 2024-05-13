@@ -1,14 +1,13 @@
 package org.folio.edge.core;
 
-import static org.folio.edge.core.Constants.BCFKS_PROVIDER;
 import static org.folio.edge.core.Constants.BCFKS_TYPE;
 import static org.folio.edge.core.Constants.SYS_KEYSTORE_PASSWORD;
 import static org.folio.edge.core.Constants.SYS_KEYSTORE_PATH;
 import static org.folio.edge.core.Constants.SYS_KEY_ALIAS;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
-import static org.folio.edge.core.Constants.SYS_SSL_ENABLED;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
+
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.Promise;
@@ -44,17 +43,18 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
         logger.info("Response compression enabled: {}", isCompressionSupported);
         serverOptions.setCompressionSupported(isCompressionSupported);
 
-        // initialize ssl
-        final boolean isSslEnabled = config().getBoolean(SYS_SSL_ENABLED);
-        logger.info("SSL enabled: {}", isSslEnabled);
-        serverOptions.setSsl(isSslEnabled);
-        if (isSslEnabled) {
+        // initialize ssl if keystore_path and keystore_password are populated
+        String keystorePath = config().getString(SYS_KEYSTORE_PATH);
+        String keystorePassword = config().getString(SYS_KEYSTORE_PASSWORD);
+        if (keystorePath != null && keystorePassword != null) {
+          logger.info("Enabling WebClient TLS/SSL configuration with using BCFIPS provider");
+          serverOptions.setSsl(true);
           Security.addProvider(new BouncyCastleFipsProvider());
           serverOptions.setKeyCertOptions(new KeyStoreOptions()
             .setType(BCFKS_TYPE)
-            .setProvider(BCFKS_PROVIDER)
-            .setPath(config().getString(SYS_KEYSTORE_PATH))
-            .setPassword(config().getString(SYS_KEYSTORE_PASSWORD))
+            .setProvider(BouncyCastleFipsProvider.PROVIDER_NAME)
+            .setPath(keystorePath)
+            .setPassword(keystorePassword)
             .setAlias(config().getString(SYS_KEY_ALIAS)));
         }
 
