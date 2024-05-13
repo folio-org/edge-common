@@ -24,7 +24,6 @@ public class Constants {
   public static final String SYS_REQUEST_TIMEOUT_MS = "request_timeout_ms";
   public static final String SYS_API_KEY_SOURCES = "api_key_sources";
   public static final String SYS_RESPONSE_COMPRESSION = "response_compression";
-  public static final String SYS_SSL_ENABLED = "ssl_enabled";
   public static final String SYS_KEYSTORE_PATH = "keystore_path";
   public static final String SYS_KEYSTORE_PASSWORD = "keystore_password";
   public static final String SYS_KEY_ALIAS = "key_alias";
