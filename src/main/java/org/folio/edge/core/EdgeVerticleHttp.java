@@ -11,6 +11,7 @@ import static org.folio.edge.core.Constants.SYS_RESPONSE_COMPRESSION;
 import static org.folio.edge.core.Constants.SYS_SSL_ENABLED;
 import static org.folio.edge.core.Constants.TEXT_PLAIN;
 
+import com.amazonaws.util.StringUtils;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.Promise;
@@ -43,19 +44,8 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
       logger.info("Response compression enabled: {}", isCompressionSupported);
       serverOptions.setCompressionSupported(isCompressionSupported);
 
-      // initialize ssl if keystore_path and keystore_password are populated
-      final boolean isSslEnabled = config().getBoolean(SYS_SSL_ENABLED);
-      if (isSslEnabled) {
-        logger.info("Enabling Vertx Http Server with TLS/SSL configuration...");
-        serverOptions.setSsl(true);
-        serverOptions.setKeyCertOptions(new KeyStoreOptions()
-          .setType(config().getString(SYS_KEYSTORE_TYPE))
-          .setProvider(config().getString(SYS_KEYSTORE_PROVIDER))
-          .setPath(config().getString(SYS_KEYSTORE_PATH))
-          .setPassword(config().getString(SYS_KEYSTORE_PASSWORD))
-          .setAlias(config().getString(SYS_KEY_ALIAS))
-          .setAliasPassword(config().getString(SYS_KEY_ALIAS_PASSWORD)));
-      }
+      // initialize tls/ssl configuration for web server
+      configureSslIfEnabled(serverOptions);
 
       final HttpServer server = getVertx().createHttpServer(serverOptions);
 
@@ -74,5 +64,35 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
       .setStatusCode(200)
       .putHeader(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
       .end("\"OK\"");
+  }
+
+  private void configureSslIfEnabled(HttpServerOptions serverOptions) {
+    final boolean isSslEnabled = config().getBoolean(SYS_SSL_ENABLED);
+    if (isSslEnabled) {
+      logger.info("Enabling Vertx Http Server with TLS/SSL configuration...");
+      serverOptions.setSsl(true);
+      String keystoreType = config().getString(SYS_KEYSTORE_TYPE);
+      logger.info("Using {} keystore type for SSL/TLS", keystoreType);
+      String keystoreProvider = config().getString(SYS_KEYSTORE_PROVIDER);
+      logger.info("Using {} keystore provider for SSL/TLS", keystoreProvider);
+      String keystorePath = config().getString(SYS_KEYSTORE_PATH);
+      if (StringUtils.isNullOrEmpty(keystorePath)) {
+        throw new IllegalStateException("'keystore_path' system param must be specified when ssl_enabled = true");
+      }
+      String keystorePassword = config().getString(SYS_KEYSTORE_PASSWORD);
+      if (StringUtils.isNullOrEmpty(keystorePassword)) {
+        throw new IllegalStateException("'keystore_password' system param must be specified when ssl_enabled = true");
+      }
+      String keyAlias = config().getString(SYS_KEY_ALIAS);
+      String keyAliasPassword = config().getString(SYS_KEY_ALIAS_PASSWORD);
+
+      serverOptions.setKeyCertOptions(new KeyStoreOptions()
+        .setType(keystoreType)
+        .setProvider(keystoreProvider)
+        .setPath(keystorePath)
+        .setPassword(keystorePassword)
+        .setAlias(keyAlias)
+        .setAliasPassword(keyAliasPassword));
+    }
   }
 }
