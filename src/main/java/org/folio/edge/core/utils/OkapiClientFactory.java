@@ -1,14 +1,11 @@
 package org.folio.edge.core.utils;
 
-import static org.folio.edge.core.Constants.BCFKS_TYPE;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.net.KeyCertOptions;
 import io.vertx.core.net.KeyStoreOptions;
-import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 
 public class OkapiClientFactory {
 
@@ -28,16 +25,20 @@ public class OkapiClientFactory {
   public OkapiClientFactory(Vertx vertx,
                             String okapiURL,
                             int reqTimeoutMs,
+                            String keystoreType,
+                            String keystoreProvider,
                             String keystorePath,
                             String keystorePassword,
-                            String keyAlias) {
+                            String keyAlias,
+                            String keyAliasPassword) {
     this(vertx, okapiURL, reqTimeoutMs);
     this.keyCertOptions = new KeyStoreOptions()
-      .setType(BCFKS_TYPE)
-      .setProvider(BouncyCastleFipsProvider.PROVIDER_NAME)
+      .setType(keystoreType)
+      .setProvider(keystoreProvider)
       .setPath(keystorePath)
       .setPassword(keystorePassword)
-      .setAlias(keyAlias);
+      .setAlias(keyAlias)
+      .setAliasPassword(keyAliasPassword);
   }
 
   public OkapiClient getOkapiClient(String tenant) {
