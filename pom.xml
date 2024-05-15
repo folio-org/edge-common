@@ -169,11 +169,6 @@
       <artifactId>bc-fips</artifactId>
       <version>1.0.2.5</version>
     </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
