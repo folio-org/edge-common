@@ -72,6 +72,9 @@ public abstract class EdgeVerticleHttp extends EdgeVerticleCore {
       logger.info("Enabling Vertx Http Server with TLS/SSL configuration...");
       serverOptions.setSsl(true);
       String keystoreType = config().getString(SYS_KEYSTORE_TYPE);
+      if (StringUtils.isNullOrEmpty(keystoreType)) {
+        throw new IllegalStateException("'keystore_type' system param must be specified when ssl_enabled = true");
+      }
       logger.info("Using {} keystore type for SSL/TLS", keystoreType);
       String keystoreProvider = config().getString(SYS_KEYSTORE_PROVIDER);
       logger.info("Using {} keystore provider for SSL/TLS", keystoreProvider);

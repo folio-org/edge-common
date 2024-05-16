@@ -13,6 +13,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.ConnectException;
 import org.folio.edge.core.utils.test.TestUtils;
@@ -71,7 +73,7 @@ public class EdgeVerticleCoreTest {
       .put(SYS_SECURE_STORE_PROP_FILE, "sx://foo.com");
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
     vertx.deployVerticle(new EdgeVerticleCore(), opt).onComplete(context.asyncAssertFailure(e -> {
-      assertThat(e.getMessage(), startsWith("Failed to load secure store properties: sx:/foo.com"));
+      assertThat(e.getMessage(), startsWith(String.format("Failed to load secure store properties: sx:%sfoo.com", File.separator)));
       assertThat(e.getCause(), instanceOf(FileNotFoundException.class));
     }));
   }
