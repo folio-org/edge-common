@@ -162,13 +162,6 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
     </dependency>
-
-    <!-- library provides the basic cryptographic functionality complying with FIPS -->
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bc-fips</artifactId>
-      <version>1.0.2.5</version>
-    </dependency>
   </dependencies>
 
   <build>
