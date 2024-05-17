@@ -123,9 +123,13 @@ public class MockOkapi {
    * </pre>
    */
   public Future<HttpServer> start() {
+
     // Setup Mock Okapi...
     var options = new HttpServerOptions().setCompressionSupported(true);
-    return start(options);
+    HttpServer server = vertx.createHttpServer(options);
+    return server.requestHandler(defineRoutes()).listen(okapiPort)
+        .onFailure(e -> logger.warn(e.getMessage(), e))
+        .onSuccess(anHttpServer -> httpServer = anHttpServer);
   }
 
   public Future<HttpServer> start(HttpServerOptions options) {
