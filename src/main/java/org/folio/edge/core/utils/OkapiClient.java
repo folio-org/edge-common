@@ -79,6 +79,7 @@ public class OkapiClient {
     this.okapiURL = okapiURL;
     this.tenant = tenant;
     WebClientOptions options = initDefaultWebClientOptions(timeout)
+      .setSsl(true)
       .setKeyCertOptions(keyCertOptions);
     client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();
