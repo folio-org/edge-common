@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 import com.amazonaws.util.StringUtils;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.KeyCertOptions;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
@@ -67,9 +68,18 @@ public class OkapiClient {
     this.reqTimeout = timeout;
     this.okapiURL = okapiURL;
     this.tenant = tenant;
-    WebClientOptions options = new WebClientOptions().setTryUseCompression(true)
-        .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout)
-        .setConnectTimeout(timeout);
+    WebClientOptions options = initDefaultWebClientOptions(timeout);
+    client = WebClientFactory.getWebClient(vertx, options);
+    initDefaultHeaders();
+  }
+
+  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout, KeyCertOptions keyCertOptions) {
+    this.vertx = vertx;
+    this.reqTimeout = timeout;
+    this.okapiURL = okapiURL;
+    this.tenant = tenant;
+    WebClientOptions options = initDefaultWebClientOptions(timeout)
+      .setKeyCertOptions(keyCertOptions);
     client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();
   }
@@ -87,6 +97,12 @@ public class OkapiClient {
     defaultHeaders.add(HttpHeaders.ACCEPT.toString(), JSON_OR_TEXT);
     defaultHeaders.add(HttpHeaders.CONTENT_TYPE.toString(), APPLICATION_JSON);
     defaultHeaders.add(X_OKAPI_TENANT, tenant);
+  }
+
+  protected WebClientOptions initDefaultWebClientOptions(int timeout) {
+    return new WebClientOptions().setTryUseCompression(true)
+      .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout)
+      .setConnectTimeout(timeout);
   }
 
   public CompletableFuture<String> login(String username, String password) {
