@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(VertxUnitRunner.class)
-public class EdgeVerticleSslTest {
+public class SslEdgeVerticleTest {
   private Vertx vertx;
 
   @Rule
