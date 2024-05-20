@@ -148,7 +148,7 @@ e.g. Key=`ab73kbw90e/diku`, Field=`diku`
 
 Configuration information is specified in two forms:
 1. System Properties - General configuration
-1. Properties File - Configuration specific to the desired secure store
+2. Properties File - Configuration specific to the desired secure store
 
 ### System Properties
 
