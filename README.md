@@ -166,7 +166,7 @@ Configuration information is specified in two forms:
 | `api_key_sources`         | `PARAM,HEADER,PATH` | Defines the sources (order of precendence) of the API key.                |
 
 ### System Properties for TLS configuration for Http server
-To configure Transport Layer Security (TLS) for HTTP server in edge module, the following configuration parameters should be used.
+To configure Transport Layer Security (TLS) for the HTTP server in an edge module, the following configuration parameters should be used.
 Parameters marked as Required are required only in case when ssl_enabled is set to true.
 
 | Property                          | Default           | Description                                                                                 |
@@ -182,7 +182,7 @@ Parameters marked as Required are required only in case when ssl_enabled is set 
 ### System Properties for TLS configuration for Web Client
 To configure Transport Layer Security (TLS) for Web clients in the edge module, you can use the following configuration parameters.
 Truststore parameters for configuring Web clients are optional even when ssl_enabled = true.
-If truststore parameters need to be populated - truststore_type, truststore_path, truststore_password - are required.
+If truststore parameters need to be populated, truststore_type, truststore_path and truststore_password are required.
 
 | Property                          | Default           | Description                                                                      |
 |-----------------------------------|-------------------|----------------------------------------------------------------------------------|
