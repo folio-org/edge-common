@@ -4,8 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.net.KeyCertOptions;
-import io.vertx.core.net.KeyStoreOptions;
+import io.vertx.core.net.TrustOptions;
 
 public class OkapiClientFactory {
 
@@ -14,7 +13,8 @@ public class OkapiClientFactory {
   public final String okapiURL;
   public final Vertx vertx;
   public final int reqTimeoutMs;
-  private KeyCertOptions keyCertOptions;
+  private boolean sslMode;
+  private TrustOptions trustOptions;
 
   public OkapiClientFactory(Vertx vertx, String okapiURL, int reqTimeoutMs) {
     this.vertx = vertx;
@@ -22,30 +22,17 @@ public class OkapiClientFactory {
     this.reqTimeoutMs = reqTimeoutMs;
   }
 
-  public OkapiClientFactory(Vertx vertx,
-                            String okapiURL,
-                            int reqTimeoutMs,
-                            String keystoreType,
-                            String keystoreProvider,
-                            String keystorePath,
-                            String keystorePassword,
-                            String keyAlias,
-                            String keyAliasPassword) {
+  public OkapiClientFactory(Vertx vertx, String okapiURL, int reqTimeoutMs, TrustOptions trustOptions) {
     this(vertx, okapiURL, reqTimeoutMs);
-    this.keyCertOptions = new KeyStoreOptions()
-      .setType(keystoreType)
-      .setProvider(keystoreProvider)
-      .setPath(keystorePath)
-      .setPassword(keystorePassword)
-      .setAlias(keyAlias)
-      .setAliasPassword(keyAliasPassword);
+    this.sslMode = true;
+    this.trustOptions = trustOptions;
   }
 
   public OkapiClient getOkapiClient(String tenant) {
-    if (keyCertOptions == null) {
-      return cache.computeIfAbsent(tenant, t -> new OkapiClient(vertx, okapiURL, t, reqTimeoutMs));
+    if (sslMode) {
+      return cache.computeIfAbsent(tenant, t -> new OkapiClient(vertx, okapiURL, t, reqTimeoutMs, trustOptions));
     } else {
-      return cache.computeIfAbsent(tenant, t -> new OkapiClient(vertx, okapiURL, t, reqTimeoutMs, keyCertOptions));
+      return cache.computeIfAbsent(tenant, t -> new OkapiClient(vertx, okapiURL, t, reqTimeoutMs));
     }
   }
 }
