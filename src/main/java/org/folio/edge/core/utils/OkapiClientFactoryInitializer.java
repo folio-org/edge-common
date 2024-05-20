@@ -10,6 +10,7 @@ import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_TRUSTSTORE_PATH;
 import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER;
 import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_TRUSTSTORE_TYPE;
 
+import com.amazonaws.util.StringUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.KeyStoreOptions;
@@ -35,7 +36,10 @@ public class OkapiClientFactoryInitializer {
       String truststorePassword = config.getString(SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD);
       String keyAlias = config.getString(SYS_WEB_CLIENT_KEY_ALIAS);
       String keyAliasPassword = config.getString(SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD);
-      if (truststoreType != null && truststorePath != null && truststorePassword != null) {
+      if (!StringUtils.isNullOrEmpty(truststoreType)
+        && !StringUtils.isNullOrEmpty(truststorePath)
+        && !StringUtils.isNullOrEmpty(truststorePassword)) {
+
         logger.info("Web client truststore options for type: {} are set, configuring Web Client with them", truststoreType);
         TrustOptions trustOptions = new KeyStoreOptions()
           .setType(truststoreType)
