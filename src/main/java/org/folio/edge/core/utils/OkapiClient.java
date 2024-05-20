@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import com.amazonaws.util.StringUtils;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.net.KeyCertOptions;
+import io.vertx.core.net.TrustOptions;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
@@ -73,14 +73,20 @@ public class OkapiClient {
     initDefaultHeaders();
   }
 
-  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout, KeyCertOptions keyCertOptions) {
+  /**
+   * Create Okapi client configured to work in SSL/TLS mode.
+   * Trust options can be null.
+   */
+  protected OkapiClient(Vertx vertx, String okapiURL, String tenant, int timeout, TrustOptions trustOptions) {
     this.vertx = vertx;
     this.reqTimeout = timeout;
     this.okapiURL = okapiURL;
     this.tenant = tenant;
     WebClientOptions options = initDefaultWebClientOptions(timeout)
-      .setSsl(true)
-      .setKeyCertOptions(keyCertOptions);
+      .setSsl(true);
+    if (trustOptions != null) {
+      options.setTrustOptions(trustOptions);
+    }
     client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();
   }

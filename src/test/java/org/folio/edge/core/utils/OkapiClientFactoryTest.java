@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import io.vertx.core.net.KeyStoreOptions;
+import io.vertx.core.net.TrustOptions;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class OkapiClientFactoryTest {
 
     String okapiUrl = (String) FieldUtils.readDeclaredField(ocf, "okapiURL");
     Integer reqTimeoutMs = (Integer) FieldUtils.readDeclaredField(ocf, "reqTimeoutMs");
-    KeyStoreOptions keyStoreOptions = (KeyStoreOptions) FieldUtils.readDeclaredField(ocf, "keyCertOptions", true);
+    KeyStoreOptions keyStoreOptions = (KeyStoreOptions) FieldUtils.readDeclaredField(ocf, "trustOptions", true);
 
     assertEquals(OKAPI_URL, okapiUrl);
     assertEquals(REQ_TIMEOUT_MS, reqTimeoutMs);
@@ -40,12 +41,18 @@ public class OkapiClientFactoryTest {
   @Test
   public void testGetSecuredOkapiClientFactory() throws IllegalAccessException {
     Vertx vertx = Vertx.vertx();
-    OkapiClientFactory ocf = new OkapiClientFactory(vertx, OKAPI_URL, REQ_TIMEOUT_MS, KEYSTORE_TYPE, KEYSTORE_PROVIDER,
-      KEYSTORE_PATH, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_ALIAS_PASSWORD);
+    TrustOptions trustOptions = new KeyStoreOptions()
+      .setType(KEYSTORE_TYPE)
+      .setProvider(KEYSTORE_PROVIDER)
+      .setPath(KEYSTORE_PATH)
+      .setPassword(KEYSTORE_PASSWORD)
+      .setAlias(KEY_ALIAS)
+      .setAliasPassword(KEY_ALIAS_PASSWORD);
+    OkapiClientFactory ocf = new OkapiClientFactory(vertx, OKAPI_URL, REQ_TIMEOUT_MS, trustOptions);
 
     String okapiUrl = (String) FieldUtils.readDeclaredField(ocf, "okapiURL");
     Integer reqTimeoutMs = (Integer) FieldUtils.readDeclaredField(ocf, "reqTimeoutMs");
-    KeyStoreOptions keyStoreOptions = (KeyStoreOptions) FieldUtils.readDeclaredField(ocf, "keyCertOptions", true);
+    KeyStoreOptions keyStoreOptions = (KeyStoreOptions) FieldUtils.readDeclaredField(ocf, "trustOptions", true);
 
     assertEquals(OKAPI_URL, okapiUrl);
     assertEquals(REQ_TIMEOUT_MS, reqTimeoutMs);
