@@ -24,13 +24,23 @@ public class Constants {
   public static final String SYS_REQUEST_TIMEOUT_MS = "request_timeout_ms";
   public static final String SYS_API_KEY_SOURCES = "api_key_sources";
   public static final String SYS_RESPONSE_COMPRESSION = "response_compression";
-  public static final String SYS_SSL_ENABLED = "ssl_enabled";
-  public static final String SYS_KEYSTORE_PATH = "keystore_path";
-  public static final String SYS_KEYSTORE_PASSWORD = "keystore_password";
-  public static final String SYS_KEYSTORE_TYPE = "keystore_type";
-  public static final String SYS_KEYSTORE_PROVIDER = "keystore_provider";
-  public static final String SYS_KEY_ALIAS = "key_alias";
-  public static final String SYS_KEY_ALIAS_PASSWORD = "key_alias_password";
+
+  // System properties for SSL/TLS http server configuration
+  public static final String SYS_HTTP_SERVER_SSL_ENABLED = "http-server.ssl_enabled";
+  public static final String SYS_HTTP_SERVER_KEYSTORE_TYPE = "http-server.keystore_type";
+  public static final String SYS_HTTP_SERVER_KEYSTORE_PROVIDER = "http-server.keystore_provider";
+  public static final String SYS_HTTP_SERVER_KEYSTORE_PATH = "http-server.keystore_path";
+  public static final String SYS_HTTP_SERVER_KEYSTORE_PASSWORD = "http-server.keystore_password";
+  public static final String SYS_HTTP_SERVER_KEY_ALIAS = "http-server.key_alias";
+  public static final String SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD = "http-server.key_alias_password";
+  public static final String SYS_WEB_CLIENT_SSL_ENABLED = "web-client.ssl_enabled";
+  // System properties for SSL/TLS web client configuration
+  public static final String SYS_WEB_CLIENT_TRUSTSTORE_TYPE = "web-client.truststore_type";
+  public static final String SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER = "web-client.truststore_provider";
+  public static final String SYS_WEB_CLIENT_TRUSTSTORE_PATH = "web-client.truststore_path";
+  public static final String SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD = "web-client.truststore_password";
+  public static final String SYS_WEB_CLIENT_KEY_ALIAS = "web-client.key_alias";
+  public static final String SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD = "web-client.key_alias_password";
 
   // Property names
   public static final String PROP_SECURE_STORE_TYPE = "secureStore.type";
@@ -105,8 +115,11 @@ public class Constants {
     defaultMap.put(SYS_RESPONSE_COMPRESSION,
         Boolean.parseBoolean(System.getProperty(SYS_RESPONSE_COMPRESSION,
             Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
-    defaultMap.put(SYS_SSL_ENABLED,
-      Boolean.parseBoolean(System.getProperty(SYS_SSL_ENABLED,
+    defaultMap.put(SYS_HTTP_SERVER_SSL_ENABLED,
+      Boolean.parseBoolean(System.getProperty(SYS_HTTP_SERVER_SSL_ENABLED,
+        Boolean.toString(DEFAULT_SSL_ENABLED))));
+    defaultMap.put(SYS_WEB_CLIENT_SSL_ENABLED,
+      Boolean.parseBoolean(System.getProperty(SYS_WEB_CLIENT_SSL_ENABLED,
         Boolean.toString(DEFAULT_SSL_ENABLED))));
     defaultMap.put(SYS_SECURE_STORE_PROP_FILE,
         System.getProperty(SYS_SECURE_STORE_PROP_FILE));

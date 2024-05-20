@@ -4,7 +4,6 @@ import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.HEADER_API_KEY;
 import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
 import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
-import static org.folio.edge.core.utils.test.MockOkapi.MOCK_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,6 +14,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import io.vertx.core.net.KeyStoreOptions;
+import io.vertx.ext.web.client.WebClientOptions;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.TokenCacheFactory;
@@ -452,5 +455,31 @@ public class OkapiClientTest {
     int freePort = TestUtils.getPort();
     OkapiClient secondaryClient = new OkapiClient(Vertx.vertx(), "http://localhost:" + freePort, tenant, "", reqTimeout);
     assertEquals(secondaryClient.tenant, secondaryClient.defaultHeaders.get(X_OKAPI_TENANT));
+  }
+
+  @Test
+  public void testConstructorForTlsWithNullTrustOptions() throws IllegalAccessException {
+    logger.info("=== Test tls constructor with null trustOptions ===");
+    int freePort = TestUtils.getPort();
+    OkapiClient tlsClient = new OkapiClient(Vertx.vertx(), "http://localhost:" + freePort, tenant, reqTimeout, null);
+    WebClientOptions options = (WebClientOptions) FieldUtils.readDeclaredField(tlsClient.client, "options", true);
+
+    assertTrue(options.isSsl());
+    assertNull(options.getTrustOptions());
+  }
+
+  @Test
+  public void testConstructorForTlsWithTrustOptionsPopulated() throws IllegalAccessException {
+    logger.info("=== Test tls constructor with trustOptions populated ===");
+    int freePort = TestUtils.getPort();
+    KeyStoreOptions trustOptions = new KeyStoreOptions()
+      .setType("JKS")
+      .setPath("some_path")
+      .setPassword("some_password");
+    OkapiClient tlsClient = new OkapiClient(Vertx.vertx(), "http://localhost:" + freePort, tenant, reqTimeout, trustOptions);
+    WebClientOptions options = (WebClientOptions) FieldUtils.readDeclaredField(tlsClient.client, "options", true);
+
+    assertTrue(options.isSsl());
+    assertNotNull(options.getTrustOptions());
   }
 }
