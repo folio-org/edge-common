@@ -144,7 +144,7 @@ Retrieves credentials from a Vault (https://vaultproject.io).  This was added as
 
 e.g. Key=`ab73kbw90e/diku`, Field=`diku`
 
-## Configuration
+## Security Configuration
 
 Configuration information is specified in two forms:
 1. System Properties - General configuration
@@ -193,7 +193,6 @@ If truststore parameters need to be populated, truststore_type, truststore_path 
 | `web-client.truststore_password`  | `NA`              | Set the password for the keystore                                                |
 | `web-client.key_alias`            | `NA`              | Set the alias of the key within the keystore.                                    |
 | `web-client.key_alias_password`   | `NA`              | Optional param that points to a password of `key_alias` if it protected          |
-
 
 ## Additional information
 
