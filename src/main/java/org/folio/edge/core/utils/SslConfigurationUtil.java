@@ -18,6 +18,8 @@ import org.apache.logging.log4j.Logger;
 public class SslConfigurationUtil {
   private static final Logger logger = LogManager.getLogger(SslConfigurationUtil.class);
 
+  private SslConfigurationUtil() {}
+
   public static void configureSslServerOptionsIfEnabled(JsonObject config, NetServerOptions serverOptions) {
     final boolean isSslEnabled = config.getBoolean(SYS_HTTP_SERVER_SSL_ENABLED);
     if (isSslEnabled) {
