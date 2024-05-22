@@ -11,7 +11,7 @@ import static org.hamcrest.core.Is.is;
 public class ConstantsTest {
 
   @Before
-  public void teardown() {
+  public void setup() {
     System.setProperty(Constants.SYS_HTTP_SERVER_SSL_ENABLED, "true");
     System.setProperty(Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE, "BCFKS");
     System.setProperty(Constants.SYS_HTTP_SERVER_KEYSTORE_PROVIDER, "BCFIPS");
@@ -29,7 +29,7 @@ public class ConstantsTest {
   }
 
   @After
-  public void after() {
+  public void teardown() {
     System.clearProperty(Constants.SYS_HTTP_SERVER_SSL_ENABLED);
     System.clearProperty(Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE);
     System.clearProperty(Constants.SYS_HTTP_SERVER_KEYSTORE_PROVIDER);
