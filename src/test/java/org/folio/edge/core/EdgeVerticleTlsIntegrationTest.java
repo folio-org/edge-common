@@ -101,11 +101,10 @@ public class EdgeVerticleTlsIntegrationTest {
   private JsonObject getCommonConfig() {
     int serverPort = TestUtils.getPort();
     return new JsonObject().put(Constants.SYS_PORT, serverPort)
-      .put(SYS_OKAPI_URL, OKAPI_URL)
-      .put(SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
-      .put(SYS_LOG_LEVEL, "TRACE")
-      .put(SYS_REQUEST_TIMEOUT_MS, 5000)
-      .put(SYS_WEB_CLIENT_SSL_ENABLED, false)
+      .put(Constants.SYS_OKAPI_URL, OKAPI_URL)
+      .put(Constants.SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
+      .put(Constants.SYS_LOG_LEVEL, "TRACE")
+      .put(Constants.SYS_REQUEST_TIMEOUT_MS, 5000)
       .put(Constants.SYS_HTTP_SERVER_SSL_ENABLED, true)
       .put(Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE, KEYSTORE_TYPE)
       .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PATH, KEYSTORE_PATH)
