@@ -30,6 +30,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <bc-fips.version>1.0.2.5</bc-fips.version>
+    <bcpkix-fips.version>1.0.7</bcpkix-fips.version>
+    <bctls-fips.version>1.0.19</bctls-fips.version>
   </properties>
 
   <dependencyManagement>
@@ -87,6 +90,25 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>5.11.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Library provides the basic cryptographic functionality complying with FIPS for testing -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bc-fips</artifactId>
+      <version>${bc-fips.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-fips</artifactId>
+      <version>${bcpkix-fips.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bctls-fips</artifactId>
+      <version>${bctls-fips.version}</version>
       <scope>test</scope>
     </dependency>
 
