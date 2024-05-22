@@ -2,10 +2,10 @@ package org.folio.edge.core;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.net.KeyStoreOptions;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.client.WebClient;
@@ -24,11 +24,6 @@ import org.junit.runner.RunWith;
 
 import java.security.Security;
 
-import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
-import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
-import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
-import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_SSL_ENABLED;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -68,26 +63,17 @@ public class EdgeVerticleTlsIntegrationTest {
 
     final HttpServer httpServer = vertx.createHttpServer(serverOptions);
     httpServer
-      .requestHandler(req -> req.response().putHeader("content-type", "text/plain").end(RESPONSE_MESSAGE))
+      .requestHandler(req -> req.response().putHeader(HttpHeaders.CONTENT_TYPE, Constants.TEXT_PLAIN).end(RESPONSE_MESSAGE))
       .listen(config.getInteger(Constants.SYS_PORT), http -> logger.info("Server started on port {}", config.getInteger(Constants.SYS_PORT)));
 
     final OkapiClientFactory okapiClientFactory = OkapiClientFactoryInitializer.createInstance(vertx, config);
     final OkapiClient okapiClient = okapiClientFactory.getOkapiClient(TENANT);
-    final WebClientOptions okapiWebClientOptions = (WebClientOptions) FieldUtils.readDeclaredField(okapiClient.client, "options", true);
+    final WebClientOptions webClientOptions = (WebClientOptions) FieldUtils.readDeclaredField(okapiClient.client, "options", true);
 
-    assertTrue(okapiWebClientOptions.isSsl());
-    assertNotNull(okapiWebClientOptions.getTrustOptions());
+    assertTrue(webClientOptions.isSsl());
+    assertNotNull(webClientOptions.getTrustOptions());
 
-    final WebClientOptions clientOptions = new WebClientOptions();
-    clientOptions
-      .setSsl(config.getBoolean(Constants.SYS_WEB_CLIENT_SSL_ENABLED))
-      .setVerifyHost(true)
-      .setTrustOptions(new KeyStoreOptions()
-        .setType(config.getString(Constants.SYS_WEB_CLIENT_TRUSTSTORE_TYPE))
-        .setPath(config.getString(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PATH))
-        .setPassword(config.getString(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD)));
-    final WebClient webClient = WebClient.create(vertx, clientOptions);
-
+    final WebClient webClient = WebClient.create(vertx, webClientOptions);
     webClient.get(config.getInteger(Constants.SYS_PORT), "localhost", "/")
       .send()
       .onComplete(context.asyncAssertSuccess(response -> {
