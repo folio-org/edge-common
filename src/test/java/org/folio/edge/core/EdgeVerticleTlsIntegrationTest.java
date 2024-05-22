@@ -46,7 +46,7 @@ public class EdgeVerticleTlsIntegrationTest {
   private static final String TENANT = "diku";
 
   @Before
-  public void setUpOnce(TestContext context) {
+  public void setUpOnce() {
     Security.addProvider(new BouncyCastleFipsProvider());
     vertx = Vertx.vertx();
   }
