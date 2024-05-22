@@ -1,6 +1,7 @@
 package org.folio.edge.core;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServer;
@@ -19,6 +20,7 @@ import org.folio.edge.core.utils.OkapiClientFactory;
 import org.folio.edge.core.utils.OkapiClientFactoryInitializer;
 import org.folio.edge.core.utils.SslConfigurationUtil;
 import org.folio.edge.core.utils.test.TestUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -56,20 +58,7 @@ public class EdgeVerticleTlsIntegrationTest {
 
   @Test
   public void testServerClientTlsCommunication(TestContext context) throws IllegalAccessException {
-    int serverPort = TestUtils.getPort();
-    final JsonObject config = new JsonObject().put(Constants.SYS_PORT, serverPort)
-      .put(Constants.SYS_OKAPI_URL, OKAPI_URL)
-      .put(Constants.SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
-      .put(Constants.SYS_LOG_LEVEL, "TRACE")
-      .put(Constants.SYS_REQUEST_TIMEOUT_MS, 5000)
-      .put(Constants.SYS_HTTP_SERVER_SSL_ENABLED, true)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE, KEYSTORE_TYPE)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PATH, KEYSTORE_PATH)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PASSWORD, KEYSTORE_PASSWORD)
-      .put(Constants.SYS_WEB_CLIENT_SSL_ENABLED, true)
-      .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_TYPE, KEYSTORE_TYPE)
-      .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PATH, TRUST_STORE_PATH)
-      .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD, KEYSTORE_PASSWORD);
+    final JsonObject config = getCommonConfig(true);
 
     final HttpServerOptions serverOptions = new HttpServerOptions();
     serverOptions.setPort(config.getInteger(Constants.SYS_PORT));
@@ -79,7 +68,7 @@ public class EdgeVerticleTlsIntegrationTest {
     final HttpServer httpServer = vertx.createHttpServer(serverOptions);
     httpServer
       .requestHandler(req -> req.response().putHeader(HttpHeaders.CONTENT_TYPE, Constants.TEXT_PLAIN).end(RESPONSE_MESSAGE))
-      .listen(config.getInteger(Constants.SYS_PORT), http -> logger.info("Server started on port {}", config.getInteger(Constants.SYS_PORT)));
+      .listen(config.getInteger(Constants.SYS_PORT), getCommonServerHandler(config));
 
     final OkapiClientFactory okapiClientFactory = OkapiClientFactoryInitializer.createInstance(vertx, config);
     final OkapiClient okapiClient = okapiClientFactory.getOkapiClient(TENANT);
@@ -93,18 +82,7 @@ public class EdgeVerticleTlsIntegrationTest {
 
   @Test(expected = java.net.ConnectException.class)
   public void testFailingServerClientTlsCommunication(TestContext context) throws IllegalAccessException {
-    int serverPort = TestUtils.getPort();
-    final JsonObject config = new JsonObject().put(Constants.SYS_PORT, serverPort)
-      .put(Constants.SYS_OKAPI_URL, OKAPI_URL)
-      .put(Constants.SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
-      .put(Constants.SYS_LOG_LEVEL, "TRACE")
-      .put(Constants.SYS_REQUEST_TIMEOUT_MS, 5000)
-      .put(Constants.SYS_HTTP_SERVER_SSL_ENABLED, true)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE, KEYSTORE_TYPE)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PATH, KEYSTORE_PATH)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PASSWORD, KEYSTORE_PASSWORD)
-      .put(Constants.SYS_WEB_CLIENT_SSL_ENABLED, false);
-
+    final JsonObject config = getCommonConfig(false);
 
     final HttpServerOptions serverOptions = new HttpServerOptions();
     serverOptions.setPort(config.getInteger(Constants.SYS_PORT));
@@ -114,7 +92,7 @@ public class EdgeVerticleTlsIntegrationTest {
     final HttpServer httpServer = vertx.createHttpServer(serverOptions);
     httpServer
       .requestHandler(req -> req.response().putHeader(HttpHeaders.CONTENT_TYPE, Constants.TEXT_PLAIN).end(RESPONSE_MESSAGE))
-      .listen(config.getInteger(Constants.SYS_PORT), http -> logger.info("Server started on port {}", config.getInteger(Constants.SYS_PORT)));
+      .listen(config.getInteger(Constants.SYS_PORT), getCommonServerHandler(config));
 
     final OkapiClientFactory okapiClientFactory = OkapiClientFactoryInitializer.createInstance(vertx, config);
     final OkapiClient okapiClient = okapiClientFactory.getOkapiClient(TENANT);
@@ -124,6 +102,10 @@ public class EdgeVerticleTlsIntegrationTest {
     assertNull(webClientOptions.getTrustOptions());
 
     createClientRequest(context, webClientOptions, config);
+  }
+
+  private static io.vertx.core.@NotNull Handler<AsyncResult<HttpServer>> getCommonServerHandler(JsonObject config) {
+    return http -> logger.info("Server started on port {}", config.getInteger(Constants.SYS_PORT));
   }
 
   private static void createClientRequest(TestContext context, WebClientOptions webClientOptions, JsonObject config) {
@@ -136,5 +118,28 @@ public class EdgeVerticleTlsIntegrationTest {
         context.assertEquals(HttpResponseStatus.OK.code(), response.statusCode());
         context.assertEquals(RESPONSE_MESSAGE, message);
       }));
+  }
+
+  private JsonObject getCommonConfig(boolean enableWebClientSsl) {
+    int serverPort = TestUtils.getPort();
+    JsonObject config = new JsonObject().put(Constants.SYS_PORT, serverPort)
+      .put(Constants.SYS_OKAPI_URL, OKAPI_URL)
+      .put(Constants.SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
+      .put(Constants.SYS_LOG_LEVEL, "TRACE")
+      .put(Constants.SYS_REQUEST_TIMEOUT_MS, 5000)
+      .put(Constants.SYS_HTTP_SERVER_SSL_ENABLED, true)
+      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE, KEYSTORE_TYPE)
+      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PATH, KEYSTORE_PATH)
+      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PASSWORD, KEYSTORE_PASSWORD);
+    if (enableWebClientSsl) {
+      return config
+        .put(Constants.SYS_WEB_CLIENT_SSL_ENABLED, true)
+        .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_TYPE, KEYSTORE_TYPE)
+        .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PATH, TRUST_STORE_PATH)
+        .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD, KEYSTORE_PASSWORD);
+    } else {
+      return config
+        .put(Constants.SYS_WEB_CLIENT_SSL_ENABLED, false);
+    }
   }
 }
