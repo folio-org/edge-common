@@ -21,7 +21,9 @@ import org.folio.edge.core.utils.OkapiClientFactoryInitializer;
 import org.folio.edge.core.utils.SslConfigurationUtil;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.jetbrains.annotations.NotNull;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.After;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.security.Security;
