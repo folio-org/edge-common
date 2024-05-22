@@ -118,9 +118,33 @@ public class Constants {
     defaultMap.put(SYS_HTTP_SERVER_SSL_ENABLED,
       Boolean.parseBoolean(System.getProperty(SYS_HTTP_SERVER_SSL_ENABLED,
         Boolean.toString(DEFAULT_SSL_ENABLED))));
+    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_TYPE,
+      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_TYPE));
+    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_PROVIDER,
+      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_PROVIDER));
+    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_PATH,
+      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_PATH));
+    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_PASSWORD,
+      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_PASSWORD));
+    defaultMap.put(SYS_HTTP_SERVER_KEY_ALIAS,
+      System.getProperty(SYS_HTTP_SERVER_KEY_ALIAS));
+    defaultMap.put(SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD,
+      System.getProperty(SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD));
     defaultMap.put(SYS_WEB_CLIENT_SSL_ENABLED,
       Boolean.parseBoolean(System.getProperty(SYS_WEB_CLIENT_SSL_ENABLED,
         Boolean.toString(DEFAULT_SSL_ENABLED))));
+    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_TYPE,
+      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_TYPE));
+    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER,
+      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER));
+    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_PATH,
+      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_PATH));
+    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD,
+      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD));
+    defaultMap.put(SYS_WEB_CLIENT_KEY_ALIAS,
+      System.getProperty(SYS_WEB_CLIENT_KEY_ALIAS));
+    defaultMap.put(SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD,
+      System.getProperty(SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD));
     defaultMap.put(SYS_SECURE_STORE_PROP_FILE,
         System.getProperty(SYS_SECURE_STORE_PROP_FILE));
     defaultMap.put(SYS_OKAPI_URL,
