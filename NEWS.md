@@ -1,4 +1,17 @@
-## 4.6.3 2024-03-04
+
+## 4.6.1 2024-05-23
+[Full Changelog](https://github.com/folio-org/edge-common/compare/v4.6.0...v4.6.1)
+
+## Stories
+* [EDGCOMMON-79](https://folio-org.atlassian.net/browse/EDGCOMMON-79) - Add ssl support
+* [EDGCOMMON-78](https://folio-org.atlassian.net/browse/EDGCOMMON-78) - Enhance HTTP Endpoint Security with TLS and FIPS-140-2 Compliant Cryptography
+
+
+## 4.6.0 2024-03-11
+
+* [EDGCOMMON-75](https://folio-org.atlassian.net/browse/EDGCOMMON-75) Quesnelia dep upgrades: Vert.x 4.5.4, aws 1.12.671, vault 6.2.0, …
+
+## 4.5.3 2024-03-04
 
  * [EDGCOMMON-74](https://folio-org.atlassian.net/browse/EDGCOMMON-74) aws-java-sdk-ssm 1.12.645 removing ion-java 1.0.2
 
