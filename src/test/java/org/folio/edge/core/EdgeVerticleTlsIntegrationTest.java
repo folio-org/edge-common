@@ -129,19 +129,18 @@ public class EdgeVerticleTlsIntegrationTest {
       .put(Constants.SYS_SECURE_STORE_PROP_FILE, "src/main/resources/ephemeral.properties")
       .put(Constants.SYS_LOG_LEVEL, "TRACE")
       .put(Constants.SYS_REQUEST_TIMEOUT_MS, 5000)
-      .put(Constants.SYS_HTTP_SERVER_SSL_ENABLED, true)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE, KEYSTORE_TYPE)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PATH, KEYSTORE_PATH)
-      .put(Constants.SYS_HTTP_SERVER_KEYSTORE_PASSWORD, KEYSTORE_PASSWORD);
+      .put(Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE, KEYSTORE_TYPE)
+      .put(Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH, KEYSTORE_PATH)
+      .put(Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD, KEYSTORE_PASSWORD);
     if (enableWebClientSsl) {
       return config
-        .put(Constants.SYS_WEB_CLIENT_SSL_ENABLED, true)
-        .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_TYPE, KEYSTORE_TYPE)
-        .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PATH, TRUST_STORE_PATH)
-        .put(Constants.SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD, KEYSTORE_PASSWORD);
+        .put(Constants.FOLIO_CLIENT_TLS_ENABLED, true)
+        .put(Constants.FOLIO_CLIENT_TLS_TRUST_STORE_TYPE, KEYSTORE_TYPE)
+        .put(Constants.FOLIO_CLIENT_TLS_TRUST_STORE_PATH, TRUST_STORE_PATH)
+        .put(Constants.FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD, KEYSTORE_PASSWORD);
     } else {
       return config
-        .put(Constants.SYS_WEB_CLIENT_SSL_ENABLED, false);
+        .put(Constants.FOLIO_CLIENT_TLS_ENABLED, false);
     }
   }
 }
