@@ -87,44 +87,44 @@ public class Constants {
     final Map<String, Object> defaultMap = new HashMap<>();
 
     defaultMap.put(SYS_PORT,
-        Integer.parseInt(System.getenv().getOrDefault(SYS_PORT, DEFAULT_PORT)));
+        Integer.parseInt(System.getProperty(SYS_PORT, DEFAULT_PORT)));
     defaultMap.put(SYS_LOG_LEVEL,
-        System.getenv().getOrDefault(SYS_LOG_LEVEL, DEFAULT_LOG_LEVEL));
+        System.getProperty(SYS_LOG_LEVEL, DEFAULT_LOG_LEVEL));
     defaultMap.put(SYS_API_KEY_SOURCES,
-        System.getenv().getOrDefault(SYS_API_KEY_SOURCES, DEFAULT_API_KEY_SOURCES));
+        System.getProperty(SYS_API_KEY_SOURCES, DEFAULT_API_KEY_SOURCES));
     defaultMap.put(SYS_REQUEST_TIMEOUT_MS,
-        Long.parseLong(System.getenv().getOrDefault(SYS_REQUEST_TIMEOUT_MS,
-            Long.toString(DEFAULT_REQUEST_TIMEOUT_MS))));
+        Long.parseLong(System.getProperty(SYS_REQUEST_TIMEOUT_MS,
+          Long.toString(DEFAULT_REQUEST_TIMEOUT_MS))));
     defaultMap.put(SYS_TOKEN_CACHE_TTL_MS,
-        Long.parseLong(System.getenv().getOrDefault(SYS_TOKEN_CACHE_TTL_MS,
-            Long.toString(DEFAULT_TOKEN_CACHE_TTL_MS))));
+        Long.parseLong(System.getProperty(SYS_TOKEN_CACHE_TTL_MS,
+          Long.toString(DEFAULT_TOKEN_CACHE_TTL_MS))));
     defaultMap.put(SYS_NULL_TOKEN_CACHE_TTL_MS,
-        Long.parseLong(System.getenv().getOrDefault(SYS_NULL_TOKEN_CACHE_TTL_MS,
-            Long.toString(DEFAULT_NULL_TOKEN_CACHE_TTL_MS))));
+        Long.parseLong(System.getProperty(SYS_NULL_TOKEN_CACHE_TTL_MS,
+          Long.toString(DEFAULT_NULL_TOKEN_CACHE_TTL_MS))));
     defaultMap.put(SYS_TOKEN_CACHE_CAPACITY,
-        Integer.parseInt(System.getenv().getOrDefault(SYS_TOKEN_CACHE_CAPACITY,
-            Integer.toString(DEFAULT_TOKEN_CACHE_CAPACITY))));
+        Integer.parseInt(System.getProperty(SYS_TOKEN_CACHE_CAPACITY,
+          Integer.toString(DEFAULT_TOKEN_CACHE_CAPACITY))));
     defaultMap.put(SYS_SECURE_STORE_TYPE,
-        System.getenv().getOrDefault(SYS_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
+          System.getProperty(SYS_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
     defaultMap.put(SYS_RESPONSE_COMPRESSION,
-        Boolean.parseBoolean(System.getenv().getOrDefault(SYS_RESPONSE_COMPRESSION,
-            Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
+        Boolean.parseBoolean(System.getProperty(SYS_RESPONSE_COMPRESSION,
+          Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
     defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE,
-      System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE));
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE));
     defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH,
-      System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH));
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH));
     defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD,
-      System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD));
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD));
     defaultMap.put(FOLIO_CLIENT_TLS_TRUST_STORE_TYPE,
-      System.getenv().get(FOLIO_CLIENT_TLS_TRUST_STORE_TYPE));
+        System.getenv().get(FOLIO_CLIENT_TLS_TRUST_STORE_TYPE));
     defaultMap.put(FOLIO_CLIENT_TLS_TRUST_STORE_PATH,
-      System.getenv().get(FOLIO_CLIENT_TLS_TRUST_STORE_PATH));
+        System.getenv().get(FOLIO_CLIENT_TLS_TRUST_STORE_PATH));
     defaultMap.put(FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD,
-      System.getenv().get(FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD));
+        System.getenv().get(FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD));
     defaultMap.put(SYS_SECURE_STORE_PROP_FILE,
-        System.getenv().get(SYS_SECURE_STORE_PROP_FILE));
+        System.getProperty(SYS_SECURE_STORE_PROP_FILE));
     defaultMap.put(SYS_OKAPI_URL,
-        System.getenv().get(SYS_OKAPI_URL));
+        System.getProperty(SYS_OKAPI_URL));
 
     DEFAULT_DEPLOYMENT_OPTIONS = new JsonObject(Collections.unmodifiableMap(defaultMap));
   }
