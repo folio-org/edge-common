@@ -3,7 +3,7 @@
 [Full Changelog](https://github.com/folio-org/edge-common/compare/v4.6.0...v4.6.1)
 
 ## Stories
-* [EDGCOMMON-79](https://folio-org.atlassian.net/browse/EDGCOMMON-79) - Add ssl support
+* [EDGCOMMON-79](https://folio-org.atlassian.net/browse/EDGCOMMON-79), [EDGCOMMON-77](https://folio-org.atlassian.net/browse/EDGCOMMON-79) - Support HTTPS in OkapiClient, SSL
 * [EDGCOMMON-78](https://folio-org.atlassian.net/browse/EDGCOMMON-78) - Enhance HTTP Endpoint Security with TLS and FIPS-140-2 Compliant Cryptography
 
 
