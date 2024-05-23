@@ -33,8 +33,9 @@ public class Constants {
   public static final String SYS_HTTP_SERVER_KEYSTORE_PASSWORD = "http-server.keystore_password";
   public static final String SYS_HTTP_SERVER_KEY_ALIAS = "http-server.key_alias";
   public static final String SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD = "http-server.key_alias_password";
-  public static final String SYS_WEB_CLIENT_SSL_ENABLED = "web-client.ssl_enabled";
+
   // System properties for SSL/TLS web client configuration
+  public static final String SYS_WEB_CLIENT_SSL_ENABLED = "web-client.ssl_enabled";
   public static final String SYS_WEB_CLIENT_TRUSTSTORE_TYPE = "web-client.truststore_type";
   public static final String SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER = "web-client.truststore_provider";
   public static final String SYS_WEB_CLIENT_TRUSTSTORE_PATH = "web-client.truststore_path";

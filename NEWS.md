@@ -1,6 +1,15 @@
+
+## 4.6.1 2024-05-23
+[Full Changelog](https://github.com/folio-org/edge-common/compare/v4.6.0...v4.6.1)
+
+## Stories
+* [EDGCOMMON-78](https://folio-org.atlassian.net/browse/EDGCOMMON-78) - Enhance HTTP Endpoint Security with TLS and FIPS-140-2 Compliant Cryptography
+* [EDGCOMMON-77](https://folio-org.atlassian.net/browse/EDGCOMMON-77) - Support HTTPS in OkapiClient, SSL
+
+
 ## 4.6.0 2024-03-11
 
- * [EDGCOMMON-75](https://folio-org.atlassian.net/browse/EDGCOMMON-75) Quesnelia dep upgrades: Vert.x 4.5.4, aws 1.12.671, vault 6.2.0, … 
+* [EDGCOMMON-75](https://folio-org.atlassian.net/browse/EDGCOMMON-75) Quesnelia dep upgrades: Vert.x 4.5.4, aws 1.12.671, vault 6.2.0, …
 
 ## 4.5.3 2024-03-04
 
