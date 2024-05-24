@@ -2,13 +2,10 @@ package org.folio.edge.core;
 
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_KEY_ALIAS;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_SSL_ENABLED;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_TRUSTSTORE_PATH;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER;
-import static org.folio.edge.core.Constants.SYS_WEB_CLIENT_TRUSTSTORE_TYPE;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_ENABLED;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTOREPATH;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTORETYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -26,11 +23,8 @@ public class OkapiClientInitializerTest {
   private static final String OKAPI_URL = "http://mocked.okapi:9130";
   private static final Integer REQ_TIMEOUT_MS = 5000;
   private static final String TRUSTSTORE_TYPE = "some_keystore_type";
-  private static final String TRUSTSTORE_PROVIDER = "some_keystore_provider";
   private static final String TRUSTSTORE_PATH = "some_keystore_path";
   private static final String TRUSTSTORE_PASSWORD = "some_keystore_password";
-  private static final String KEY_ALIAS = "some_key_alias";
-  private static final String KEY_ALIAS_PASSWORD = "some_key_alias_password";
 
   @Test
   public void testGetOkapiClientFactory() throws IllegalAccessException {
@@ -38,7 +32,7 @@ public class OkapiClientInitializerTest {
     JsonObject config = new JsonObject()
       .put(SYS_OKAPI_URL, OKAPI_URL)
       .put(SYS_REQUEST_TIMEOUT_MS, REQ_TIMEOUT_MS)
-      .put(SYS_WEB_CLIENT_SSL_ENABLED, false);
+      .put(FOLIO_CLIENT_TLS_ENABLED, false);
     OkapiClientFactory ocf = OkapiClientFactoryInitializer.createInstance(vertx, config);
 
     String okapiUrl = (String) FieldUtils.readDeclaredField(ocf, "okapiURL");
@@ -58,13 +52,10 @@ public class OkapiClientInitializerTest {
     JsonObject config = new JsonObject()
       .put(SYS_OKAPI_URL, OKAPI_URL)
       .put(SYS_REQUEST_TIMEOUT_MS, REQ_TIMEOUT_MS)
-      .put(SYS_WEB_CLIENT_SSL_ENABLED, true)
-      .put(SYS_WEB_CLIENT_TRUSTSTORE_TYPE, TRUSTSTORE_TYPE)
-      .put(SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER, TRUSTSTORE_PROVIDER)
-      .put(SYS_WEB_CLIENT_TRUSTSTORE_PATH, TRUSTSTORE_PATH)
-      .put(SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD, TRUSTSTORE_PASSWORD)
-      .put(SYS_WEB_CLIENT_KEY_ALIAS, KEY_ALIAS)
-      .put(SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD, KEY_ALIAS_PASSWORD);
+      .put(FOLIO_CLIENT_TLS_ENABLED, true)
+      .put(FOLIO_CLIENT_TLS_TRUSTSTORETYPE, TRUSTSTORE_TYPE)
+      .put(FOLIO_CLIENT_TLS_TRUSTSTOREPATH, TRUSTSTORE_PATH)
+      .put(FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD, TRUSTSTORE_PASSWORD);
     OkapiClientFactory ocf = OkapiClientFactoryInitializer.createInstance(vertx, config);
 
     String okapiUrl = (String) FieldUtils.readDeclaredField(ocf, "okapiURL");
@@ -74,11 +65,8 @@ public class OkapiClientInitializerTest {
     assertEquals(OKAPI_URL, okapiUrl);
     assertEquals(REQ_TIMEOUT_MS, reqTimeoutMs);
     assertEquals(TRUSTSTORE_TYPE, keyStoreOptions.getType());
-    assertEquals(TRUSTSTORE_PROVIDER, keyStoreOptions.getProvider());
     assertEquals(TRUSTSTORE_PATH, keyStoreOptions.getPath());
     assertEquals(TRUSTSTORE_PASSWORD, keyStoreOptions.getPassword());
-    assertEquals(KEY_ALIAS, keyStoreOptions.getAlias());
-    assertEquals(KEY_ALIAS_PASSWORD, keyStoreOptions.getAliasPassword());
     OkapiClient client = ocf.getOkapiClient("tenant");
     assertNotNull(client);
   }

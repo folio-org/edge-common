@@ -1,12 +1,10 @@
 package org.folio.edge.core.utils;
 
-import static org.folio.edge.core.Constants.SYS_HTTP_SERVER_KEYSTORE_PASSWORD;
-import static org.folio.edge.core.Constants.SYS_HTTP_SERVER_KEYSTORE_PATH;
-import static org.folio.edge.core.Constants.SYS_HTTP_SERVER_KEYSTORE_PROVIDER;
-import static org.folio.edge.core.Constants.SYS_HTTP_SERVER_KEYSTORE_TYPE;
-import static org.folio.edge.core.Constants.SYS_HTTP_SERVER_KEY_ALIAS;
-import static org.folio.edge.core.Constants.SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD;
-import static org.folio.edge.core.Constants.SYS_HTTP_SERVER_SSL_ENABLED;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_ALIAS;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_PASSWORD;
 
 import com.amazonaws.util.StringUtils;
 import io.vertx.core.json.JsonObject;
@@ -21,32 +19,26 @@ public class SslConfigurationUtil {
   private SslConfigurationUtil() {}
 
   public static void configureSslServerOptionsIfEnabled(JsonObject config, NetServerOptions serverOptions) {
-    final boolean isSslEnabled = config.getBoolean(SYS_HTTP_SERVER_SSL_ENABLED);
+    final String keystoreType = config.getString(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE);
+    final boolean isSslEnabled = !StringUtils.isNullOrEmpty(keystoreType);
     if (isSslEnabled) {
       logger.info("Enabling Vertx Http Server with TLS/SSL configuration...");
       serverOptions.setSsl(true);
-      String keystoreType = config.getString(SYS_HTTP_SERVER_KEYSTORE_TYPE);
-      if (StringUtils.isNullOrEmpty(keystoreType)) {
-        throw new IllegalStateException("'keystore_type' system param must be specified when ssl_enabled = true");
-      }
       logger.info("Using {} keystore type for SSL/TLS", keystoreType);
-      String keystoreProvider = config.getString(SYS_HTTP_SERVER_KEYSTORE_PROVIDER);
-      logger.info("Using {} keystore provider for SSL/TLS", keystoreProvider);
-      String keystorePath = config.getString(SYS_HTTP_SERVER_KEYSTORE_PATH);
-      if (StringUtils.isNullOrEmpty(keystorePath)) {
-        throw new IllegalStateException("'keystore_path' system param must be specified when ssl_enabled = true");
+      String keystoreLocation = config.getString(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION);
+      if (StringUtils.isNullOrEmpty(keystoreLocation)) {
+        throw new IllegalStateException("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION' system param must be specified");
       }
-      String keystorePassword = config.getString(SYS_HTTP_SERVER_KEYSTORE_PASSWORD);
+      String keystorePassword = config.getString(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD);
       if (StringUtils.isNullOrEmpty(keystorePassword)) {
-        throw new IllegalStateException("'keystore_password' system param must be specified when ssl_enabled = true");
+        throw new IllegalStateException("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD' system param must be specified");
       }
-      String keyAlias = config.getString(SYS_HTTP_SERVER_KEY_ALIAS);
-      String keyAliasPassword = config.getString(SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD);
+      String keyAlias = config.getString(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_ALIAS);
+      String keyAliasPassword = config.getString(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_PASSWORD);
 
       serverOptions.setKeyCertOptions(new KeyStoreOptions()
         .setType(keystoreType)
-        .setProvider(keystoreProvider)
-        .setPath(keystorePath)
+        .setPath(keystoreLocation)
         .setPassword(keystorePassword)
         .setAlias(keyAlias)
         .setAliasPassword(keyAliasPassword));

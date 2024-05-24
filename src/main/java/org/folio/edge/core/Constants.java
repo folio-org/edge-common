@@ -25,22 +25,18 @@ public class Constants {
   public static final String SYS_API_KEY_SOURCES = "api_key_sources";
   public static final String SYS_RESPONSE_COMPRESSION = "response_compression";
 
-  // System properties for SSL/TLS http server configuration
-  public static final String SYS_HTTP_SERVER_SSL_ENABLED = "http-server.ssl_enabled";
-  public static final String SYS_HTTP_SERVER_KEYSTORE_TYPE = "http-server.keystore_type";
-  public static final String SYS_HTTP_SERVER_KEYSTORE_PROVIDER = "http-server.keystore_provider";
-  public static final String SYS_HTTP_SERVER_KEYSTORE_PATH = "http-server.keystore_path";
-  public static final String SYS_HTTP_SERVER_KEYSTORE_PASSWORD = "http-server.keystore_password";
-  public static final String SYS_HTTP_SERVER_KEY_ALIAS = "http-server.key_alias";
-  public static final String SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD = "http-server.key_alias_password";
-  public static final String SYS_WEB_CLIENT_SSL_ENABLED = "web-client.ssl_enabled";
-  // System properties for SSL/TLS web client configuration
-  public static final String SYS_WEB_CLIENT_TRUSTSTORE_TYPE = "web-client.truststore_type";
-  public static final String SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER = "web-client.truststore_provider";
-  public static final String SYS_WEB_CLIENT_TRUSTSTORE_PATH = "web-client.truststore_path";
-  public static final String SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD = "web-client.truststore_password";
-  public static final String SYS_WEB_CLIENT_KEY_ALIAS = "web-client.key_alias";
-  public static final String SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD = "web-client.key_alias_password";
+  // Env variables for SSL/TLS http server configuration
+  public static final String SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE = "SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE";
+  public static final String SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION = "SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION";
+  public static final String SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD = "SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD";
+  public static final String SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_ALIAS = "SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_ALIAS";
+  public static final String SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_PASSWORD = "SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_PASSWORD";
+
+  // Env variables for SSL/TLS web client configuration
+  public static final String FOLIO_CLIENT_TLS_ENABLED = "FOLIO_CLIENT_TLS_ENABLED";
+  public static final String FOLIO_CLIENT_TLS_TRUSTSTORETYPE = "FOLIO_CLIENT_TLS_TRUSTSTORETYPE";
+  public static final String FOLIO_CLIENT_TLS_TRUSTSTOREPATH = "FOLIO_CLIENT_TLS_TRUSTSTOREPATH";
+  public static final String FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD = "FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD";
 
   // Property names
   public static final String PROP_SECURE_STORE_TYPE = "secureStore.type";
@@ -100,51 +96,40 @@ public class Constants {
         System.getProperty(SYS_API_KEY_SOURCES, DEFAULT_API_KEY_SOURCES));
     defaultMap.put(SYS_REQUEST_TIMEOUT_MS,
         Long.parseLong(System.getProperty(SYS_REQUEST_TIMEOUT_MS,
-            Long.toString(DEFAULT_REQUEST_TIMEOUT_MS))));
+          Long.toString(DEFAULT_REQUEST_TIMEOUT_MS))));
     defaultMap.put(SYS_TOKEN_CACHE_TTL_MS,
         Long.parseLong(System.getProperty(SYS_TOKEN_CACHE_TTL_MS,
-            Long.toString(DEFAULT_TOKEN_CACHE_TTL_MS))));
+          Long.toString(DEFAULT_TOKEN_CACHE_TTL_MS))));
     defaultMap.put(SYS_NULL_TOKEN_CACHE_TTL_MS,
         Long.parseLong(System.getProperty(SYS_NULL_TOKEN_CACHE_TTL_MS,
-            Long.toString(DEFAULT_NULL_TOKEN_CACHE_TTL_MS))));
+          Long.toString(DEFAULT_NULL_TOKEN_CACHE_TTL_MS))));
     defaultMap.put(SYS_TOKEN_CACHE_CAPACITY,
         Integer.parseInt(System.getProperty(SYS_TOKEN_CACHE_CAPACITY,
-            Integer.toString(DEFAULT_TOKEN_CACHE_CAPACITY))));
+          Integer.toString(DEFAULT_TOKEN_CACHE_CAPACITY))));
     defaultMap.put(SYS_SECURE_STORE_TYPE,
-        System.getProperty(SYS_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
+          System.getProperty(SYS_SECURE_STORE_TYPE, DEFAULT_SECURE_STORE_TYPE));
     defaultMap.put(SYS_RESPONSE_COMPRESSION,
         Boolean.parseBoolean(System.getProperty(SYS_RESPONSE_COMPRESSION,
-            Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
-    defaultMap.put(SYS_HTTP_SERVER_SSL_ENABLED,
-      Boolean.parseBoolean(System.getProperty(SYS_HTTP_SERVER_SSL_ENABLED,
-        Boolean.toString(DEFAULT_SSL_ENABLED))));
-    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_TYPE,
-      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_TYPE));
-    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_PROVIDER,
-      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_PROVIDER));
-    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_PATH,
-      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_PATH));
-    defaultMap.put(SYS_HTTP_SERVER_KEYSTORE_PASSWORD,
-      System.getProperty(SYS_HTTP_SERVER_KEYSTORE_PASSWORD));
-    defaultMap.put(SYS_HTTP_SERVER_KEY_ALIAS,
-      System.getProperty(SYS_HTTP_SERVER_KEY_ALIAS));
-    defaultMap.put(SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD,
-      System.getProperty(SYS_HTTP_SERVER_KEY_ALIAS_PASSWORD));
-    defaultMap.put(SYS_WEB_CLIENT_SSL_ENABLED,
-      Boolean.parseBoolean(System.getProperty(SYS_WEB_CLIENT_SSL_ENABLED,
-        Boolean.toString(DEFAULT_SSL_ENABLED))));
-    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_TYPE,
-      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_TYPE));
-    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER,
-      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_PROVIDER));
-    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_PATH,
-      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_PATH));
-    defaultMap.put(SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD,
-      System.getProperty(SYS_WEB_CLIENT_TRUSTSTORE_PASSWORD));
-    defaultMap.put(SYS_WEB_CLIENT_KEY_ALIAS,
-      System.getProperty(SYS_WEB_CLIENT_KEY_ALIAS));
-    defaultMap.put(SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD,
-      System.getProperty(SYS_WEB_CLIENT_KEY_ALIAS_PASSWORD));
+          Boolean.toString(DEFAULT_RESPONSE_COMPRESSION))));
+    defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE,
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE));
+    defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION,
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION));
+    defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD,
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD));
+    defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_ALIAS,
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_ALIAS));
+    defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_PASSWORD,
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEY_PASSWORD));
+    defaultMap.put(FOLIO_CLIENT_TLS_ENABLED,
+        Boolean.parseBoolean(System.getenv().getOrDefault(FOLIO_CLIENT_TLS_ENABLED,
+          Boolean.toString(DEFAULT_SSL_ENABLED))));
+    defaultMap.put(FOLIO_CLIENT_TLS_TRUSTSTORETYPE,
+        System.getenv().get(FOLIO_CLIENT_TLS_TRUSTSTORETYPE));
+    defaultMap.put(FOLIO_CLIENT_TLS_TRUSTSTOREPATH,
+        System.getenv().get(FOLIO_CLIENT_TLS_TRUSTSTOREPATH));
+    defaultMap.put(FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD,
+        System.getenv().get(FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD));
     defaultMap.put(SYS_SECURE_STORE_PROP_FILE,
         System.getProperty(SYS_SECURE_STORE_PROP_FILE));
     defaultMap.put(SYS_OKAPI_URL,
