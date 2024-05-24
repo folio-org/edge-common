@@ -1,8 +1,8 @@
 package org.folio.edge.core;
 
-import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD;
-import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION;
-import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE;
 import static org.folio.edge.core.Constants.SYS_LOG_LEVEL;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
@@ -44,7 +44,7 @@ public class EdgeVerticleSslTest {
   @Test
   public void setupSslConfigWithoutType(TestContext context) throws Exception {
     JsonObject config = getCommonConfig()
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE, null);
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, null);
 
     deployVerticle(context, config);
   }
@@ -52,8 +52,8 @@ public class EdgeVerticleSslTest {
   @Test
   public void setupSslConfigWithoutPassword(TestContext context) throws Exception {
     JsonObject config = getCommonConfig()
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE, "JKS")
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION, "sample_keystore.jks");
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "sample_keystore.jks");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD' system param must be specified");
@@ -64,9 +64,9 @@ public class EdgeVerticleSslTest {
   @Test
   public void setupSslConfigWitInvalidPath(TestContext context) throws Exception {
     JsonObject config = getCommonConfig()
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE, "JKS")
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION, "some_keystore_path")
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD, "password");
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "some_keystore_path")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD, "password");
 
     thrown.expect(FileSystemException.class);
     thrown.expectMessage("Unable to read file at path 'some_keystore_path'");
@@ -77,9 +77,9 @@ public class EdgeVerticleSslTest {
   @Test
   public void setupSslConfigWithNotValidPassword(TestContext context) throws Exception {
     JsonObject config = getCommonConfig()
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE, "JKS")
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION, "sample_keystore.jks")
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD, "not_valid_password");
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "sample_keystore.jks")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD, "not_valid_password");
 
     thrown.expect(IOException.class);
     thrown.expectMessage("keystore password was incorrect");
@@ -90,9 +90,9 @@ public class EdgeVerticleSslTest {
   @Test
   public void setupCorrectSslConfig(TestContext context) throws Exception {
     JsonObject config = getCommonConfig()
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE, "JKS")
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION, "sample_keystore.jks")
-      .put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD, "password");
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "sample_keystore.jks")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD, "password");
 
     deployVerticle(context, config);
   }

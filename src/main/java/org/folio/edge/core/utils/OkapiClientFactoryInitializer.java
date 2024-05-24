@@ -3,9 +3,9 @@ package org.folio.edge.core.utils;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_ENABLED;
-import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD;
-import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUST_STORE_PATH;
-import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUST_STORE_TYPE;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTOREPATH;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTORETYPE;
 
 import com.amazonaws.util.StringUtils;
 import io.vertx.core.Vertx;
@@ -27,9 +27,9 @@ public class OkapiClientFactoryInitializer {
     boolean isSslEnabled = config.getBoolean(FOLIO_CLIENT_TLS_ENABLED);
     if (isSslEnabled) {
       logger.info("Creating OkapiClientFactory with Enhance HTTP Endpoint Security and TLS mode enabled");
-      String truststoreType = config.getString(FOLIO_CLIENT_TLS_TRUST_STORE_TYPE);
-      String truststorePath = config.getString(FOLIO_CLIENT_TLS_TRUST_STORE_PATH);
-      String truststorePassword = config.getString(FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD);
+      String truststoreType = config.getString(FOLIO_CLIENT_TLS_TRUSTSTORETYPE);
+      String truststorePath = config.getString(FOLIO_CLIENT_TLS_TRUSTSTOREPATH);
+      String truststorePassword = config.getString(FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD);
       if (!StringUtils.isNullOrEmpty(truststoreType)
         && !StringUtils.isNullOrEmpty(truststorePath)
         && !StringUtils.isNullOrEmpty(truststorePassword)) {

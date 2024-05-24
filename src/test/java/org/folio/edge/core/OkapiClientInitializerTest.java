@@ -3,9 +3,9 @@ package org.folio.edge.core;
 import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_ENABLED;
-import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD;
-import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUST_STORE_PATH;
-import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUST_STORE_TYPE;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTOREPATH;
+import static org.folio.edge.core.Constants.FOLIO_CLIENT_TLS_TRUSTSTORETYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -53,9 +53,9 @@ public class OkapiClientInitializerTest {
       .put(SYS_OKAPI_URL, OKAPI_URL)
       .put(SYS_REQUEST_TIMEOUT_MS, REQ_TIMEOUT_MS)
       .put(FOLIO_CLIENT_TLS_ENABLED, true)
-      .put(FOLIO_CLIENT_TLS_TRUST_STORE_TYPE, TRUSTSTORE_TYPE)
-      .put(FOLIO_CLIENT_TLS_TRUST_STORE_PATH, TRUSTSTORE_PATH)
-      .put(FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD, TRUSTSTORE_PASSWORD);
+      .put(FOLIO_CLIENT_TLS_TRUSTSTORETYPE, TRUSTSTORE_TYPE)
+      .put(FOLIO_CLIENT_TLS_TRUSTSTOREPATH, TRUSTSTORE_PATH)
+      .put(FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD, TRUSTSTORE_PASSWORD);
     OkapiClientFactory ocf = OkapiClientFactoryInitializer.createInstance(vertx, config);
 
     String okapiUrl = (String) FieldUtils.readDeclaredField(ocf, "okapiURL");
