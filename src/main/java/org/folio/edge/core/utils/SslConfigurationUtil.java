@@ -1,7 +1,7 @@
 package org.folio.edge.core.utils;
 
 import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD;
-import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION;
 import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE;
 import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_ALIAS;
 
@@ -24,9 +24,9 @@ public class SslConfigurationUtil {
       logger.info("Enabling Vertx Http Server with TLS/SSL configuration...");
       serverOptions.setSsl(true);
       logger.info("Using {} keystore type for SSL/TLS", keystoreType);
-      String keystorePath = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH);
-      if (StringUtils.isNullOrEmpty(keystorePath)) {
-        throw new IllegalStateException("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH' system param must be specified");
+      String keystoreLocation = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION);
+      if (StringUtils.isNullOrEmpty(keystoreLocation)) {
+        throw new IllegalStateException("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION' system param must be specified");
       }
       String keystorePassword = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD);
       if (StringUtils.isNullOrEmpty(keystorePassword)) {
@@ -36,7 +36,7 @@ public class SslConfigurationUtil {
 
       serverOptions.setKeyCertOptions(new KeyStoreOptions()
         .setType(keystoreType)
-        .setPath(keystorePath)
+        .setPath(keystoreLocation)
         .setPassword(keystorePassword)
         .setAlias(keyAlias));
     }

@@ -130,7 +130,7 @@ public class EdgeVerticleTlsIntegrationTest {
       .put(Constants.SYS_LOG_LEVEL, "TRACE")
       .put(Constants.SYS_REQUEST_TIMEOUT_MS, 5000)
       .put(Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE, KEYSTORE_TYPE)
-      .put(Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH, KEYSTORE_PATH)
+      .put(Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION, KEYSTORE_PATH)
       .put(Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD, KEYSTORE_PASSWORD);
     if (enableWebClientSsl) {
       return config
