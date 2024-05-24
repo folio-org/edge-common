@@ -1,3 +1,13 @@
+
+## 4.7.0 2024-05-23
+[Full Changelog](https://github.com/folio-org/edge-common/compare/v4.6.0...v4.7.0)
+
+## Stories
+* [EDGCOMMON-80](https://folio-org.atlassian.net/browse/EDGCOMMON-80) - Vert.x 4.5.7, Netty 4.1.108.Final fixing form post OOM CVE-2024-29025 
+* [EDGCOMMON-78](https://folio-org.atlassian.net/browse/EDGCOMMON-78) - Enhance HTTP Endpoint Security with TLS and FIPS-140-2 Compliant Cryptography
+* [EDGCOMMON-77](https://folio-org.atlassian.net/browse/EDGCOMMON-77) - Support HTTPS in OkapiClient, SSL
+
+
 ## 4.6.0 2024-03-11
 
  * [EDGCOMMON-75](https://folio-org.atlassian.net/browse/EDGCOMMON-75) Quesnelia dep upgrades: Vert.x 4.5.4, aws 1.12.671, vault 6.2.0, … 
