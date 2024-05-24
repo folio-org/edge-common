@@ -33,9 +33,9 @@ public class Constants {
 
   // Env variables for SSL/TLS web client configuration
   public static final String FOLIO_CLIENT_TLS_ENABLED = "FOLIO_CLIENT_TLS_ENABLED";
-  public static final String FOLIO_CLIENT_TLS_TRUST_STORE_TYPE = "FOLIO_CLIENT_TLS_TRUST_STORE_TYPE";
-  public static final String FOLIO_CLIENT_TLS_TRUST_STORE_PATH = "FOLIO_CLIENT_TLS_TRUST_STORE_PATH";
-  public static final String FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD = "FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD";
+  public static final String FOLIO_CLIENT_TLS_TRUST_STORE_TYPE = "FOLIO_CLIENT_TLS_TRUSTSTORETYPE";
+  public static final String FOLIO_CLIENT_TLS_TRUST_STORE_PATH = "FOLIO_CLIENT_TLS_TRUSTSTOREPATH";
+  public static final String FOLIO_CLIENT_TLS_TRUST_STORE_PASSWORD = "FOLIO_CLIENT_TLS_TRUSTSTOREPASSWORD";
 
   // Property names
   public static final String PROP_SECURE_STORE_TYPE = "secureStore.type";
