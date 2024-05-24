@@ -12,15 +12,13 @@ import io.vertx.core.net.NetServerOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Objects;
-
 public class SslConfigurationUtil {
   private static final Logger logger = LogManager.getLogger(SslConfigurationUtil.class);
 
   private SslConfigurationUtil() {}
 
   public static void configureSslServerOptionsIfEnabled(JsonObject config, NetServerOptions serverOptions) {
-    final boolean isSslEnabled = Objects.nonNull(config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE));
+    final boolean isSslEnabled = !StringUtils.isNullOrEmpty(config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE));
     if (isSslEnabled) {
       logger.info("Enabling Vertx Http Server with TLS/SSL configuration...");
       serverOptions.setSsl(true);
