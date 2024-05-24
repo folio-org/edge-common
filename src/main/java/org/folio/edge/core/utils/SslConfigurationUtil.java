@@ -18,14 +18,11 @@ public class SslConfigurationUtil {
   private SslConfigurationUtil() {}
 
   public static void configureSslServerOptionsIfEnabled(JsonObject config, NetServerOptions serverOptions) {
-    final boolean isSslEnabled = !StringUtils.isNullOrEmpty(config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE));
+    final String keystoreType = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE);
+    final boolean isSslEnabled = !StringUtils.isNullOrEmpty(keystoreType);
     if (isSslEnabled) {
       logger.info("Enabling Vertx Http Server with TLS/SSL configuration...");
       serverOptions.setSsl(true);
-      String keystoreType = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE);
-      if (StringUtils.isNullOrEmpty(keystoreType)) {
-        throw new IllegalStateException("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE' system param must be specified");
-      }
       logger.info("Using {} keystore type for SSL/TLS", keystoreType);
       String keystorePath = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH);
       if (StringUtils.isNullOrEmpty(keystorePath)) {
