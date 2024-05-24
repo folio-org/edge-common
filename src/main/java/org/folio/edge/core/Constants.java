@@ -115,6 +115,9 @@ public class Constants {
         System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH));
     defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD,
         System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD));
+    defaultMap.put(FOLIO_CLIENT_TLS_ENABLED,
+        Boolean.parseBoolean(System.getenv().getOrDefault(FOLIO_CLIENT_TLS_ENABLED,
+          Boolean.toString(DEFAULT_SSL_ENABLED))));
     defaultMap.put(FOLIO_CLIENT_TLS_TRUST_STORE_TYPE,
         System.getenv().get(FOLIO_CLIENT_TLS_TRUST_STORE_TYPE));
     defaultMap.put(FOLIO_CLIENT_TLS_TRUST_STORE_PATH,
