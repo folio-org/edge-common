@@ -176,6 +176,7 @@ Parameters marked as Required are required only in case when ssl_enabled is set 
 | `SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEYSTORE_LOCATION` | `NA`              | (Required). Set the location of the keystore file in the local file system                  |
 | `SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEYSTORE_PASSWORD` | `NA`              | (Required). Set the password for the keystore                                               |
 | `SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEY_ALIAS`         | `NA`              | Set the alias of the key within the keystore.                                               |
+| `SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEY_PASSWORD`      | `NA`              | Optional param that points to a password of `KEY_ALIAS` if it protected                     |
 
 ### Env variables for TLS configuration for Web Client
 

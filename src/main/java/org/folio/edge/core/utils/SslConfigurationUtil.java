@@ -4,6 +4,7 @@ import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY
 import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION;
 import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE;
 import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_ALIAS;
+import static org.folio.edge.core.Constants.SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_PASSWORD;
 
 import com.amazonaws.util.StringUtils;
 import io.vertx.core.json.JsonObject;
@@ -33,12 +34,14 @@ public class SslConfigurationUtil {
         throw new IllegalStateException("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD' system param must be specified");
       }
       String keyAlias = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_ALIAS);
+      String keyAliasPassword = config.getString(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_PASSWORD);
 
       serverOptions.setKeyCertOptions(new KeyStoreOptions()
         .setType(keystoreType)
         .setPath(keystoreLocation)
         .setPassword(keystorePassword)
-        .setAlias(keyAlias));
+        .setAlias(keyAlias)
+        .setAliasPassword(keyAliasPassword));
     }
   }
 }

@@ -30,6 +30,7 @@ public class Constants {
   public static final String SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION = "SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEYSTORE_LOCATION";
   public static final String SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD = "SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEYSTORE_PASSWORD";
   public static final String SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_ALIAS = "SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEY_ALIAS";
+  public static final String SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_PASSWORD = "SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEY_PASSWORD";
 
   // Env variables for SSL/TLS web client configuration
   public static final String FOLIO_CLIENT_TLS_ENABLED = "FOLIO_CLIENT_TLS_ENABLED";
@@ -118,6 +119,8 @@ public class Constants {
         System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD));
     defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_ALIAS,
         System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_ALIAS));
+    defaultMap.put(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_PASSWORD,
+        System.getenv().get(SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEY_PASSWORD));
     defaultMap.put(FOLIO_CLIENT_TLS_ENABLED,
         Boolean.parseBoolean(System.getenv().getOrDefault(FOLIO_CLIENT_TLS_ENABLED,
           Boolean.toString(DEFAULT_SSL_ENABLED))));
