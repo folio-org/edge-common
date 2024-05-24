@@ -168,7 +168,7 @@ Configuration information is specified in two forms:
 ### Env variables for TLS configuration for Http server
 
 To configure Transport Layer Security (TLS) for the HTTP server in an edge module, the following configuration parameters should be used.
-Parameters marked as Required are required only in case when `SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE` is defined
+Parameters marked as Required are required only in case when TLS for the server should be enabled.
 
 | Property                                            | Default          | Description                                                                                 |
 |-----------------------------------------------------|------------------|---------------------------------------------------------------------------------------------|
