@@ -171,9 +171,9 @@ Parameters marked as Required are required only in case when ssl_enabled is set 
 
 | Property                                             | Default           | Description                                                                                 |
 |------------------------------------------------------|-------------------|---------------------------------------------------------------------------------------------|
-| `SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE`     | `NA`              | (Required). Set the type of the keystore. Common types include `JKS`, `PKCS12`, and `BCFKS` |
-| `SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH`     | `NA`              | (Required). Set the location of the keystore file in the local file system                  |
-| `SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD` | `NA`              | (Required). Set the password for the keystore                                               |
+| `SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEYSTORE_TYPE`     | `NA`              | (Required). Set the type of the keystore. Common types include `JKS`, `PKCS12`, and `BCFKS` |
+| `SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEYSTORE_PATH`     | `NA`              | (Required). Set the location of the keystore file in the local file system                  |
+| `SPRING_SSL_BUNDLE_JKS_WEB-SERVER_KEYSTORE_PASSWORD` | `NA`              | (Required). Set the password for the keystore                                               |
 
 ### Env variables for TLS configuration for Web Client
 To configure Transport Layer Security (TLS) for Web clients in the edge module, you can use the following configuration parameters.
