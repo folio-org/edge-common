@@ -25,12 +25,12 @@ public class Constants {
   public static final String SYS_API_KEY_SOURCES = "api_key_sources";
   public static final String SYS_RESPONSE_COMPRESSION = "response_compression";
 
-  // System properties for SSL/TLS http server configuration
+  // Env variables for SSL/TLS http server configuration
   public static final String SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE = "SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_TYPE";
   public static final String SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH = "SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PATH";
   public static final String SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD = "SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD";
 
-  // System properties for SSL/TLS web client configuration
+  // Env variables for SSL/TLS web client configuration
   public static final String FOLIO_CLIENT_TLS_ENABLED = "FOLIO_CLIENT_TLS_ENABLED";
   public static final String FOLIO_CLIENT_TLS_TRUST_STORE_TYPE = "FOLIO_CLIENT_TLS_TRUST_STORE_TYPE";
   public static final String FOLIO_CLIENT_TLS_TRUST_STORE_PATH = "FOLIO_CLIENT_TLS_TRUST_STORE_PATH";
