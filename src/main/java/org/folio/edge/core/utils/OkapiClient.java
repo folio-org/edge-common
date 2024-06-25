@@ -1,35 +1,34 @@
 package org.folio.edge.core.utils;
 
-import static org.folio.edge.core.Constants.APPLICATION_JSON;
-import static org.folio.edge.core.Constants.HEADER_API_KEY;
-import static org.folio.edge.core.Constants.JSON_OR_TEXT;
-import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
-import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
-
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
 import com.amazonaws.util.StringUtils;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.net.TrustOptions;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
-
-import io.vertx.core.Handler;
-import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.TokenCacheFactory;
 import org.folio.okapi.common.WebClientFactory;
 import org.folio.okapi.common.refreshtoken.client.Client;
 import org.folio.okapi.common.refreshtoken.client.ClientOptions;
+
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+import static org.folio.edge.core.Constants.APPLICATION_JSON;
+import static org.folio.edge.core.Constants.HEADER_API_KEY;
+import static org.folio.edge.core.Constants.JSON_OR_TEXT;
+import static org.folio.edge.core.Constants.X_OKAPI_TENANT;
+import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 
 public class OkapiClient {
 
@@ -86,6 +85,7 @@ public class OkapiClient {
       .setSsl(true);
     if (trustOptions != null) {
       options.setTrustOptions(trustOptions);
+      options.setVerifyHost(false); //Hardcoded now. Later it could be configurable using env vars.
     }
     client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();

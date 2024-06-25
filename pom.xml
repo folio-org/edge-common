@@ -31,6 +31,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <bc-fips.version>1.0.2.5</bc-fips.version>
+    <folio-tls-utils.version>1.5.2-SNAPSHOT</folio-tls-utils.version>
   </properties>
 
   <dependencyManagement>
@@ -148,6 +149,11 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ssm</artifactId>
       <version>1.12.671</version>
+    </dependency>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-tls-utils</artifactId>
+      <version>${folio-tls-utils.version}</version>
     </dependency>
 
     <!-- Only needed for VaultStore -->
