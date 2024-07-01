@@ -1,9 +1,6 @@
 package org.folio.edge.core.security;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Properties;
-
+import com.amazonaws.ClientConfigurationFactory;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.ContainerCredentialsProvider;
@@ -15,6 +12,14 @@ import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement
 import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
+
+import static org.folio.common.utils.tls.FipsChecker.ENABLED;
+import static org.folio.common.utils.tls.FipsChecker.getApprovedSecureRandomSafe;
+import static org.folio.common.utils.tls.FipsChecker.isInBouncycastleApprovedOnlyMode;
 
 public class AwsParamStore extends SecureStore {
 
@@ -48,6 +53,16 @@ public class AwsParamStore extends SecureStore {
     }
 
     AWSSimpleSystemsManagementClientBuilder builder = AWSSimpleSystemsManagementClientBuilder.standard();
+
+    if (ENABLED.equals(isInBouncycastleApprovedOnlyMode())) {
+      var clientConfigurationFactory = new ClientConfigurationFactory();
+      var clientConfiguration = clientConfigurationFactory.getConfig();
+      var secureRandom = getApprovedSecureRandomSafe();
+      clientConfiguration.setSecureRandom(secureRandom);
+      builder.setClientConfiguration(clientConfiguration);
+
+      logger.info("SecureRandom used for AwsParamStore: {}", secureRandom);
+    }
 
     if (region != null) {
       builder.withRegion(region);

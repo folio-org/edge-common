@@ -1,21 +1,26 @@
 package org.folio.edge.core.security;
 
-import static com.amazonaws.SDKGlobalConfiguration.ACCESS_KEY_SYSTEM_PROPERTY;
-import static com.amazonaws.SDKGlobalConfiguration.SECRET_KEY_SYSTEM_PROPERTY;
-import static org.folio.edge.core.Constants.APPLICATION_JSON;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.util.Properties;
-import java.util.UUID;
-
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.ClientConfigurationFactory;
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
+import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
+import com.amazonaws.services.simplesystemsmanagement.model.AWSSimpleSystemsManagementException;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
+import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
+import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.common.utils.tls.FipsChecker;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.AfterClass;
@@ -25,22 +30,28 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.model.AWSSimpleSystemsManagementException;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
-import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServer;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.BodyHandler;
+import java.security.SecureRandom;
+import java.util.Properties;
+import java.util.UUID;
+
+import static com.amazonaws.SDKGlobalConfiguration.ACCESS_KEY_SYSTEM_PROPERTY;
+import static com.amazonaws.SDKGlobalConfiguration.SECRET_KEY_SYSTEM_PROPERTY;
+import static org.folio.edge.core.Constants.APPLICATION_JSON;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(VertxUnitRunner.class)
 public class AwsParamStoreTest {
@@ -188,4 +199,73 @@ public class AwsParamStoreTest {
   public void testGetCredentialsEndpointURISyntaxException() {
     new AwsParamStore.ECSCredentialsEndpointProvider("", ":#").getCredentialsEndpoint();
   }
+
+  @Test
+  public void testConstructor_WithFipsEnabled() {
+    try (MockedStatic<FipsChecker> fipsCheckerMockedStatic = mockStatic(FipsChecker.class);
+         MockedStatic<AWSSimpleSystemsManagementClientBuilder> ssmClientBuilderMockedStatic = mockStatic(AWSSimpleSystemsManagementClientBuilder.class)) {
+
+      fipsCheckerMockedStatic.when(FipsChecker::isInBouncycastleApprovedOnlyMode).thenReturn(FipsChecker.ENABLED);
+      SecureRandom secureRandom = new SecureRandom();
+      fipsCheckerMockedStatic.when(FipsChecker::getApprovedSecureRandomSafe).thenReturn(secureRandom);
+
+      ClientConfigurationFactory clientConfigurationFactory = mock(ClientConfigurationFactory.class);
+      ClientConfiguration clientConfiguration = new ClientConfiguration();
+
+      when(clientConfigurationFactory.getConfig()).thenReturn(clientConfiguration);
+
+      AWSSimpleSystemsManagementClientBuilder builderMock = mock(AWSSimpleSystemsManagementClientBuilder.class);
+      when(builderMock.withRegion(anyString())).thenReturn(builderMock);
+      ssmClientBuilderMockedStatic.when(AWSSimpleSystemsManagementClientBuilder::standard).thenReturn(builderMock);
+
+      doNothing().when(builderMock).setClientConfiguration(clientConfiguration);
+
+      Properties properties = new Properties();
+      properties.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);
+      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ecsCredPath);
+      properties.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+
+      System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
+      System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);
+
+      AwsParamStore secureStore = new AwsParamStore(properties);
+
+      fipsCheckerMockedStatic.verify(FipsChecker::isInBouncycastleApprovedOnlyMode);
+      fipsCheckerMockedStatic.verify(FipsChecker::getApprovedSecureRandomSafe);
+      assertEquals(secureRandom.toString(), clientConfiguration.getSecureRandom().toString());
+
+      verify(builderMock).setClientConfiguration(any(ClientConfiguration.class));
+    }
+  }
+
+  @Test
+  public void testConstructor_WithFipsDisabled() {
+    try (MockedStatic<FipsChecker> fipsCheckerMockedStatic = mockStatic(FipsChecker.class);
+         MockedStatic<AWSSimpleSystemsManagementClientBuilder> ssmClientBuilderMockedStatic = mockStatic(AWSSimpleSystemsManagementClientBuilder.class)) {
+
+      fipsCheckerMockedStatic.when(FipsChecker::isInBouncycastleApprovedOnlyMode).thenReturn(FipsChecker.DISABLED);
+
+      AWSSimpleSystemsManagementClientBuilder builderMock = mock(AWSSimpleSystemsManagementClientBuilder.class);
+      when(builderMock.withRegion(anyString())).thenReturn(builderMock);
+      ssmClientBuilderMockedStatic.when(AWSSimpleSystemsManagementClientBuilder::standard).thenReturn(builderMock);
+
+      Properties properties = new Properties();
+      properties.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);
+      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ecsCredPath);
+      properties.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+
+      System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
+      System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);
+
+      AwsParamStore secureStore = new AwsParamStore(properties);
+
+      fipsCheckerMockedStatic.verify(FipsChecker::isInBouncycastleApprovedOnlyMode);
+      fipsCheckerMockedStatic.verifyNoMoreInteractions();
+
+      verify(builderMock, never()).setClientConfiguration(any(ClientConfiguration.class));
+    }
+  }
+
 }
