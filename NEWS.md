@@ -1,3 +1,6 @@
+## 4.7.0 2024-07-01
+
+* [EDGCOMMON-82](https://folio-org.atlassian.net/browse/EDGCOMMON-82) Configure approved SecureRandom in FIPS mode
 
 ## 4.7.0 2024-05-23
 [Full Changelog](https://github.com/folio-org/edge-common/compare/v4.6.0...v4.7.0)
