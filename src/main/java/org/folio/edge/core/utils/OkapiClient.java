@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import static org.folio.common.utils.tls.Utils.IS_HOSTNAME_VERIFICATION_DISABLED;
 import static org.folio.edge.core.Constants.APPLICATION_JSON;
 import static org.folio.edge.core.Constants.HEADER_API_KEY;
 import static org.folio.edge.core.Constants.JSON_OR_TEXT;
@@ -85,7 +86,7 @@ public class OkapiClient {
       .setSsl(true);
     if (trustOptions != null) {
       options.setTrustOptions(trustOptions);
-      options.setVerifyHost(false); //Hardcoded now. Later it could be configurable using env vars.
+      options.setVerifyHost(!IS_HOSTNAME_VERIFICATION_DISABLED);
     }
     client = WebClientFactory.getWebClient(vertx, options);
     initDefaultHeaders();

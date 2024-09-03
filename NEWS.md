@@ -1,5 +1,8 @@
-## 4.7.0 2024-07-01
+## 4.7.2 2024-09-03
+* [EDGCOMMON-83](https://folio-org.atlassian.net/browse/EDGCOMMON-82) Enable Hostname verification enabled for Http Clients when using TLS connections
 
+
+## 4.7.1 2024-07-01
 * [EDGCOMMON-82](https://folio-org.atlassian.net/browse/EDGCOMMON-82) Configure approved SecureRandom in FIPS mode
 
 ## 4.7.0 2024-05-23
