@@ -31,7 +31,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <bc-fips.version>1.0.2.5</bc-fips.version>
-    <folio-tls-utils.version>1.5.6-SNAPSHOT</folio-tls-utils.version>
+    <folio-tls-utils.version>1.5.7</folio-tls-utils.version>
   </properties>
 
   <dependencyManagement>
