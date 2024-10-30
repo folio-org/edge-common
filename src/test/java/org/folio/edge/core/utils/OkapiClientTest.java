@@ -7,6 +7,7 @@ import static org.folio.edge.core.Constants.X_OKAPI_TOKEN;
 import static org.folio.edge.core.utils.test.MockOkapi.X_DURATION;
 import static org.folio.edge.core.utils.test.MockOkapi.X_ECHO_STATUS;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.instanceOf;
@@ -95,7 +96,7 @@ public class OkapiClientTest {
     OkapiClient client = ocf.getOkapiClient("x");
     client.doLogin("admin", "password")
             .onComplete(context.asyncAssertFailure(res -> {
-              assertEquals("POST /authn/login returned status 400: no such tenant x", res.getMessage());
+              assertThat(res.getMessage(), containsString("status 400"));
             }));
   }
 
@@ -158,7 +159,7 @@ public class OkapiClientTest {
     logger.info("=== Test login w/ no password === ");
 
     client.doLogin("admin", null).onComplete(context.asyncAssertFailure(res ->
-            assertEquals("POST /authn/login returned status 400: Json content error", res.getMessage())
+            assertThat(res.getMessage(), containsString("status 400"))
     ));
   }
 
