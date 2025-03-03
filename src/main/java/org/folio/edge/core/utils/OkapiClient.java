@@ -1,6 +1,5 @@
 package org.folio.edge.core.utils;
 
-import com.amazonaws.util.StringUtils;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
@@ -12,6 +11,7 @@ import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.core.cache.TokenCacheFactory;
@@ -58,7 +58,7 @@ public class OkapiClient {
   public OkapiClient(OkapiClient client, String secondaryTenantId) {
     this(client);
     this.secondaryTenantId = secondaryTenantId;
-    if (!StringUtils.isNullOrEmpty(secondaryTenantId)) {
+    if (StringUtils.isNotEmpty(secondaryTenantId)) {
       defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
     }
   }
@@ -95,7 +95,7 @@ public class OkapiClient {
   protected OkapiClient(Vertx vertx, String okapiURL, String tenant, String secondaryTenantId, int timeout) {
     this(vertx, okapiURL, tenant, timeout);
     this.secondaryTenantId = secondaryTenantId;
-    if (!StringUtils.isNullOrEmpty(secondaryTenantId)) {
+    if (StringUtils.isNotEmpty(secondaryTenantId)) {
       defaultHeaders.set(X_OKAPI_TENANT, secondaryTenantId);
     }
   }
@@ -108,7 +108,7 @@ public class OkapiClient {
   }
 
   protected WebClientOptions initDefaultWebClientOptions(int timeout) {
-    return new WebClientOptions().setTryUseCompression(true)
+    return new WebClientOptions().setDecompressionSupported(true)
       .setIdleTimeoutUnit(TimeUnit.MILLISECONDS).setIdleTimeout(timeout)
       .setConnectTimeout(timeout);
   }

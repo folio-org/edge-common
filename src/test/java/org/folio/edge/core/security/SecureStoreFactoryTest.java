@@ -1,17 +1,14 @@
 package org.folio.edge.core.security;
 
-import static com.amazonaws.SDKGlobalConfiguration.ACCESS_KEY_SYSTEM_PROPERTY;
-import static com.amazonaws.SDKGlobalConfiguration.SECRET_KEY_SYSTEM_PROPERTY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import java.util.Properties;
 
 import org.junit.Test;
-
-import com.amazonaws.SdkClientException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 
 public class SecureStoreFactoryTest {
 
@@ -32,34 +29,31 @@ public class SecureStoreFactoryTest {
       Properties props = new Properties();
 
       if (clazz.equals(AwsParamStore.class)) {
-        System.setProperty(ACCESS_KEY_SYSTEM_PROPERTY, "bogus");
-        System.setProperty(SECRET_KEY_SYSTEM_PROPERTY, "bogus");
         props.put(AwsParamStore.PROP_REGION, "us-east-1");
       }
 
       actual = SecureStoreFactory.getSecureStore((String) clazz.getField("TYPE").get(null), props);
       assertThat(actual, instanceOf(clazz));
-
-      try {
-        actual = SecureStoreFactory.getSecureStore((String) clazz.getField("TYPE").get(null), null);
-        assertThat(actual, instanceOf(clazz));
-      } catch (Throwable t) {
-        if (clazz.equals(VaultStore.class)) {
-          // Expect NPE as VaultStore has required properties
-          assertThat(t.getClass(), equalTo(NullPointerException.class));
-        } else if (clazz.equals(AwsParamStore.class)) {
-          assertThat(t.getClass(), equalTo(SdkClientException.class));
-        } else {
-          // Whoops, something went wrong.
-          fail(String.format("Unexpected Exception thrown for class: ", clazz.getName(), t.getMessage()));
-        }
-      }
     }
   }
 
   @Test
-  public void testGetSecureStoreDefaultType()
-      throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+  public void testAwsParamStoreNull() {
+    assertThrows(SdkClientException.class, () -> SecureStoreFactory.getSecureStore(AwsParamStore.TYPE, null));
+  }
+
+  @Test
+  public void testVaultStoreNull() {
+    assertThrows(NullPointerException.class, () -> SecureStoreFactory.getSecureStore(VaultStore.TYPE, null));
+  }
+
+  @Test
+  public void testEphemeralStoreNull() {
+    assertThat(SecureStoreFactory.getSecureStore(EphemeralStore.TYPE, null), instanceOf(EphemeralStore.class));
+  }
+
+  @Test
+  public void testGetSecureStoreDefaultType() {
     SecureStore actual;
 
     // unknown type
