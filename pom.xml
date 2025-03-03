@@ -196,12 +196,12 @@
   <build>
     <plugins>
       <!-- We specify the Maven compiler plugin as we need to set it to
-        Java 17 -->
+        Java 21 -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.14.0</version>
         <configuration>
-          <release>17</release>
+          <release>21</release>
         </configuration>
       </plugin>
 
