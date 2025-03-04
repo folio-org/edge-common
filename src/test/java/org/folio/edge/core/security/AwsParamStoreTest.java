@@ -35,6 +35,7 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 import software.amazon.awssdk.services.ssm.model.Parameter;
 import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
 import software.amazon.awssdk.services.ssm.model.SsmException;
+import software.amazon.awssdk.utils.internal.SystemSettingUtilsTestBackdoor;
 import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.UUID;
@@ -75,7 +76,7 @@ public class AwsParamStoreTest {
 
   @Before
   public void setUp() {
-    clearProperties();
+    clearPropertiesAndEnvs();
     // Use empty properties since the only thing configurable
     // is related to AWS, which is mocked here
     Properties props = new Properties();
@@ -85,7 +86,7 @@ public class AwsParamStoreTest {
     serverCalled.set(false);
   }
 
-  private static void clearProperties() {
+  private static void clearPropertiesAndEnvs() {
     System.clearProperty(AwsParamStore.PROP_USE_IAM);
     System.clearProperty(AwsParamStore.PROP_REGION);
     System.clearProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT);
@@ -94,6 +95,7 @@ public class AwsParamStoreTest {
     System.clearProperty(PROP_AWS_CONTAINER_CREDENTIALS_FULL_URI);
     System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
     System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);
+    SystemSettingUtilsTestBackdoor.clearEnvironmentVariableOverrides();
   }
 
   @After
@@ -124,7 +126,7 @@ public class AwsParamStoreTest {
 
   @AfterClass
   public static void tearDownOnce(TestContext context) {
-    clearProperties();
+    clearPropertiesAndEnvs();
     server.close()
     .onComplete(context.asyncAssertSuccess())
     .onFailure(e -> logger.error("Failed to shut down credentials server", e))
@@ -197,6 +199,19 @@ public class AwsParamStoreTest {
   }
 
   @Test
+  public void testEnvProvider() {
+    System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+    System.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+    SystemSettingUtilsTestBackdoor.addEnvironmentVariableOverride("AWS_ACCESS_KEY_ID", "foo");
+    SystemSettingUtilsTestBackdoor.addEnvironmentVariableOverride("AWS_SECRET_ACCESS_KEY", "bar");
+    var store = awsParamStore();
+
+    var e = assertThrows(SsmException.class, () -> store.get("clientId", "tenantId", "username"));
+    assertTrue(e.getMessage(), e.getMessage().contains("The security token included in the request is invalid."));
+    assertFalse(serverCalled.get());
+  }
+
+  @Test
   public void testAwsFullUri() {
     System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
     System.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
@@ -218,6 +233,7 @@ public class AwsParamStoreTest {
 
     var e = assertThrows(SsmException.class, () -> store.get("clientId", "tenantId", "username"));
     assertTrue(e.getMessage(), e.getMessage().contains("The security token included in the request is invalid."));
+    assertTrue(serverCalled.get());
   }
 
   @Test
