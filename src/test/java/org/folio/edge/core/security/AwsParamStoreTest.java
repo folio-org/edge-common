@@ -1,28 +1,24 @@
 package org.folio.edge.core.security;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.ClientConfigurationFactory;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
-import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
-import com.amazonaws.services.simplesystemsmanagement.model.AWSSimpleSystemsManagementException;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterRequest;
-import com.amazonaws.services.simplesystemsmanagement.model.GetParameterResult;
-import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
+import static org.folio.edge.core.Constants.APPLICATION_JSON;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.BodyHandler;
 import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.folio.common.utils.tls.FipsChecker;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
-import org.folio.edge.core.utils.test.TestUtils;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -30,102 +26,116 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
-
-import java.security.SecureRandom;
+import software.amazon.awssdk.core.SdkSystemSetting;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+import software.amazon.awssdk.services.ssm.model.Parameter;
+import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
+import software.amazon.awssdk.services.ssm.model.SsmException;
+import software.amazon.awssdk.utils.internal.SystemSettingUtilsTestBackdoor;
+import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.UUID;
-
-import static com.amazonaws.SDKGlobalConfiguration.ACCESS_KEY_SYSTEM_PROPERTY;
-import static com.amazonaws.SDKGlobalConfiguration.SECRET_KEY_SYSTEM_PROPERTY;
-import static org.folio.edge.core.Constants.APPLICATION_JSON;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(VertxUnitRunner.class)
 public class AwsParamStoreTest {
 
   private static final Logger logger = LogManager.getLogger(AwsParamStoreTest.class);
 
-  private static final String mockCreds = "{\n" +
-      "  \"RoleArn\": \"arn:aws:iam::0011223344556:role/Role-ecs-task\",\n" +
-      "  \"AccessKeyId\": \"SOMEBOGUSACCESSKEYID\",\n" +
-      "  \"SecretAccessKey\": \"ABogusSecretAccessKeyForUnitTestPurposes\",\n" +
-      "  \"Token\": \"ABogusTokenforUnitTestPurposesABogusTokenforUnitTestPurposes\",\n" +
-      "  \"Expiration\": \"2099-05-21T20:02:33Z\"\n" +
-      "}";
+  private static final String MOCK_CREDS = """
+      {
+        "RoleArn": "arn:aws:iam::0011223344556:role/Role-ecs-task",
+        "AccessKeyId": "SOMEBOGUSACCESSKEYID",
+        "SecretAccessKey": "ABogusSecretAccessKeyForUnitTestPurposes",
+        "Token": "ABogusTokenforUnitTestPurposesABogusTokenforUnitTestPurposes",
+        "Expiration": "2099-05-21T20:02:33Z"
+      }
+      """;
 
   private static HttpServer server;
-  private static final int port = TestUtils.getPort();
+  private static AtomicBoolean serverCalled = new AtomicBoolean();
 
-  private static final String ecsCredEndpoint = "http://localhost:" + port;
-  private static final String ecsCredPath = "/v2/credentials/" + UUID.randomUUID();
+  private static final String ACCESS_KEY_SYSTEM_PROPERTY = SdkSystemSetting.AWS_ACCESS_KEY_ID.property();
+  private static final String SECRET_KEY_SYSTEM_PROPERTY = SdkSystemSetting.AWS_SECRET_ACCESS_KEY.property();
+  private static final String PROP_AWS_CONTAINER_CREDENTIALS_FULL_URI =
+      SdkSystemSetting.AWS_CONTAINER_CREDENTIALS_FULL_URI.property();
+  private static String ecsCredEndpoint;
+  private static String ecsCredPath = "/v2/credentials/" + UUID.randomUUID();
+
+  private AutoCloseable mocks;
 
   @Mock
-  AWSSimpleSystemsManagement ssm;
+  SsmClient ssm;
 
   @InjectMocks
   AwsParamStore secureStore;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
+    clearPropertiesAndEnvs();
     // Use empty properties since the only thing configurable
     // is related to AWS, which is mocked here
     Properties props = new Properties();
     props.put(AwsParamStore.PROP_REGION, "us-east-1");
     secureStore = new AwsParamStore(props);
+    mocks = MockitoAnnotations.openMocks(this);
+    serverCalled.set(false);
+  }
 
-    MockitoAnnotations.initMocks(this);
+  private static void clearPropertiesAndEnvs() {
+    System.clearProperty(AwsParamStore.PROP_USE_IAM);
+    System.clearProperty(AwsParamStore.PROP_REGION);
+    System.clearProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT);
+    System.clearProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH);
+    System.clearProperty(AwsParamStore.PROP_AWS_CONTAINER_CREDENTIALS_RELATIVE_URI);
+    System.clearProperty(PROP_AWS_CONTAINER_CREDENTIALS_FULL_URI);
+    System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
+    System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);
+    SystemSettingUtilsTestBackdoor.clearEnvironmentVariableOverrides();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    mocks.close();
   }
 
   @BeforeClass
-  public static void setupOnce(TestContext context) throws Exception {
+  public static void setupOnce(TestContext context) {
     // Setup Simple server to host credentials...
     Vertx vertx = Vertx.vertx();
     server = vertx.createHttpServer();
 
     Router router = Router.router(vertx);
-    router.route().handler(BodyHandler.create());
     router.route(HttpMethod.GET, ecsCredPath).handler(ctx -> {
+      serverCalled.set(true);
+      logger.info("response for GET {}", ecsCredPath);
       ctx.response()
         .setStatusCode(200)
         .putHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON)
-        .end(mockCreds);
+        .end(MOCK_CREDS);
     });
 
-    final Async async = context.async();
-    server.requestHandler(router).listen(port, result -> {
-      if (result.failed()) {
-        logger.warn(result.cause());
-      }
-      context.assertTrue(result.succeeded());
-      async.complete();
-    });
+    server.requestHandler(router).listen(0)
+    .onSuccess(httpServer -> ecsCredEndpoint = "http://localhost:" + httpServer.actualPort())
+    .onComplete(context.asyncAssertSuccess());
   }
 
   @AfterClass
-  public static void tearDownOnce(TestContext context) throws Exception {
-    final Async async = context.async();
-    server.close(res -> {
-      if (res.failed()) {
-        logger.error("Failed to shut down credentials server", res.cause());
-        fail(res.cause().getMessage());
-      } else {
-        logger.info("Successfully shut down credentials server");
-      }
-      async.complete();
-    });
+  public static void tearDownOnce(TestContext context) {
+    clearPropertiesAndEnvs();
+    server.close()
+    .onComplete(context.asyncAssertSuccess())
+    .onFailure(e -> logger.error("Failed to shut down credentials server", e))
+    .onSuccess(x -> logger.info("Successfully shut down credentials server"));
+  }
+
+  @Test
+  public void testIam() {
+    assertEquals("us-east-1", secureStore.getRegion());
   }
 
   @Test
@@ -136,6 +146,8 @@ public class AwsParamStoreTest {
     Properties diffProps = new Properties();
     diffProps.setProperty(AwsParamStore.PROP_REGION, euCentral1);
     diffProps.setProperty(AwsParamStore.PROP_USE_IAM, useIAM);
+    diffProps.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, "http://example.com");
+    diffProps.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, "/foo");
 
     System.setProperty(ACCESS_KEY_SYSTEM_PROPERTY, "bogus");
     System.setProperty(SECRET_KEY_SYSTEM_PROPERTY, "bogus");
@@ -156,116 +168,105 @@ public class AwsParamStoreTest {
     String key = String.format("%s_%s_%s", clientId, tenant, user);
 
     // setup mocks/spys/etc.
-    GetParameterRequest req = new GetParameterRequest().withName(key).withWithDecryption(true);
-    GetParameterResult resp = new GetParameterResult().withParameter(new Parameter().withName(key).withValue(val));
+    GetParameterRequest req = GetParameterRequest.builder().name(key).withDecryption(true).build();
+    GetParameterResponse resp = GetParameterResponse.builder()
+        .parameter(Parameter.builder().name(key).value(val).build())
+        .build();
     when(ssm.getParameter(req)).thenReturn(resp);
 
     // test & assertions
     assertEquals(val, secureStore.get(clientId, tenant, user));
   }
 
-  @Test(expected = NotFoundException.class)
-  public void testGetNotFound() throws NotFoundException {
-    String exceptionMsg = "Parameter null_null not found. (Service: AWSSimpleSystemsManagement; Status Code: 400; Error Code: ParameterNotFound; Request ID: 25fc4a22-9839-4645-b7b4-ad40aa643821)";
-    Throwable exception = new AWSSimpleSystemsManagementException(exceptionMsg);
+  @Test
+  public void testGetNotFound() {
+    String exceptionMsg = "Parameter null_null not found. (Service: AWSSimpleSystemsManagement; Status Code: 400; "
+        + "Error Code: ParameterNotFound; Request ID: 25fc4a22-9839-4645-b7b4-ad40aa643821)";
+    var exception = ParameterNotFoundException.builder().message(exceptionMsg).build();
+    when(ssm.getParameter(any(GetParameterRequest.class))).thenThrow(exception);
 
-    when(ssm.getParameter(any())).thenThrow(exception);
-
-    secureStore.get(null, null, null);
+    var e = assertThrows(NotFoundException.class, () -> secureStore.get(null, null, null));
+    var cause = e.getCause();
+    assertTrue(cause.getMessage(), cause.getMessage().contains("25fc4a22-9839-4645-b7b4-ad40aa643821"));
   }
 
   @Test
-  public void testUseEcsCredentialProvider() throws Exception {
-    Properties properties = new Properties();
-    properties.setProperty(AwsParamStore.PROP_USE_IAM, "false");
-    properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);
-    properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ecsCredPath);
-    properties.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+  public void testGetFailure() {
+    when(ssm.getParameter(any(GetParameterRequest.class))).thenThrow(SdkClientException.create("leap year error"));
 
-    System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
-    System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);
-
-    AwsParamStore secureStore = new AwsParamStore(properties);
-    assertNotNull(secureStore);
-    assertFalse(secureStore.getUseIAM());
+    var e = assertThrows(SdkClientException.class, () -> secureStore.get(null, null, null));
+    assertEquals("leap year error", e.getMessage());
   }
 
-  @Test(expected = SdkClientException.class)
-  public void testGetCredentialsEndpointNull() {
-    new AwsParamStore.ECSCredentialsEndpointProvider(null, null).getCredentialsEndpoint();
+  @Test
+  public void testEnvProvider() {
+    System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+    System.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+    SystemSettingUtilsTestBackdoor.addEnvironmentVariableOverride("AWS_ACCESS_KEY_ID", "foo");
+    SystemSettingUtilsTestBackdoor.addEnvironmentVariableOverride("AWS_SECRET_ACCESS_KEY", "bar");
+    var store = awsParamStore();
+
+    var e = assertThrows(SsmException.class, () -> store.get("clientId", "tenantId", "username"));
+    assertTrue(e.getMessage(), e.getMessage().contains("The security token included in the request is invalid."));
+    assertFalse(serverCalled.get());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
+  public void testAwsFullUri() {
+    System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+    System.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+    System.setProperty(PROP_AWS_CONTAINER_CREDENTIALS_FULL_URI, ecsCredEndpoint + ecsCredPath);
+    var store = awsParamStore();
+
+    var e = assertThrows(SsmException.class, () -> store.get("clientId", "tenantId", "username"));
+    assertTrue(e.getMessage(), e.getMessage().contains("The security token included in the request is invalid."));
+  }
+
+  @Test
+  public void testUseEcsCredentialProvider() {
+    System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+    System.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+    System.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);
+    System.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ecsCredPath);
+    var store = awsParamStore();
+    assertFalse(store.getUseIAM());
+
+    var e = assertThrows(SsmException.class, () -> store.get("clientId", "tenantId", "username"));
+    assertTrue(e.getMessage(), e.getMessage().contains("The security token included in the request is invalid."));
+    assertTrue(serverCalled.get());
+  }
+
+  @Test
+  public void testEcsEndpointNull() {
+    System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+    System.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, "/foo");
+    System.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+
+    var e = assertThrows(SdkClientException.class, () -> awsParamStore());
+    assertTrue(e.getMessage(), e.getMessage().contains("AWS_CONTAINER_CREDENTIALS_FULL_URI"));
+  }
+
+  @Test
+  public void testEcsPathNull() {
+    System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+    System.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, "http://example.com");
+    System.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
+
+    var e = assertThrows(SdkClientException.class, () -> awsParamStore());
+    assertTrue(e.getMessage(), e.getMessage().contains("AWS_CONTAINER_CREDENTIALS_FULL_URI"));
+  }
+
+  @Test
   public void testGetCredentialsEndpointURISyntaxException() {
-    new AwsParamStore.ECSCredentialsEndpointProvider("", ":#").getCredentialsEndpoint();
+    System.setProperty(AwsParamStore.PROP_USE_IAM, "false");
+    System.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, "");
+    System.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ":#");
+
+    var e = assertThrows(SdkClientException.class, () -> awsParamStore());
+    assertEquals(URISyntaxException.class, e.getCause().getCause().getClass());
   }
 
-  @Test
-  public void testConstructor_WithFipsEnabled() {
-    try (MockedStatic<FipsChecker> fipsCheckerMockedStatic = mockStatic(FipsChecker.class);
-         MockedStatic<AWSSimpleSystemsManagementClientBuilder> ssmClientBuilderMockedStatic = mockStatic(AWSSimpleSystemsManagementClientBuilder.class)) {
-
-      fipsCheckerMockedStatic.when(FipsChecker::isInBouncycastleApprovedOnlyMode).thenReturn(FipsChecker.ENABLED);
-      SecureRandom secureRandom = new SecureRandom();
-      fipsCheckerMockedStatic.when(FipsChecker::getApprovedSecureRandomSafe).thenReturn(secureRandom);
-
-      ClientConfigurationFactory clientConfigurationFactory = mock(ClientConfigurationFactory.class);
-      ClientConfiguration clientConfiguration = new ClientConfiguration();
-
-      when(clientConfigurationFactory.getConfig()).thenReturn(clientConfiguration);
-
-      AWSSimpleSystemsManagementClientBuilder builderMock = mock(AWSSimpleSystemsManagementClientBuilder.class);
-      when(builderMock.withRegion(anyString())).thenReturn(builderMock);
-      ssmClientBuilderMockedStatic.when(AWSSimpleSystemsManagementClientBuilder::standard).thenReturn(builderMock);
-
-      doNothing().when(builderMock).setClientConfiguration(clientConfiguration);
-
-      Properties properties = new Properties();
-      properties.setProperty(AwsParamStore.PROP_USE_IAM, "false");
-      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);
-      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ecsCredPath);
-      properties.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
-
-      System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
-      System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);
-
-      AwsParamStore secureStore = new AwsParamStore(properties);
-
-      fipsCheckerMockedStatic.verify(FipsChecker::isInBouncycastleApprovedOnlyMode);
-      fipsCheckerMockedStatic.verify(FipsChecker::getApprovedSecureRandomSafe);
-      assertEquals(secureRandom.toString(), clientConfiguration.getSecureRandom().toString());
-
-      verify(builderMock).setClientConfiguration(any(ClientConfiguration.class));
-    }
+  private static AwsParamStore awsParamStore() {
+    return new AwsParamStore(System.getProperties());
   }
-
-  @Test
-  public void testConstructor_WithFipsDisabled() {
-    try (MockedStatic<FipsChecker> fipsCheckerMockedStatic = mockStatic(FipsChecker.class);
-         MockedStatic<AWSSimpleSystemsManagementClientBuilder> ssmClientBuilderMockedStatic = mockStatic(AWSSimpleSystemsManagementClientBuilder.class)) {
-
-      fipsCheckerMockedStatic.when(FipsChecker::isInBouncycastleApprovedOnlyMode).thenReturn(FipsChecker.DISABLED);
-
-      AWSSimpleSystemsManagementClientBuilder builderMock = mock(AWSSimpleSystemsManagementClientBuilder.class);
-      when(builderMock.withRegion(anyString())).thenReturn(builderMock);
-      ssmClientBuilderMockedStatic.when(AWSSimpleSystemsManagementClientBuilder::standard).thenReturn(builderMock);
-
-      Properties properties = new Properties();
-      properties.setProperty(AwsParamStore.PROP_USE_IAM, "false");
-      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_ENDPOINT, ecsCredEndpoint);
-      properties.setProperty(AwsParamStore.PROP_ECS_CREDENTIALS_PATH, ecsCredPath);
-      properties.setProperty(AwsParamStore.PROP_REGION, "us-east-1");
-
-      System.clearProperty(ACCESS_KEY_SYSTEM_PROPERTY);
-      System.clearProperty(SECRET_KEY_SYSTEM_PROPERTY);
-
-      AwsParamStore secureStore = new AwsParamStore(properties);
-
-      fipsCheckerMockedStatic.verify(FipsChecker::isInBouncycastleApprovedOnlyMode);
-      fipsCheckerMockedStatic.verifyNoMoreInteractions();
-
-      verify(builderMock, never()).setClientConfiguration(any(ClientConfiguration.class));
-    }
-  }
-
 }

@@ -129,11 +129,13 @@ Only intended for _development purposes_.  Credentials are defined in plain text
 
 #### AwsParamStore ####
 
-Retrieves credentials from Amazon Web Services Systems Manager (AWS SSM), more specifically the Parameter Store, where they're stored encrypted using a KMS key.  See `src.main/resources/aws_ss.properties`
+Retrieves credentials from Amazon Web Services Systems Manager (AWS SSM), more specifically the Parameter Store, where they're stored encrypted using a KMS key.
 
 **Key:** `<salt>_<tenantId>_<username>`
 
 e.g. Key=`ab73kbw90e_diku_diku`
+
+You can set the HTTP endpoint to use for retrieving AWS credentials: Use the system property `ecsCredentialsEndpoint` (for example `http://example.com`). The path is taken from the `ecsCredentialsPath` system property, or from the `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` environment variable (standard on ECS containers). You also need to set the system properties `region` to the AWS region and `useIAM` to `false`.
 
 #### VaultStore ####
 

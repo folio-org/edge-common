@@ -8,21 +8,24 @@ import static org.folio.edge.core.Constants.SYS_OKAPI_URL;
 import static org.folio.edge.core.Constants.SYS_PORT;
 import static org.folio.edge.core.Constants.SYS_REQUEST_TIMEOUT_MS;
 import static org.folio.edge.core.Constants.SYS_SECURE_STORE_PROP_FILE;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.spy;
 
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystemException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.folio.edge.core.utils.ApiKeyUtils;
+import org.folio.edge.core.utils.ApiKeyUtils.MalformedApiKeyException;
 import org.folio.edge.core.utils.test.MockOkapi;
 import org.folio.edge.core.utils.test.TestUtils;
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
@@ -33,85 +36,108 @@ import java.util.List;
 public class EdgeVerticleSslTest {
   private Vertx vertx;
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @After
   public void tearDownOnce() {
     vertx.close();
   }
 
   @Test
-  public void setupSslConfigWithoutType(TestContext context) throws Exception {
+  public void setupSslConfigWithoutType(TestContext context) {
     JsonObject config = getCommonConfig()
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, null);
 
-    deployVerticle(context, config);
+    assertDeploySuccess(context, config);
   }
 
   @Test
-  public void setupSslConfigWithoutPassword(TestContext context) throws Exception {
+  public void setupSslConfigWithoutLocation(TestContext context) {
+    JsonObject config = getCommonConfig()
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
+      .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD, "password");
+
+    assertDeployFailure(context, config,
+        IllegalStateException.class,
+        "'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_LOCATION' system param must be specified");
+  }
+
+  @Test
+  public void setupSslConfigWithoutPassword(TestContext context) {
     JsonObject config = getCommonConfig()
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "sample_keystore.jks");
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD' system param must be specified");
-
-    deployVerticle(context, config);
+    assertDeployFailure(context, config,
+        IllegalStateException.class,
+        "'SPRING_SSL_BUNDLE_JKS_WEB_SERVER_KEYSTORE_PASSWORD' system param must be specified");
   }
 
   @Test
-  public void setupSslConfigWitInvalidPath(TestContext context) throws Exception {
+  public void setupSslConfigWitInvalidPath(TestContext context) {
     JsonObject config = getCommonConfig()
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "some_keystore_path")
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD, "password");
 
-    thrown.expect(FileSystemException.class);
-    thrown.expectMessage("Unable to read file at path 'some_keystore_path'");
-
-    deployVerticle(context, config);
+    assertDeployFailure(context, config,
+        FileSystemException.class,
+        "Unable to read file at path 'some_keystore_path'");
   }
 
   @Test
-  public void setupSslConfigWithNotValidPassword(TestContext context) throws Exception {
+  public void setupSslConfigWithNotValidPassword(TestContext context) {
     JsonObject config = getCommonConfig()
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "sample_keystore.jks")
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD, "not_valid_password");
 
-    thrown.expect(IOException.class);
-    thrown.expectMessage("keystore password was incorrect");
-
-    deployVerticle(context, config);
+    assertDeployFailure(context, config,
+        IOException.class,
+        "keystore password was incorrect");
   }
 
   @Test
-  public void setupCorrectSslConfig(TestContext context) throws Exception {
+  public void setupCorrectSslConfig(TestContext context) {
     JsonObject config = getCommonConfig()
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_TYPE, "JKS")
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_LOCATION, "sample_keystore.jks")
       .put(SPRING_SSL_BUNDLE_JKS_WEBSERVER_KEYSTORE_PASSWORD, "password");
 
-    deployVerticle(context, config);
+    assertDeploySuccess(context, config);
   }
 
-  private void deployVerticle(TestContext context, JsonObject config) throws ApiKeyUtils.MalformedApiKeyException {
+  private Future<String> deploy(JsonObject config) {
     int okapiPort = TestUtils.getPort();
 
     List<String> knownTenants = new ArrayList<>();
     String apiKey = ApiKeyUtils.generateApiKey("gYn0uFv3Lf", "diku", "diku");
-    knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
+    try {
+      knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
+    } catch (MalformedApiKeyException e) {
+      return Future.failedFuture(e);
+    }
 
     MockOkapi mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
-    mockOkapi.start()
-      .onComplete(context.asyncAssertSuccess());
+    return mockOkapi.start()
+        .compose(x -> {
+          vertx = Vertx.vertx();
+          final DeploymentOptions opt = new DeploymentOptions().setConfig(config);
+          return vertx.deployVerticle(EdgeVerticleHttpTest.TestVerticleHttp.class.getName(), opt);
+        });
+  }
 
-    vertx = Vertx.vertx();
+  private void assertDeploySuccess(TestContext context, JsonObject config) {
+    deploy(config)
+    .onComplete(context.asyncAssertSuccess());
+  }
 
-    final DeploymentOptions opt = new DeploymentOptions().setConfig(config);
-    vertx.deployVerticle(EdgeVerticleHttpTest.TestVerticleHttp.class.getName(), opt, context.asyncAssertSuccess());
+  private void assertDeployFailure(TestContext context, JsonObject config,
+      Class<? extends Throwable> expectedType, String expectedMessage) {
+
+    deploy(config)
+    .onComplete(context.asyncAssertFailure(e -> {
+      assertThat(e, instanceOf(expectedType));
+      assertThat(e.getMessage(), is(expectedMessage));
+    }));
   }
 
   private JsonObject getCommonConfig() {
