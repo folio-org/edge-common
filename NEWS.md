@@ -1,3 +1,8 @@
+## 4.9.0 2025-03-10
+* [EDGCOMMON-89](https://folio-org.atlassian.net/browse/EDGCOMMON-89) Upgrade all dependencies for Sunflower
+* [EDGCOMMON-88](https://folio-org.atlassian.net/browse/EDGCOMMON-88) Update edge-common from Java 17 to Java 21
+* [EDGCOMMON-85](https://folio-org.atlassian.net/browse/EDGCOMMON-85) AwsParamStore: Migrate AWS SDK for Java from 1.x to 2.x
+
 ## 4.8.0 2024-11-01
 * [#113](https://github.com/folio-org/edge-common/pull/113) folio-tls-utils 1.5.7
 * [EDGCOMMON-84](https://folio-org.atlassian.net/browse/EDGCOMMON-84) Ramsons dependencies: Vert.x 4.5.10, okapi-common 6.1.0, aws-java-sdk-ssm 1.12.777, …
