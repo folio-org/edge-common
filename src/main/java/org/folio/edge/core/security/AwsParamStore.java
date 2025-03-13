@@ -63,6 +63,7 @@ public class AwsParamStore extends SecureStore {
 
   private AwsCredentialsProvider getAwsCredentialsProvider() {
     try {
+      logger.debug("Trying EnvironmentVariableCredentialsProvider");
       var credProvider = EnvironmentVariableCredentialsProvider.create();
       credProvider.resolveCredentials();
       logger.info("Using EnvironmentVariableCredentialsProvider");
@@ -71,6 +72,7 @@ public class AwsParamStore extends SecureStore {
       // ignore, try next
     }
     try {
+      logger.debug("Trying SystemPropertyCredentialsProvider");
       var credProvider = SystemPropertyCredentialsProvider.create();
       credProvider.resolveCredentials();
       logger.info("Using SystemPropertyCredentialsProvider");
@@ -78,9 +80,10 @@ public class AwsParamStore extends SecureStore {
     } catch (Exception e) {
       // ignore, try next
     }
-    logger.info("Using ContainerCredentialsProvider");
+    logger.debug("Trying ContainerCredentialsProvider");
     var credProvider = ContainerCredentialsProvider.builder().endpoint(endpoint()).build();
     credProvider.resolveCredentials();
+    logger.info("Using ContainerCredentialsProvider");
     return credProvider;
   }
 
