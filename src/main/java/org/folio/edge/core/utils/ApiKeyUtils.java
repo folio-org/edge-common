@@ -15,7 +15,8 @@ public class ApiKeyUtils {
 
   public static final String ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ";
   public static final Random RANDOM = new SecureRandom();
-  public static final int DEFAULT_SALT_LEN = 10;
+  /** 17 characters give 100 bits of entropy */
+  public static final int DEFAULT_SALT_LEN = 17;
 
   @Option(name = "-p",
           usage = "parse an API Key",
