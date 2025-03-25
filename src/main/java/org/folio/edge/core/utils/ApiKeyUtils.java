@@ -13,7 +13,7 @@ import io.vertx.core.json.JsonObject;
 
 public class ApiKeyUtils {
 
-  public static final String ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  public static final String ALPHANUMERIC = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   public static final Random RANDOM = new SecureRandom();
   public static final int DEFAULT_SALT_LEN = 10;
 
