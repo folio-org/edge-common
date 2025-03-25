@@ -71,6 +71,18 @@ The final API Key looks something like: `eyJzIjoiblo1NkYzTGVBYSIsInQiOiJkaWt1Iiw
 
 The purpose of the salt is to prevent API Key from being guessed, which would be easy if the tenant ID was known, especially if the Institutional Username was the same as the tenant ID.
 
+#### Unix Shell
+
+Create a new API Key:
+
+`printf '{"s":"%s","t":"%s","u":"%s"}' "$( cat /dev/random | tr -cd 'a-zA-Z0-9' | head -c17 )" "tenant" "user" | base64`
+
+Replace `tenant` and `user` with the actual value or with a variable like `$TENANT` and `$USER`.
+
+Decode an API Key:
+
+`echo "eyJzIjoiSEQxbmVsZFpqeWRLNFNDdzEiLCJ0IjoidGVuYW50IiwidSI6InVzZXIifQ==" | base64 -d`
+
 #### API Key Utilities
 
 A utility class has been provided to help with API key generate, parsing, etc.  The utility can be use programatically, or via a command line interface.  Example CLI usage:
