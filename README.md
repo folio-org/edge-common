@@ -82,7 +82,7 @@ $ java -jar target/edge-common-api-key-utils.jar
 Usage: ApiKeyUtils [options]
  -g                   : generate an API Key (default: false)
  -p VAL               : parse an API Key
- -s (--salt-len) N    : the number of salt characters (default: 10)
+ -s (--salt-len) N    : the number of salt characters (default: 17)
  -t (--tenant-id) VAL : the tenant's ID
  -u (--username) VAL  : the tenant's institutional user's username
 
