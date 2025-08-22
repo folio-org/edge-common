@@ -23,13 +23,7 @@ public abstract class SecureStore {
    * Fetch a value from the store using a thread from Vertx' worker pool to avoid blocking the event loop.
    */
   public Future<String> get(Vertx vertx, String clientId, String tenant, String username) {
-    return vertx.executeBlocking(run -> {
-      try {
-        run.tryComplete(get(clientId, tenant, username));
-      } catch (Exception e) {
-        run.tryFail(e);
-      }
-    });
+    return vertx.executeBlocking(()  -> get(clientId, tenant, username));
   }
 
   public static class NotFoundException extends Exception {
