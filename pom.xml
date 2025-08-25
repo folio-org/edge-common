@@ -46,7 +46,7 @@
       <dependency>
         <groupId>io.vertx</groupId>
         <artifactId>vertx-stack-depchain</artifactId>
-        <version>4.5.13</version>
+        <version>5.0.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -128,7 +128,7 @@
     <dependency>
       <groupId>org.folio.okapi</groupId>
       <artifactId>okapi-common</artifactId>
-      <version>6.2.0</version>
+      <version>7.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

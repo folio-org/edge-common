@@ -180,7 +180,7 @@ public class MockOkapi {
     int status;
     String resp;
     try {
-      JsonObject body = ctx.getBodyAsJson();
+      JsonObject body = ctx.body().asJsonObject();
       if (tenant == null) {
         status = 400;
         resp = "Unable to process request Tenant must be set";
@@ -229,9 +229,9 @@ public class MockOkapi {
       ctx.response().putHeader(HttpHeaders.CONTENT_TYPE, contentType);
     }
 
-    String body = ctx.getBodyAsString();
+    String body = ctx.body().asString();
     if (body != null) {
-      ctx.response().end(ctx.getBodyAsString());
+      ctx.response().end(body);
     } else {
       ctx.response().end();
     }
