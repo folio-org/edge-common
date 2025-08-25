@@ -15,7 +15,7 @@ import org.folio.edge.core.security.SecureStoreFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -78,7 +78,8 @@ public class EdgeVerticleCore extends AbstractVerticle {
 
   private static InputStream createInputStream(String secureStorePropFile) throws IOException {
     if (isURL.matcher(secureStorePropFile).matches()) {
-      return new URL(secureStorePropFile).openStream();
+      URI uri = URI.create(secureStorePropFile);
+      return uri.toURL().openStream();
     }
     return new FileInputStream(secureStorePropFile);
   }
