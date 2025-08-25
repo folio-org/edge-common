@@ -1,3 +1,8 @@
+## 5.0.0 2025-08-25
+* [EDGCOMMON-93](https://folio-org.atlassian.net/browse/EDGCOMMON-93) Upgrade to Vert.x 5
+* [EDGCOMMON-90](https://folio-org.atlassian.net/browse/EDGCOMMON-90) Increase default salt len from 10 to 17
+* [EDGCOMMON-91](https://folio-org.atlassian.net/browse/EDGCOMMON-91) ApiKeyUtils doesn't use z when generating the salt
+
 ## 4.9.0 2025-03-10
 * [EDGCOMMON-89](https://folio-org.atlassian.net/browse/EDGCOMMON-89) Upgrade all dependencies for Sunflower
 * [EDGCOMMON-88](https://folio-org.atlassian.net/browse/EDGCOMMON-88) Update edge-common from Java 17 to Java 21
