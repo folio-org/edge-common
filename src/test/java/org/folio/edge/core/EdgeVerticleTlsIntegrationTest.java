@@ -55,7 +55,7 @@ public class EdgeVerticleTlsIntegrationTest {
 
   @After
   public void tearDown(TestContext context) {
-    vertx.close(context.asyncAssertSuccess());
+    vertx.close().onComplete(context.asyncAssertSuccess());
   }
 
   @Test
@@ -70,7 +70,7 @@ public class EdgeVerticleTlsIntegrationTest {
     final HttpServer httpServer = vertx.createHttpServer(serverOptions);
     httpServer
       .requestHandler(req -> req.response().putHeader(HttpHeaders.CONTENT_TYPE, Constants.TEXT_PLAIN).end(RESPONSE_MESSAGE))
-      .listen(config.getInteger(Constants.SYS_PORT), getCommonServerHandler(config));
+      .listen(config.getInteger(Constants.SYS_PORT)).onComplete(x -> getCommonServerHandler(config));
 
     final OkapiClientFactory okapiClientFactory = OkapiClientFactoryInitializer.createInstance(vertx, config);
     final OkapiClient okapiClient = okapiClientFactory.getOkapiClient(TENANT);
@@ -94,7 +94,7 @@ public class EdgeVerticleTlsIntegrationTest {
     final HttpServer httpServer = vertx.createHttpServer(serverOptions);
     httpServer
       .requestHandler(req -> req.response().putHeader(HttpHeaders.CONTENT_TYPE, Constants.TEXT_PLAIN).end(RESPONSE_MESSAGE))
-      .listen(config.getInteger(Constants.SYS_PORT), getCommonServerHandler(config));
+      .listen(config.getInteger(Constants.SYS_PORT)).onComplete(x -> getCommonServerHandler(config));
 
     final OkapiClientFactory okapiClientFactory = OkapiClientFactoryInitializer.createInstance(vertx, config);
     final OkapiClient okapiClient = okapiClientFactory.getOkapiClient(TENANT);

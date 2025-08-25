@@ -61,8 +61,7 @@ public class EdgeVerticleHttpTest {
     knownTenants.add(ApiKeyUtils.parseApiKey(apiKey).tenantId);
 
     mockOkapi = spy(new MockOkapi(okapiPort, knownTenants));
-    mockOkapi.start()
-    .onComplete(context.asyncAssertSuccess());
+    mockOkapi.start().onComplete(context.asyncAssertSuccess());
 
     vertx = Vertx.vertx();
 
@@ -74,7 +73,7 @@ public class EdgeVerticleHttpTest {
         .put(SYS_REQUEST_TIMEOUT_MS, requestTimeoutMs);
 
     final DeploymentOptions opt = new DeploymentOptions().setConfig(jo);
-    vertx.deployVerticle(TestVerticleHttp.class.getName(), opt, context.asyncAssertSuccess());
+    vertx.deployVerticle(TestVerticleHttp.class.getName(), opt).onComplete(context.asyncAssertSuccess());
 
     RestAssured.baseURI = "http://localhost:" + serverPort;
     RestAssured.port = serverPort;
@@ -257,7 +256,7 @@ public class EdgeVerticleHttpTest {
                 logger.info("Token: " + client.getToken());
                 client.post(String.format("%s/echo", client.okapiURL),
                         client.tenant,
-                        ctx.getBodyAsString(),
+                        ctx.body().asString(),
                         ctx.request().headers(),
                         resp -> handleProxyResponse(ctx, resp),
                         t -> handleProxyException(ctx, t));

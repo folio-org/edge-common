@@ -186,7 +186,7 @@ public class ApiKeyHelperTest {
 
     public void close(TestContext context) {
       final Async async = context.async();
-      vertx.close(res -> {
+      vertx.close().onComplete(res -> {
         if (res.failed()) {
           logger.error("Failed to shut down mock OKAPI server", res.cause());
           fail(res.cause().getMessage());
@@ -208,7 +208,7 @@ public class ApiKeyHelperTest {
       HttpServer server = vertx.createHttpServer();
 
       final Async async = context.async();
-      server.requestHandler(defineRoutes()).listen(port, result -> {
+      server.requestHandler(defineRoutes()).listen(port).onComplete(result -> {
         if (result.failed()) {
           logger.warn(result.cause());
         }

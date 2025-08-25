@@ -209,7 +209,7 @@ public class MockOkapiTest {
   }
 
   private Future<Void> assertGet200(String uri) {
-    return Vertx.currentContext().executeBlocking(promise -> {
+    return Vertx.currentContext().executeBlocking(()  -> {
       try {
         RestAssured
         .get(new URI(uri))
@@ -218,7 +218,7 @@ public class MockOkapiTest {
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }
-      promise.complete();
+      return null;
     });
   }
 

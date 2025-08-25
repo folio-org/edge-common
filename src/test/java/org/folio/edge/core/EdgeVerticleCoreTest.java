@@ -35,7 +35,7 @@ public class EdgeVerticleCoreTest {
 
   @AfterClass
   public static void tearDownOnce(TestContext context) {
-    vertx.close(context.asyncAssertSuccess());
+    vertx.close().onComplete(context.asyncAssertSuccess());
   }
 
   @Test
