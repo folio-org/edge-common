@@ -1,3 +1,8 @@
+## 5.1.0 2026-04-16
+* [EDGCOMMON-95](https://folio-org.atlassian.net/browse/EDGCOMMON-95) Enable Maven workflows ()
+* Do not use URL(..); deprecated as of Java 20
+* Update dependencies: `folio-tls-utils 4.0.0`, `okapi-common 7.0.3`
+
 ## 5.0.0 2025-08-25
 * [EDGCOMMON-93](https://folio-org.atlassian.net/browse/EDGCOMMON-93) Upgrade to Vert.x 5
 * [EDGCOMMON-90](https://folio-org.atlassian.net/browse/EDGCOMMON-90) Increase default salt len from 10 to 17
