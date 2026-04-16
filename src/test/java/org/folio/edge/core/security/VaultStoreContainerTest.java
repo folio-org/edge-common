@@ -6,34 +6,33 @@ import static org.hamcrest.Matchers.is;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
 import java.util.Properties;
 import org.folio.edge.core.security.SecureStore.NotFoundException;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.vault.VaultContainer;
 
-@RunWith(VertxUnitRunner.class)
+@Testcontainers
+@ExtendWith(VertxExtension.class)
 public class VaultStoreContainerTest {
 
-  @ClassRule
-  public static VaultContainer<?> vaultContainer = new VaultContainer<>("vault:1.10.3")
+  @Container
+  public static VaultContainer<?> vaultContainer = new VaultContainer<>("hashicorp/vault:1.21")
         .withVaultToken("bee")
-        .withSecretInVault("secret/diku", "diku_admin=password123");
+        .withInitCommand("kv put secret/diku diku_admin=password123");
   private static Properties properties = new Properties();
   private static Vertx vertx = Vertx.vertx();
 
-  @BeforeClass
+  @BeforeAll
   public static void beforeClass() {
     vaultContainer.followOutput(out -> System.err.println(out.getUtf8String()));
     properties.setProperty("token", "bee");
-    properties.setProperty("address", "http://" + getHostAndPort());
-  }
-
-  private static String getHostAndPort() {
-    return vaultContainer.getHost() + ":" + vaultContainer.getMappedPort(8200);
+    properties.setProperty("address", vaultContainer.getHttpHostAddress());
   }
 
   @Test
@@ -42,15 +41,21 @@ public class VaultStoreContainerTest {
   }
 
   @Test
-  public void getSucceededFuture(TestContext context) {
+  public void getSucceededFuture(VertxTestContext vtc) {
     new VaultStore(properties).get(vertx, "secret", "diku", "diku_admin")
-    .onComplete(context.asyncAssertSuccess(value -> assertThat(value, is("password123"))));
+    .onComplete(vtc.succeeding(value -> {
+      assertThat(value, is("password123"));
+      vtc.completeNow();
+    }));
   }
 
   @Test
-  public void getFailedFuture(TestContext context) {
+  public void getFailedFuture(VertxTestContext vtc) {
     new VaultStore(properties).get(vertx, "secret", "diku", "foo")
-    .onComplete(context.asyncAssertFailure(e -> assertThat(e, is(instanceOf(NotFoundException.class)))));
+    .onComplete(vtc.failing(e -> {
+      assertThat(e, is(instanceOf(NotFoundException.class)));
+      vtc.completeNow();
+    }));
   }
 
   // TODO Add test coverage for SSL/TLS configuration
