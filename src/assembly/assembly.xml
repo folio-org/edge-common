@@ -24,6 +24,7 @@
       <includes>
         <include>args4j:args4j</include>
         <include>io.vertx:vertx-core</include>
+        <include>io.vertx:vertx-core-logging</include>
         <include>io.netty:netty-buffer</include>
         <include>com.fasterxml.jackson.core:jackson-core</include>
         <include>com.fasterxml.jackson.core:jackson-databind</include>
