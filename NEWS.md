@@ -1,3 +1,6 @@
+## 5.1.1 2026-04-17
+* [EDGCOMMON-97](https://folio-org.atlassian.net/browse/EDGCOMMON-97): Update dependencies for Trillium (Vertx, log4j, awssdk, …) fixing security vulnerabilities
+
 ## 5.1.0 2026-04-16
 * [EDGCOMMON-95](https://folio-org.atlassian.net/browse/EDGCOMMON-95) Enable Maven workflows ()
 * Do not use URL(..); deprecated as of Java 20
